@@ -231,19 +231,19 @@ db.ref("players").on(
 
         onlinePlayers.push({
 
-          name:
-            data[id].name,
+  name:
+    data[id].name || "UNKNOWN",
 
-          squad:
-            data[id].squad,
+  squad:
+    data[id].squad || "NO SQUAD",
 
-          lat:
-            data[id].lat,
+  lat:
+    data[id].lat || 0,
 
-          lon:
-            data[id].lon
+  lon:
+    data[id].lon || 0
 
-        });
+});
 
       }
 
