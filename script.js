@@ -156,6 +156,10 @@ const altStat =
 /* PLAYERS */
 
 let onlinePlayers = [];
+const onlineList =
+  document.getElementById(
+    "onlineList"
+  );
 
 let myLat = 0;
 let myLon = 0;
@@ -649,6 +653,9 @@ db.ref("players").on(
           lon:
             data[id].lon,
 
+          city:
+            data[id].city || "UNKNOWN",
+
           selected:false
 
         });
@@ -656,6 +663,38 @@ db.ref("players").on(
       }
 
     }
+
+    /* LIVE PANEL */
+
+    onlineList.innerHTML = "";
+
+    onlinePlayers.forEach(player=>{
+
+      onlineList.innerHTML += `
+
+      <div class="player-card">
+
+        <div class="player-jet">
+          ✈
+        </div>
+
+        <div class="player-info">
+
+          <div class="player-name">
+            ${player.name}
+          </div>
+
+          <div class="player-location">
+            ${player.city}
+          </div>
+
+        </div>
+
+      </div>
+
+      `;
+
+    });
 
   }
 
