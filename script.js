@@ -1,10 +1,16 @@
+window.onload = ()=>{
+
+/* CANVAS */
+
 const canvas =
-  document.getElementById("radar");
+  document.getElementById(
+    "radar"
+  );
 
 const ctx =
   canvas.getContext("2d");
 
-/* RADAR SIZE */
+/* SIZE */
 
 let cx = 0;
 let cy = 0;
@@ -13,15 +19,18 @@ function resizeRadar(){
 
   const size =
     Math.min(
-      window.innerWidth,
-      window.innerHeight
-    ) * 0.82;
+      window.innerWidth * 0.55,
+      window.innerHeight * 0.82
+    );
 
   canvas.width = size;
   canvas.height = size;
 
-  cx = canvas.width / 2;
-  cy = canvas.height / 2;
+  cx =
+    canvas.width / 2;
+
+  cy =
+    canvas.height / 2;
 
 }
 
@@ -31,11 +40,6 @@ window.addEventListener(
   "resize",
   resizeRadar
 );
-
-/* RADAR */
-
-let angle = 0;
-let pulse = 0;
 
 /* FIREBASE */
 
@@ -75,58 +79,38 @@ const db =
 
 const playerCode =
 
-  (
-    prompt(
-      "ENTER YOUR CALLSIGN"
-    ) || "UNKNOWN"
-  )
+(
+  prompt(
+    "ENTER YOUR CALLSIGN"
+  ) || "UNKNOWN"
+)
 
-  .trim()
+.trim()
 
-  .toUpperCase();
+.toUpperCase();
 
 const squadCode =
 
-  (
-    prompt(
-      "ENTER SQUAD CODE"
-    ) || "PUBLIC"
-  )
+(
+  prompt(
+    "ENTER YOUR SQUAD"
+  ) || "PUBLIC"
+)
 
-  .trim()
+.trim()
 
-  .toUpperCase();
+.toUpperCase();
 
-/* WEATHER */
+/* UI */
 
-const weatherKey =
-  "aa84b92b3af4e4a431faab10d96d21eb";
-
-/* HUD */
-
-const statusText =
+const onlineList =
   document.getElementById(
-    "statusText"
+    "onlineList"
   );
 
-const energyStat =
+const targetCount =
   document.getElementById(
-    "energyStat"
-  );
-
-const tempStat =
-  document.getElementById(
-    "tempStat"
-  );
-
-const speedStat =
-  document.getElementById(
-    "speedStat"
-  );
-
-const lockStat =
-  document.getElementById(
-    "lockStat"
+    "targetCount"
   );
 
 const latStat =
@@ -144,69 +128,23 @@ const altStat =
     "altStat"
   );
 
-const targetCount =
+const statusText =
   document.getElementById(
-    "targetCount"
+    "statusText"
   );
 
-const onlineList =
-  document.getElementById(
-    "onlineList"
-  );
-
-/* PLAYER DATA */
-
-let onlinePlayers = [];
+/* DATA */
 
 let myLat = 0;
 let myLon = 0;
 
-/* WEATHER */
-
-async function updateWeather(){
-
-  try{
-
-    const response =
-      await fetch(
-
-        `https://api.openweathermap.org/data/2.5/weather?lat=${myLat}&lon=${myLon}&units=metric&appid=${weatherKey}`
-
-      );
-
-    const data =
-      await response.json();
-
-    tempStat.innerText =
-      Math.round(
-        data.main.temp
-      ) + "°C";
-
-    speedStat.innerText =
-      Math.round(
-        data.wind.speed * 3.6
-      ) + " km/h";
-
-    statusText.innerText =
-      data.weather[0]
-      .main
-      .toUpperCase();
-
-  }
-
-  catch(err){
-
-    console.log(err);
-
-  }
-
-}
+let onlinePlayers = [];
 
 /* GPS */
 
 navigator.geolocation.watchPosition(
 
-  async pos=>{
+  pos=>{
 
     myLat =
       pos.coords.latitude;
@@ -225,43 +163,6 @@ navigator.geolocation.watchPosition(
         pos.coords.altitude || 0
       ) + " m";
 
-    /* GET CITY */
-
-    let cityName =
-      "UNKNOWN";
-
-    try{
-
-      const cityRes =
-        await fetch(
-
-          `https://api.openweathermap.org/geo/1.0/reverse?lat=${myLat}&lon=${myLon}&limit=1&appid=${weatherKey}`
-
-        );
-
-      const cityData =
-        await cityRes.json();
-
-      if(
-        cityData[0]
-      ){
-
-        cityName =
-          cityData[0].name
-          .toUpperCase();
-
-      }
-
-    }
-
-    catch(err){
-
-      console.log(err);
-
-    }
-
-    /* SEND PLAYER */
-
     db.ref(
       "players/" + playerCode
     ).set({
@@ -277,9 +178,6 @@ navigator.geolocation.watchPosition(
 
       lon:
         myLon,
-
-      city:
-        cityName,
 
       updated:
         Date.now()
@@ -331,11 +229,6 @@ db.ref("players").on(
 
       ){
 
-        console.log(
-          "PLAYER DETECTED",
-          data[id]
-        );
-
         onlinePlayers.push({
 
           name:
@@ -348,12 +241,7 @@ db.ref("players").on(
             data[id].lat,
 
           lon:
-            data[id].lon,
-
-          city:
-            data[id].city,
-
-          selected:false
+            data[id].lon
 
         });
 
@@ -361,12 +249,7 @@ db.ref("players").on(
 
     }
 
-    /* TARGET COUNT */
-
-    targetCount.innerText =
-      onlinePlayers.length;
-
-    /* ONLINE PILOTS PANEL */
+    /* ONLINE PANEL */
 
     onlineList.innerHTML = "";
 
@@ -387,10 +270,6 @@ db.ref("players").on(
           </div>
 
           <div class="player-location">
-            ${player.city}
-          </div>
-
-          <div class="player-location">
             SQUAD : ${player.squad}
           </div>
 
@@ -402,16 +281,19 @@ db.ref("players").on(
 
     });
 
+    targetCount.innerText =
+      onlinePlayers.length;
+
   }
 
 );
 
-/* DRAW RADAR */
+/* RADAR */
+
+let angle = 0;
+let pulse = 0;
 
 function drawRadar(){
-
-  const scale =
-    canvas.width / 700;
 
   ctx.clearRect(
     0,
@@ -420,36 +302,83 @@ function drawRadar(){
     canvas.height
   );
 
-  /* BACKGROUND NOISE */
+  /* GLOW */
 
-  for(let i=0;i<20;i++){
+  const glow =
+    ctx.createRadialGradient(
 
-    ctx.fillStyle =
-      "rgba(255,255,255,0.02)";
+      cx,
+      cy,
+      50,
 
-    ctx.fillRect(
-
-      Math.random()
-      * canvas.width,
-
-      Math.random()
-      * canvas.height,
-
-      Math.random()
-      * 80,
-
-      1
+      cx,
+      cy,
+      canvas.width/2
 
     );
+
+  glow.addColorStop(
+    0,
+    "rgba(180,100,255,0.18)"
+  );
+
+  glow.addColorStop(
+    1,
+    "rgba(0,0,0,0)"
+  );
+
+  ctx.fillStyle =
+    glow;
+
+  ctx.beginPath();
+
+  ctx.arc(
+    cx,
+    cy,
+    canvas.width/2.2,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  /* GRID */
+
+  for(let i=1;i<=6;i++){
+
+    ctx.beginPath();
+
+    ctx.arc(
+
+      cx,
+      cy,
+
+      i *
+      (
+        canvas.width/14
+      ),
+
+      0,
+      Math.PI*2
+
+    );
+
+    ctx.strokeStyle =
+      "rgba(200,120,255,0.22)";
+
+    ctx.lineWidth = 1;
+
+    ctx.stroke();
 
   }
 
   /* PULSE */
 
-  pulse += 0.25 * scale;
+  pulse += 1.2;
 
   if(
-    pulse > 330 * scale
+    pulse >
+    canvas.width/2
   ){
     pulse = 0;
   }
@@ -461,68 +390,53 @@ function drawRadar(){
     cy,
     pulse,
     0,
-    Math.PI * 2
+    Math.PI*2
   );
 
   ctx.strokeStyle =
     `rgba(220,120,255,${
-      1-pulse/(330*scale)
+      1-pulse/(canvas.width/2)
     })`;
 
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 2;
 
   ctx.stroke();
 
-  /* GRID */
-
-  for(let i=1;i<=6;i++){
-
-    ctx.beginPath();
-
-    ctx.arc(
-      cx,
-      cy,
-      i * 55 * scale,
-      0,
-      Math.PI*2
-    );
-
-    ctx.strokeStyle =
-      "rgba(200,120,255,0.2)";
-
-    ctx.stroke();
-
-  }
-
   /* SWEEP */
 
-  for(let i=0;i<40;i++){
+  for(let i=0;i<45;i++){
 
     const a =
-      angle - i * 0.02;
+      angle - i*0.02;
 
     const x =
       cx +
-      330 * scale *
-      Math.cos(a);
+      (canvas.width/2.2)
+      * Math.cos(a);
 
     const y =
       cy +
-      330 * scale *
-      Math.sin(a);
+      (canvas.width/2.2)
+      * Math.sin(a);
 
     ctx.beginPath();
 
-    ctx.moveTo(cx,cy);
+    ctx.moveTo(
+      cx,
+      cy
+    );
 
-    ctx.lineTo(x,y);
+    ctx.lineTo(
+      x,
+      y
+    );
 
     ctx.strokeStyle =
       `rgba(220,120,255,${
-        1-i/40
+        1-i/45
       })`;
 
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 3;
 
     ctx.stroke();
 
@@ -542,17 +456,17 @@ function drawRadar(){
         * -50000;
 
       const px =
-        cx + dx * scale;
+        cx + dx;
 
       const py =
-        cy + dy * scale;
+        cy + dy;
 
       ctx.beginPath();
 
       ctx.arc(
         px,
         py,
-        10 * scale,
+        8,
         0,
         Math.PI*2
       );
@@ -561,7 +475,7 @@ function drawRadar(){
         "#00d5ff";
 
       ctx.shadowBlur =
-        20;
+        15;
 
       ctx.shadowColor =
         "#00d5ff";
@@ -569,21 +483,21 @@ function drawRadar(){
       ctx.fill();
 
       ctx.font =
-        `${12*scale}px Arial`;
+        "12px Arial";
 
       ctx.fillStyle =
         "#00d5ff";
 
       ctx.fillText(
         player.name,
-        px + 15,
-        py - 10
+        px + 12,
+        py - 8
       );
 
     }
   );
 
-  /* CENTER */
+  /* CENTER DOT */
 
   ctx.beginPath();
 
@@ -598,9 +512,22 @@ function drawRadar(){
   ctx.fillStyle =
     "#cc88ff";
 
+  ctx.shadowBlur =
+    25;
+
+  ctx.shadowColor =
+    "#cc88ff";
+
   ctx.fill();
 
-  angle += 0.002;
+  /* TEXT */
+
+  statusText.innerText =
+    "TRACKING " +
+    onlinePlayers.length +
+    " TARGET(S)";
+
+  angle += 0.003;
 
   requestAnimationFrame(
     drawRadar
@@ -608,13 +535,6 @@ function drawRadar(){
 
 }
 
-/* START */
-
-updateWeather();
-
-setInterval(
-  updateWeather,
-  60000
-);
-
 drawRadar();
+
+};
