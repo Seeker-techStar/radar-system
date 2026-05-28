@@ -229,63 +229,73 @@ db.ref("players").on(
 
       ){
 
-       onlinePlayers.push({
+        console.log(
+          data[id]
+        );
 
-  name:
-    data[id].name || "UNKNOWN",
+        onlinePlayers.push({
 
-  squad:
-    data[id].squad || "NO SQUAD",
+          name:
+            data[id].name || "UNKNOWN",
 
-  lat:
-    data[id].lat || 0,
+          squad:
+            data[id].squad || "NO SQUAD",
 
-  lon:
-    data[id].lon || 0
+          lat:
+            data[id].lat || 0,
 
-});
+          lon:
+            data[id].lon || 0
+
+        });
 
       }
 
     }
 
-    /* ONLINE PANEL */
-
-   onlineList.innerHTML += `
-
-<div class="player-card">
-
-  <div class="player-jet">
-    ✈
-  </div>
-
-  <div class="player-info">
-
-    <div class="player-name">
-      ${player.name}
-    </div>
-
-    <div
-      style="
-      color:#00d5ff;
-      font-size:11px;
-      margin-top:4px;
-      ">
-
-      ✦ ${player.squad}
-
-    </div>
-
-  </div>
-
-</div>
-
-`;
-
-    });
+    /* TARGET COUNT */
 
     targetCount.innerText =
       onlinePlayers.length;
+
+    /* ONLINE PILOTS */
+
+    onlineList.innerHTML = "";
+
+    onlinePlayers.forEach(player=>{
+
+      onlineList.innerHTML += `
+
+      <div class="player-card">
+
+        <div class="player-jet">
+          ✈
+        </div>
+
+        <div class="player-info">
+
+          <div class="player-name">
+            ${player.name}
+          </div>
+
+          <div style="
+            color:#00d5ff;
+            font-size:11px;
+            margin-top:4px;
+            letter-spacing:1px;
+          ">
+
+            ✦ ${player.squad}
+
+          </div>
+
+        </div>
+
+      </div>
+
+      `;
+
+    });
 
   }
 
@@ -500,7 +510,7 @@ function drawRadar(){
     }
   );
 
-  /* CENTER DOT */
+  /* CENTER */
 
   ctx.beginPath();
 
@@ -523,7 +533,7 @@ function drawRadar(){
 
   ctx.fill();
 
-  /* TEXT */
+  /* STATUS */
 
   statusText.innerText =
     "TRACKING " +
