@@ -45,25 +45,22 @@ let pulse = 0;
 const firebaseConfig = {
 
   apiKey:
-  "AIzaSyBdgLpGGlr-OaTJRQu62HwO1b_PJAoQqp4",
+  "YOUR_API_KEY",
 
   authDomain:
-  "radarsystem-8475f.firebaseapp.com",
+  "YOUR_PROJECT.firebaseapp.com",
 
   projectId:
-  "radarsystem-8475f",
+  "YOUR_PROJECT",
 
   storageBucket:
-  "radarsystem-8475f.firebasestorage.app",
+  "YOUR_PROJECT.appspot.com",
 
   messagingSenderId:
-  "914143995056",
+  "XXXXXXXX",
 
   appId:
-  "1:914143995056:web:df9b96174e3d279fbac775",
-
-  measurementId:
-  "G-KCE3GMEHRY"
+  "XXXXXXXX"
 
 };
 
@@ -89,9 +86,9 @@ const squadCode =
 /* WEATHER */
 
 const weatherKey =
-  "aa84b92b3af4e4a431faab10d96d21eb";
+  "YOUR_OPENWEATHER_KEY";
 
-/* STATS */
+/* ELEMENTS */
 
 const statusText =
   document.getElementById(
@@ -113,24 +110,9 @@ const coreStat =
     "coreStat"
   );
 
-const coordX =
-  document.getElementById(
-    "coordX"
-  );
-
-const coordY =
-  document.getElementById(
-    "coordY"
-  );
-
 const speedStat =
   document.getElementById(
     "speedStat"
-  );
-
-const dirStat =
-  document.getElementById(
-    "dirStat"
   );
 
 const lockStat =
@@ -153,18 +135,19 @@ const altStat =
     "altStat"
   );
 
-/* PLAYERS */
-
-let onlinePlayers = [];
 const onlineList =
   document.getElementById(
     "onlineList"
   );
 
+/* PLAYERS */
+
+let onlinePlayers = [];
+
 let myLat = 0;
 let myLon = 0;
 
-/* CLICK */
+/* CLICK TARGET */
 
 canvas.addEventListener(
   "click",
@@ -200,11 +183,10 @@ canvas.addEventListener(
 
       const dist =
         Math.sqrt(
-          (mouseX-px)*
-          (mouseX-px)
-          +
-          (mouseY-py)*
-          (mouseY-py)
+          (mouseX-px)**
+          2 +
+          (mouseY-py)**
+          2
         );
 
       if(dist < 20){
@@ -446,6 +428,8 @@ function drawRadar(){
           py - 10*scale
         );
 
+        /* LOCK EFFECT */
+
         if(player.selected){
 
           const pulseLock =
@@ -474,62 +458,23 @@ function drawRadar(){
 
           ctx.stroke();
 
+          ctx.beginPath();
+
+          ctx.moveTo(px-30,py);
+          ctx.lineTo(px-15,py);
+
+          ctx.moveTo(px+15,py);
+          ctx.lineTo(px+30,py);
+
+          ctx.moveTo(px,py-30);
+          ctx.lineTo(px,py-15);
+
+          ctx.moveTo(px,py+15);
+          ctx.lineTo(px,py+30);
+
+          ctx.stroke();
+
         }
-
-      }
-
-      else{
-
-        const boxX =
-          20 * scale;
-
-        const boxY =
-          canvas.height
-          - 120*scale;
-
-        ctx.fillStyle =
-          "rgba(0,0,0,0.5)";
-
-        ctx.fillRect(
-          boxX,
-          boxY,
-          240*scale,
-          80*scale
-        );
-
-        ctx.strokeStyle =
-          "#00d5ff";
-
-        ctx.strokeRect(
-          boxX,
-          boxY,
-          240*scale,
-          80*scale
-        );
-
-        ctx.font =
-          `${14*scale}px Orbitron`;
-
-        ctx.fillStyle =
-          "#00d5ff";
-
-        ctx.fillText(
-          player.name,
-          boxX + 15*scale,
-          boxY + 25*scale
-        );
-
-        ctx.fillText(
-          "REMOTE SIGNAL",
-          boxX + 15*scale,
-          boxY + 50*scale
-        );
-
-        ctx.fillText(
-          `${player.lat.toFixed(2)} / ${player.lon.toFixed(2)}`,
-          boxX + 15*scale,
-          boxY + 70*scale
-        );
 
       }
 
@@ -566,7 +511,7 @@ function drawRadar(){
 
 navigator.geolocation.watchPosition(
 
-  pos=>{
+  async pos=>{
 
     myLat =
       pos.coords.latitude;
@@ -585,6 +530,36 @@ navigator.geolocation.watchPosition(
         pos.coords.altitude || 0
       ) + " m";
 
+    let cityName =
+      "UNKNOWN";
+
+    try{
+
+      const geo =
+        await fetch(
+
+          `https://api.openweathermap.org/geo/1.0/reverse?lat=${myLat}&lon=${myLon}&limit=1&appid=${weatherKey}`
+
+        );
+
+      const geoData =
+        await geo.json();
+
+      if(geoData[0]){
+
+        cityName =
+          geoData[0].name;
+
+      }
+
+    }
+
+    catch(err){
+
+      console.log(err);
+
+    }
+
     db.ref(
       "players/" + playerCode
     ).set({
@@ -594,6 +569,9 @@ navigator.geolocation.watchPosition(
 
       squad:
         squadCode,
+
+      city:
+        cityName,
 
       lat:
         myLat,
@@ -629,15 +607,9 @@ db.ref("players").on(
 
     for(let id in data){
 
-      if(
-
-        id !== playerCode
-
-        &&
-
-        data[id].squad === squadCode
-
-      ){
+     if(
+  data[id].squad === squadCode
+){
 
         onlinePlayers.push({
 
@@ -647,14 +619,14 @@ db.ref("players").on(
           squad:
             data[id].squad,
 
+          city:
+            data[id].city,
+
           lat:
             data[id].lat,
 
           lon:
             data[id].lon,
-
-          city:
-            data[id].city || "UNKNOWN",
 
           selected:false
 
@@ -684,11 +656,9 @@ db.ref("players").on(
             ${player.name}
           </div>
 
-          <div class="player-location">
-            ${player.city}
-          </div>
-
-        </div>
+         <div class="player-location">
+  SQUAD : ${player.squad}
+</div>
 
       </div>
 
