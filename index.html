@@ -5,13 +5,13 @@
 
   <meta charset="UTF-8">
 
-  <title>STARSCREAM RADAR</title>
-
   <meta name="viewport"
         content="width=device-width, initial-scale=1.0">
 
+  <title>STARSCREAM RADAR</title>
+
   <link rel="stylesheet"
-        href="style.css">
+        href="style.css?v=99">
 
   <link rel="manifest"
         href="manifest.json">
@@ -70,7 +70,7 @@
 
       </div>
 
-      <!-- TACTICAL -->
+      <!-- TACTICAL DATA -->
 
       <div class="box">
 
@@ -91,6 +91,13 @@
         </p>
 
         <p>
+          DIR :
+          <span id="dirStat">
+            EAST
+          </span>
+        </p>
+
+        <p>
           TEMP :
           <span id="tempStat">
             0°C
@@ -105,7 +112,25 @@
 
         <h2>ONLINE PILOTS</h2>
 
-        <div id="onlineList"></div>
+        <div id="onlineList">
+
+        </div>
+
+      </div>
+
+      <!-- F-16 PANEL -->
+
+      <div class="box">
+
+        <h2>F-16 SYSTEM</h2>
+
+        <div class="jet-panel">
+
+          <img
+            src="https://i.imgur.com/6RLQ1bX.png"
+            class="jet-image">
+
+        </div>
 
       </div>
 
@@ -127,9 +152,11 @@
 
     </div>
 
-    <!-- RIGHT -->
+    <!-- RIGHT PANEL -->
 
     <div class="right-panel">
+
+      <!-- TARGETS -->
 
       <div class="box">
 
@@ -143,6 +170,8 @@
         </div>
 
       </div>
+
+      <!-- COORDINATES -->
 
       <div class="box">
 
@@ -165,11 +194,27 @@
         <p>
           ALT :
           <span id="altStat">
-            0 m
+            0m
           </span>
         </p>
 
       </div>
+
+      <!-- MINI MAP -->
+
+      <div class="box">
+
+        <h2>MINI MAP</h2>
+
+        <canvas
+          id="miniMap"
+          width="220"
+          height="220">
+        </canvas>
+
+      </div>
+
+      <!-- CONSOLE -->
 
       <div class="box">
 
@@ -181,9 +226,29 @@
 
           <p>> RADAR ACTIVE</p>
 
-          <p>> NETWORK READY</p>
+          <p>> LIVE NETWORK CONNECTED</p>
 
         </div>
+
+      </div>
+
+      <!-- SPOTIFY -->
+
+      <div class="box">
+
+        <h2>COMBAT AUDIO</h2>
+
+        <iframe
+          style="border-radius:12px"
+          src="https://open.spotify.com/embed/track/6habFhsOp2NvshLv26DqMb?utm_source=generator"
+          width="100%"
+          height="152"
+          frameBorder="0"
+          allowfullscreen=""
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy">
+
+        </iframe>
 
       </div>
 
@@ -199,7 +264,7 @@
 
   <!-- MAIN SCRIPT -->
 
-  <script src="script.js"></script>
+  <script src="script.js?v=99"></script>
 
 </body>
 
