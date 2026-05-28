@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <title>STARSCREAM RADAR</title>
+
+  <link rel="stylesheet"
+        href="style.css">
+
+</head>
+
+<body>
+
+  <div class="hud">
+
+    <!-- LEFT PANEL -->
+
+    <div class="left-panel">
+
+      <h1 class="title">
+        STARSCREAM
+      </h1>
+
+      <p class="subtitle">
+        SIC-AIR COMMANDER OF DECEPTICONS
+      </p>
+
+      <div class="box">
+
+        <h2>SYSTEM STATUS</h2>
+
+        <p>
+          CORE
+          <span id="coreStat">
+            ONLINE
+          </span>
+        </p>
+
+        <p>
+          GPS
+          <span>
+            READY
+          </span>
+        </p>
+
+        <p>
+          RADAR
+          <span>
+            ACTIVE
+          </span>
+        </p>
+
+        <p>
+          SHIELD
+          <span id="energyStat">
+            100%
+          </span>
+        </p>
+
+      </div>
+
+      <div class="box">
+
+        <h2>TACTICAL DATA</h2>
+
+        <p>
+          LOCK :
+          <span id="lockStat">
+            SEARCHING
+          </span>
+        </p>
+
+        <p>
+          SPEED :
+          <span id="speedStat">
+            0 km/h
+          </span>
+        </p>
+
+        <p>
+          DIR :
+          <span id="dirStat">
+            EAST
+          </span>
+        </p>
+
+        <p>
+          TEMP :
+          <span id="tempStat">
+            38°C
+          </span>
+        </p>
+
+      </div>
+
+    </div>
+
+    <!-- CENTER -->
+
+    <div class="center">
+
+      <canvas id="radar"></canvas>
+
+      <div
+        class="bottom-text"
+        id="statusText">
+
+        SCANNING AREA...
+
+      </div>
+
+    </div>
+
+    <!-- RIGHT PANEL -->
+
+    <div class="right-panel">
+
+      <div class="box">
+
+        <h2>TARGETS</h2>
+
+        <div class="target-number">
+
+          4
+
+        </div>
+
+      </div>
+
+      <div class="box">
+
+        <h2>COORDINATES</h2>
+
+        <p>
+          X :
+          <span id="coordX">
+            0
+          </span>
+        </p>
+
+        <p>
+          Y :
+          <span id="coordY">
+            0
+          </span>
+        </p>
+
+        <p>
+          LAT :
+          <span id="latStat">
+            49.6116
+          </span>
+        </p>
+
+        <p>
+          LON :
+          <span id="lonStat">
+            6.1319
+          </span>
+        </p>
+
+        <p>
+          ALT :
+          <span id="altStat">
+            120 m
+          </span>
+        </p>
+
+      </div>
+
+      <div class="box">
+
+        <h2>MINI MAP</h2>
+
+        <canvas
+          id="miniMap"
+          width="220"
+          height="220">
+        </canvas>
+
+      </div>
+
+      <div class="box">
+
+        <h2>CONSOLE</h2>
+
+        <div id="console">
+
+          <p>> SYSTEM ONLINE</p>
+
+          <p>> RADAR ACTIVE</p>
+
+          <p>> TRACKING TARGETS</p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- FIRE BUTTON -->
+
+  <button id="fireBtn">
+
+    FIRE
+
+  </button>
+
+  <script src="script.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</body>
+
+</html>
