@@ -1,0 +1,9 @@
+{
+  "name":"Radar System",
+  "short_name":"RADAR",
+  "start_url":"./",
+  "display":"standalone",
+  "background_color":"#05020a",
+  "theme_color":"#bb66ff",
+  "orientation":"portrait"
+}
