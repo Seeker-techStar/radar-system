@@ -7,14 +7,14 @@
 
   <title>STARSCREAM RADAR</title>
 
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
   <link rel="stylesheet"
         href="style.css">
 
-  <meta name="viewport"
-  content="width=device-width, initial-scale=1.0">
-
   <link rel="manifest"
-  href="manifest.json">
+        href="manifest.json">
 
 </head>
 
@@ -70,7 +70,7 @@
 
       </div>
 
-      <!-- TACTICAL DATA -->
+      <!-- TACTICAL -->
 
       <div class="box">
 
@@ -87,13 +87,6 @@
           SPEED :
           <span id="speedStat">
             0 km/h
-          </span>
-        </p>
-
-        <p>
-          DIR :
-          <span id="dirStat">
-            EAST
           </span>
         </p>
 
@@ -134,11 +127,9 @@
 
     </div>
 
-    <!-- RIGHT PANEL -->
+    <!-- RIGHT -->
 
     <div class="right-panel">
-
-      <!-- TARGETS -->
 
       <div class="box">
 
@@ -153,25 +144,9 @@
 
       </div>
 
-      <!-- COORDINATES -->
-
       <div class="box">
 
         <h2>COORDINATES</h2>
-
-        <p>
-          X :
-          <span id="coordX">
-            0
-          </span>
-        </p>
-
-        <p>
-          Y :
-          <span id="coordY">
-            0
-          </span>
-        </p>
 
         <p>
           LAT :
@@ -196,22 +171,6 @@
 
       </div>
 
-      <!-- MINI MAP -->
-
-      <div class="box">
-
-        <h2>MINI MAP</h2>
-
-        <canvas
-          id="miniMap"
-          width="220"
-          height="220">
-        </canvas>
-
-      </div>
-
-      <!-- CONSOLE -->
-
       <div class="box">
 
         <h2>CONSOLE</h2>
@@ -222,7 +181,7 @@
 
           <p>> RADAR ACTIVE</p>
 
-          <p>> LIVE NETWORK CONNECTED</p>
+          <p>> NETWORK READY</p>
 
         </div>
 
@@ -237,10 +196,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-
-  <!-- AXIOS -->
-
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
   <!-- MAIN SCRIPT -->
 
