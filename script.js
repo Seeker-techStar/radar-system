@@ -4,7 +4,7 @@ const canvas =
 const ctx =
   canvas.getContext("2d");
 
-/* RESIZE */
+/* RADAR SIZE */
 
 let cx = 0;
 let cy = 0;
@@ -15,16 +15,13 @@ function resizeRadar(){
     Math.min(
       window.innerWidth,
       window.innerHeight
-    ) * 0.95;
+    ) * 0.82;
 
   canvas.width = size;
   canvas.height = size;
 
-  cx =
-    canvas.width / 2;
-
-  cy =
-    canvas.height / 2;
+  cx = canvas.width / 2;
+  cy = canvas.height / 2;
 
 }
 
@@ -45,22 +42,25 @@ let pulse = 0;
 const firebaseConfig = {
 
   apiKey:
-  "YOUR_API_KEY",
+  "AIzaSyBdgLpGGlr-OaTJRQu62HwO1b_PJAoQqp4",
 
   authDomain:
-  "YOUR_PROJECT.firebaseapp.com",
+  "radarsystem-8475f.firebaseapp.com",
+
+  databaseURL:
+  "https://radarsystem-8475f-default-rtdb.firebaseio.com",
 
   projectId:
-  "YOUR_PROJECT",
+  "radarsystem-8475f",
 
   storageBucket:
-  "YOUR_PROJECT.appspot.com",
+  "radarsystem-8475f.appspot.com",
 
   messagingSenderId:
-  "XXXXXXXX",
+  "914143995056",
 
   appId:
-  "XXXXXXXX"
+  "1:914143995056:web:df9b96174e3d279fbac775"
 
 };
 
@@ -74,21 +74,35 @@ const db =
 /* PLAYER */
 
 const playerCode =
-  prompt(
-    "ENTER YOUR CALLSIGN"
-  ) || "UNKNOWN";
+
+  (
+    prompt(
+      "ENTER YOUR CALLSIGN"
+    ) || "UNKNOWN"
+  )
+
+  .trim()
+
+  .toUpperCase();
 
 const squadCode =
-  prompt(
-    "ENTER SQUAD CODE"
-  ) || "PUBLIC";
+
+  (
+    prompt(
+      "ENTER SQUAD CODE"
+    ) || "PUBLIC"
+  )
+
+  .trim()
+
+  .toUpperCase();
 
 /* WEATHER */
 
 const weatherKey =
-  "YOUR_OPENWEATHER_KEY";
+  "aa84b92b3af4e4a431faab10d96d21eb";
 
-/* ELEMENTS */
+/* HUD */
 
 const statusText =
   document.getElementById(
@@ -103,11 +117,6 @@ const energyStat =
 const tempStat =
   document.getElementById(
     "tempStat"
-  );
-
-const coreStat =
-  document.getElementById(
-    "coreStat"
   );
 
 const speedStat =
@@ -135,74 +144,22 @@ const altStat =
     "altStat"
   );
 
+const targetCount =
+  document.getElementById(
+    "targetCount"
+  );
+
 const onlineList =
   document.getElementById(
     "onlineList"
   );
 
-/* PLAYERS */
+/* PLAYER DATA */
 
 let onlinePlayers = [];
 
 let myLat = 0;
 let myLon = 0;
-
-/* CLICK TARGET */
-
-canvas.addEventListener(
-  "click",
-  e=>{
-
-    const scale =
-      canvas.width / 700;
-
-    const rect =
-      canvas.getBoundingClientRect();
-
-    const mouseX =
-      e.clientX - rect.left;
-
-    const mouseY =
-      e.clientY - rect.top;
-
-    onlinePlayers.forEach(player=>{
-
-      const dx =
-        (player.lon - myLon)
-        * 50000;
-
-      const dy =
-        (player.lat - myLat)
-        * -50000;
-
-      const px =
-        cx + dx * scale;
-
-      const py =
-        cy + dy * scale;
-
-      const dist =
-        Math.sqrt(
-          (mouseX-px)**
-          2 +
-          (mouseY-py)**
-          2
-        );
-
-      if(dist < 20){
-
-        onlinePlayers.forEach(
-          p=>p.selected=false
-        );
-
-        player.selected = true;
-
-      }
-
-    });
-
-  }
-);
 
 /* WEATHER */
 
@@ -225,14 +182,15 @@ async function updateWeather(){
         data.main.temp
       ) + "°C";
 
-    statusText.innerText =
-      data.weather[0]
-      .main.toUpperCase();
-
     speedStat.innerText =
       Math.round(
         data.wind.speed * 3.6
       ) + " km/h";
+
+    statusText.innerText =
+      data.weather[0]
+      .main
+      .toUpperCase();
 
   }
 
@@ -241,269 +199,6 @@ async function updateWeather(){
     console.log(err);
 
   }
-
-}
-
-/* DRAW RADAR */
-
-function drawRadar(){
-
-  const scale =
-    canvas.width / 700;
-
-  ctx.clearRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
-
-  /* NOISE */
-
-  for(let i=0;i<20;i++){
-
-    ctx.fillStyle =
-      "rgba(255,255,255,0.03)";
-
-    ctx.fillRect(
-
-      Math.random()
-      * canvas.width,
-
-      Math.random()
-      * canvas.height,
-
-      Math.random()
-      * 80
-      * scale,
-
-      1
-
-    );
-
-  }
-
-  /* PULSE */
-
-  pulse += 0.3 * scale;
-
-  if(
-    pulse > 330 * scale
-  ){
-    pulse = 0;
-  }
-
-  ctx.beginPath();
-
-  ctx.arc(
-    cx,
-    cy,
-    pulse,
-    0,
-    Math.PI*2
-  );
-
-  ctx.strokeStyle =
-    `rgba(220,120,255,${
-      1-pulse/(330*scale)
-    })`;
-
-  ctx.lineWidth =
-    3 * scale;
-
-  ctx.stroke();
-
-  /* GRID */
-
-  for(let i=1;i<=6;i++){
-
-    ctx.beginPath();
-
-    ctx.arc(
-      cx,
-      cy,
-      i*55*scale,
-      0,
-      Math.PI*2
-    );
-
-    ctx.strokeStyle =
-      "rgba(200,120,255,0.25)";
-
-    ctx.stroke();
-
-  }
-
-  /* SWEEP */
-
-  for(let i=0;i<40;i++){
-
-    const a =
-      angle - i*0.02;
-
-    const x =
-      cx +
-      330*scale
-      * Math.cos(a);
-
-    const y =
-      cy +
-      330*scale
-      * Math.sin(a);
-
-    ctx.beginPath();
-
-    ctx.moveTo(cx,cy);
-
-    ctx.lineTo(x,y);
-
-    ctx.strokeStyle =
-      `rgba(220,120,255,${
-        1-i/40
-      })`;
-
-    ctx.lineWidth =
-      5 * scale;
-
-    ctx.stroke();
-
-  }
-
-  /* PLAYERS */
-
-  onlinePlayers.forEach(
-    player=>{
-
-      const dx =
-        (player.lon - myLon)
-        * 50000;
-
-      const dy =
-        (player.lat - myLat)
-        * -50000;
-
-      const distance =
-        Math.sqrt(
-          dx*dx + dy*dy
-        );
-
-      const px =
-        cx + dx * scale;
-
-      const py =
-        cy + dy * scale;
-
-      if(distance < 250){
-
-        ctx.beginPath();
-
-        ctx.arc(
-          px,
-          py,
-          10*scale,
-          0,
-          Math.PI*2
-        );
-
-        ctx.fillStyle =
-          "#00d5ff";
-
-        ctx.shadowBlur =
-          20*scale;
-
-        ctx.shadowColor =
-          "#00d5ff";
-
-        ctx.fill();
-
-        ctx.font =
-          `${12*scale}px Orbitron`;
-
-        ctx.fillStyle =
-          "#00d5ff";
-
-        ctx.fillText(
-          player.name,
-          px + 15*scale,
-          py - 10*scale
-        );
-
-        /* LOCK EFFECT */
-
-        if(player.selected){
-
-          const pulseLock =
-            (
-              22 +
-              Math.sin(
-                Date.now()*0.01
-              )*4
-            ) * scale;
-
-          ctx.beginPath();
-
-          ctx.arc(
-            px,
-            py,
-            pulseLock,
-            0,
-            Math.PI*2
-          );
-
-          ctx.strokeStyle =
-            "#00d5ff";
-
-          ctx.lineWidth =
-            3*scale;
-
-          ctx.stroke();
-
-          ctx.beginPath();
-
-          ctx.moveTo(px-30,py);
-          ctx.lineTo(px-15,py);
-
-          ctx.moveTo(px+15,py);
-          ctx.lineTo(px+30,py);
-
-          ctx.moveTo(px,py-30);
-          ctx.lineTo(px,py-15);
-
-          ctx.moveTo(px,py+15);
-          ctx.lineTo(px,py+30);
-
-          ctx.stroke();
-
-        }
-
-      }
-
-    }
-
-  );
-
-  /* CENTER */
-
-  ctx.beginPath();
-
-  ctx.arc(
-    cx,
-    cy,
-    10*scale,
-    0,
-    Math.PI*2
-  );
-
-  ctx.fillStyle =
-    "#cc88ff";
-
-  ctx.fill();
-
-  angle += 0.0025;
-
-  requestAnimationFrame(
-    drawRadar
-  );
 
 }
 
@@ -530,25 +225,30 @@ navigator.geolocation.watchPosition(
         pos.coords.altitude || 0
       ) + " m";
 
+    /* GET CITY */
+
     let cityName =
       "UNKNOWN";
 
     try{
 
-      const geo =
+      const cityRes =
         await fetch(
 
           `https://api.openweathermap.org/geo/1.0/reverse?lat=${myLat}&lon=${myLon}&limit=1&appid=${weatherKey}`
 
         );
 
-      const geoData =
-        await geo.json();
+      const cityData =
+        await cityRes.json();
 
-      if(geoData[0]){
+      if(
+        cityData[0]
+      ){
 
         cityName =
-          geoData[0].name;
+          cityData[0].name
+          .toUpperCase();
 
       }
 
@@ -560,6 +260,8 @@ navigator.geolocation.watchPosition(
 
     }
 
+    /* SEND PLAYER */
+
     db.ref(
       "players/" + playerCode
     ).set({
@@ -570,19 +272,31 @@ navigator.geolocation.watchPosition(
       squad:
         squadCode,
 
-      city:
-        cityName,
-
       lat:
         myLat,
 
       lon:
         myLon,
 
+      city:
+        cityName,
+
       updated:
         Date.now()
 
     });
+
+  },
+
+  err=>{
+
+    console.log(err);
+
+  },
+
+  {
+
+    enableHighAccuracy:true
 
   }
 
@@ -607,9 +321,20 @@ db.ref("players").on(
 
     for(let id in data){
 
-     if(
-  data[id].squad === squadCode
-){
+      if(
+
+        id !== playerCode
+
+        &&
+
+        data[id].squad === squadCode
+
+      ){
+
+        console.log(
+          "PLAYER DETECTED",
+          data[id]
+        );
 
         onlinePlayers.push({
 
@@ -619,14 +344,14 @@ db.ref("players").on(
           squad:
             data[id].squad,
 
-          city:
-            data[id].city,
-
           lat:
             data[id].lat,
 
           lon:
             data[id].lon,
+
+          city:
+            data[id].city,
 
           selected:false
 
@@ -636,7 +361,12 @@ db.ref("players").on(
 
     }
 
-    /* LIVE PANEL */
+    /* TARGET COUNT */
+
+    targetCount.innerText =
+      onlinePlayers.length;
+
+    /* ONLINE PILOTS PANEL */
 
     onlineList.innerHTML = "";
 
@@ -656,9 +386,15 @@ db.ref("players").on(
             ${player.name}
           </div>
 
-         <div class="player-location">
-  SQUAD : ${player.squad}
-</div>
+          <div class="player-location">
+            ${player.city}
+          </div>
+
+          <div class="player-location">
+            SQUAD : ${player.squad}
+          </div>
+
+        </div>
 
       </div>
 
@@ -669,6 +405,208 @@ db.ref("players").on(
   }
 
 );
+
+/* DRAW RADAR */
+
+function drawRadar(){
+
+  const scale =
+    canvas.width / 700;
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  /* BACKGROUND NOISE */
+
+  for(let i=0;i<20;i++){
+
+    ctx.fillStyle =
+      "rgba(255,255,255,0.02)";
+
+    ctx.fillRect(
+
+      Math.random()
+      * canvas.width,
+
+      Math.random()
+      * canvas.height,
+
+      Math.random()
+      * 80,
+
+      1
+
+    );
+
+  }
+
+  /* PULSE */
+
+  pulse += 0.25 * scale;
+
+  if(
+    pulse > 330 * scale
+  ){
+    pulse = 0;
+  }
+
+  ctx.beginPath();
+
+  ctx.arc(
+    cx,
+    cy,
+    pulse,
+    0,
+    Math.PI * 2
+  );
+
+  ctx.strokeStyle =
+    `rgba(220,120,255,${
+      1-pulse/(330*scale)
+    })`;
+
+  ctx.lineWidth = 3;
+
+  ctx.stroke();
+
+  /* GRID */
+
+  for(let i=1;i<=6;i++){
+
+    ctx.beginPath();
+
+    ctx.arc(
+      cx,
+      cy,
+      i * 55 * scale,
+      0,
+      Math.PI*2
+    );
+
+    ctx.strokeStyle =
+      "rgba(200,120,255,0.2)";
+
+    ctx.stroke();
+
+  }
+
+  /* SWEEP */
+
+  for(let i=0;i<40;i++){
+
+    const a =
+      angle - i * 0.02;
+
+    const x =
+      cx +
+      330 * scale *
+      Math.cos(a);
+
+    const y =
+      cy +
+      330 * scale *
+      Math.sin(a);
+
+    ctx.beginPath();
+
+    ctx.moveTo(cx,cy);
+
+    ctx.lineTo(x,y);
+
+    ctx.strokeStyle =
+      `rgba(220,120,255,${
+        1-i/40
+      })`;
+
+    ctx.lineWidth = 4;
+
+    ctx.stroke();
+
+  }
+
+  /* PLAYERS */
+
+  onlinePlayers.forEach(
+    player=>{
+
+      const dx =
+        (player.lon - myLon)
+        * 50000;
+
+      const dy =
+        (player.lat - myLat)
+        * -50000;
+
+      const px =
+        cx + dx * scale;
+
+      const py =
+        cy + dy * scale;
+
+      ctx.beginPath();
+
+      ctx.arc(
+        px,
+        py,
+        10 * scale,
+        0,
+        Math.PI*2
+      );
+
+      ctx.fillStyle =
+        "#00d5ff";
+
+      ctx.shadowBlur =
+        20;
+
+      ctx.shadowColor =
+        "#00d5ff";
+
+      ctx.fill();
+
+      ctx.font =
+        `${12*scale}px Arial`;
+
+      ctx.fillStyle =
+        "#00d5ff";
+
+      ctx.fillText(
+        player.name,
+        px + 15,
+        py - 10
+      );
+
+    }
+  );
+
+  /* CENTER */
+
+  ctx.beginPath();
+
+  ctx.arc(
+    cx,
+    cy,
+    10,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fillStyle =
+    "#cc88ff";
+
+  ctx.fill();
+
+  angle += 0.002;
+
+  requestAnimationFrame(
+    drawRadar
+  );
+
+}
 
 /* START */
 
