@@ -229,7 +229,7 @@ db.ref("players").on(
 
       ){
 
-        onlinePlayers.push({
+       onlinePlayers.push({
 
   name:
     data[id].name || "UNKNOWN",
@@ -251,33 +251,36 @@ db.ref("players").on(
 
     /* ONLINE PANEL */
 
-    onlineList.innerHTML = "";
+   onlineList.innerHTML += `
 
-    onlinePlayers.forEach(player=>{
+<div class="player-card">
 
-      onlineList.innerHTML += `
+  <div class="player-jet">
+    ✈
+  </div>
 
-      <div class="player-card">
+  <div class="player-info">
 
-        <div class="player-jet">
-          ✈
-        </div>
+    <div class="player-name">
+      ${player.name}
+    </div>
 
-        <div class="player-info">
+    <div
+      style="
+      color:#00d5ff;
+      font-size:11px;
+      margin-top:4px;
+      ">
 
-          <div class="player-name">
-            ${player.name}
-          </div>
+      ✦ ${player.squad}
 
-          <div class="player-location">
-            SQUAD : ${player.squad}
-          </div>
+    </div>
 
-        </div>
+  </div>
 
-      </div>
+</div>
 
-      `;
+`;
 
     });
 
