@@ -457,3 +457,44 @@ body{
       drop-shadow(0 0 15px #00d9ff);
   }
 }
+@keyframes jetBlueprint{
+
+  0%{
+    transform:
+      perspective(1200px)
+      rotateY(-8deg)
+      translateY(0px)
+      scale(1);
+  }
+
+  50%{
+    transform:
+      perspective(1200px)
+      rotateY(8deg)
+      translateY(-5px)
+      scale(1.02);
+  }
+
+  100%{
+    transform:
+      perspective(1200px)
+      rotateY(-8deg)
+      translateY(0px)
+      scale(1);
+  }
+}
+
+@keyframes jetGlow{
+
+  0%{
+    opacity:0.45;
+  }
+
+  50%{
+    opacity:1;
+  }
+
+  100%{
+    opacity:0.45;
+  }
+}
