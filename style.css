@@ -167,11 +167,11 @@ body{
   top:50%;
   left:50%;
 
-  width:min(58vw, 420px);
+  width:min(72vw, 540px);
 
-  max-width:82%;
+  max-width:100%;
 
-  max-height:68%;
+  max-height:78%;
 
   object-fit:contain;
 
@@ -382,9 +382,9 @@ body{
   }
 
   .jet-image{
-    width:min(90vw, 360px);
+    width:min(90vw, 460px);
 
-    max-height:65%;
+    max-height:72%;
   }
 
   .scan-ring{
@@ -410,8 +410,8 @@ body{
 
   .jet-image{
 
-    width:min(42vw, 380px);
+    width:min(58vw, 520px);
 
-    max-height:72%;
+    max-height:80%;
   }
 }
