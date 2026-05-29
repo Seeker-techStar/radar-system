@@ -724,20 +724,6 @@ window.onload = () => {
 
     ctx.fill();
 
-    /* YOUR NAME */
-
-    ctx.font =
-      "13px Arial";
-
-    ctx.fillStyle =
-      "#cc88ff";
-
-    ctx.fillText(
-      playerCode + " (YOU)",
-      cx + 15,
-      cy - 10
-    );
-
     /* STATUS */
 
     if (statusText) {
