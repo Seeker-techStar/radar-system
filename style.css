@@ -415,3 +415,113 @@ body{
     max-height:80%;
   }
 }
+/* =========================
+   MAIN HUD LAYOUT FIX
+========================= */
+
+.hud{
+  display:flex;
+
+  width:100vw;
+  height:100vh;
+
+  overflow:hidden;
+
+  gap:14px;
+
+  padding:12px;
+
+  box-sizing:border-box;
+}
+
+/* =========================
+   SIDE PANELS
+========================= */
+
+.left-panel,
+.right-panel{
+  width:320px;
+
+  min-width:320px;
+
+  height:100%;
+
+  overflow-y:auto;
+
+  display:flex;
+  flex-direction:column;
+
+  gap:14px;
+}
+
+/* =========================
+   CENTER RADAR
+========================= */
+
+.center{
+  flex:1;
+
+  position:relative;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  min-width:0;
+}
+
+/* =========================
+   F16 BOX FIX
+========================= */
+
+.jet-panel{
+  min-height:260px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* =========================
+   PERFECT CENTER
+========================= */
+
+.jet-image{
+  left:50%;
+  top:50%;
+
+  width:85%;
+
+  max-width:500px;
+
+  max-height:75%;
+
+  transform:
+    translate(-50%, -50%);
+}
+
+/* =========================
+   LANDSCAPE MOBILE
+========================= */
+
+@media (max-width:900px){
+
+  .hud{
+    flex-direction:row;
+
+    gap:8px;
+
+    padding:8px;
+  }
+
+  .left-panel,
+  .right-panel{
+    width:260px;
+    min-width:260px;
+  }
+
+  .jet-image{
+    width:92%;
+    max-width:420px;
+  }
+}
