@@ -1,10 +1,10 @@
 window.onload = () => {
 
-  console.log("RADAR SYSTEM START");
+  console.log("RADAR SYSTEM STARTED");
 
-  /* =========================
+  /* =========================================
      DOM
-  ========================= */
+  ========================================= */
 
   const canvas = document.getElementById("radar");
 
@@ -15,16 +15,27 @@ window.onload = () => {
 
   const ctx = canvas.getContext("2d");
 
-  const onlineList = document.getElementById("onlineList");
-  const targetCount = document.getElementById("targetCount");
-  const latStat = document.getElementById("latStat");
-  const lonStat = document.getElementById("lonStat");
-  const altStat = document.getElementById("altStat");
-  const statusText = document.getElementById("statusText");
+  const onlineList =
+    document.getElementById("onlineList");
 
-  /* =========================
+  const targetCount =
+    document.getElementById("targetCount");
+
+  const latStat =
+    document.getElementById("latStat");
+
+  const lonStat =
+    document.getElementById("lonStat");
+
+  const altStat =
+    document.getElementById("altStat");
+
+  const statusText =
+    document.getElementById("statusText");
+
+  /* =========================================
      RADAR SIZE
-  ========================= */
+  ========================================= */
 
   let cx = 0;
   let cy = 0;
@@ -32,8 +43,8 @@ window.onload = () => {
   function resizeRadar() {
 
     const size = Math.min(
-      window.innerWidth * 0.6,
-      window.innerHeight * 0.8
+      window.innerWidth * 0.75,
+      window.innerHeight * 0.82
     );
 
     canvas.width = size;
@@ -50,37 +61,42 @@ window.onload = () => {
     resizeRadar
   );
 
-  /* =========================
+  /* =========================================
      FIREBASE
-  ========================= */
+  ========================================= */
 
   if (!window.firebase) {
+
     console.error("Firebase non chargé");
+
     return;
   }
 
   const firebaseConfig = {
 
     apiKey:
-      "AIzaSyBdgLpGGlr-OaTJRQu62HwO1b_PJAoQqp4",
+      "AIzaSyABz5zXmBbdzcaU92fRwRyjSlx3v6UD0E8",
 
     authDomain:
-      "radarsystem-8475f.firebaseapp.com",
+      "radarsystem-2c230.firebaseapp.com",
 
     databaseURL:
-      "https://radarsystem-8475f-default-rtdb.firebaseio.com",
+      "https://radarsystem-2c230-default-rtdb.europe-west1.firebasedatabase.app",
 
     projectId:
-      "radarsystem-8475f",
+      "radarsystem-2c230",
 
     storageBucket:
-      "radarsystem-8475f.appspot.com",
+      "radarsystem-2c230.firebasestorage.app",
 
     messagingSenderId:
-      "914143995056",
+      "741179182413",
 
     appId:
-      "1:914143995056:web:df9b96174e3d279fbac775"
+      "1:741179182413:web:cb930bd52f33527d3a3b04",
+
+    measurementId:
+      "G-BB01PEM4WE"
 
   };
 
@@ -88,11 +104,11 @@ window.onload = () => {
 
   const db = firebase.database();
 
-  console.log("Firebase OK");
+  console.log("Firebase connecté");
 
-  /* =========================
+  /* =========================================
      PLAYER
-  ========================= */
+  ========================================= */
 
   const playerCode = (
     prompt("ENTER CALLSIGN")
@@ -111,30 +127,36 @@ window.onload = () => {
   console.log("PLAYER =", playerCode);
   console.log("SQUAD =", squadCode);
 
-  /* =========================
-     STATE
-  ========================= */
+  /* =========================================
+     DATA
+  ========================================= */
 
   let myLat = 0;
   let myLon = 0;
 
   let onlinePlayers = [];
 
-  /* =========================
-     GPS
-  ========================= */
+  /* =========================================
+     SAVE PLAYER
+  ========================================= */
 
-  function updatePlayer(lat, lon, altitude = 0) {
+  function savePlayer(
+    lat,
+    lon,
+    altitude = 0
+  ) {
 
     myLat = lat;
     myLon = lon;
 
     if (latStat) {
-      latStat.innerText = lat.toFixed(4);
+      latStat.innerText =
+        lat.toFixed(4);
     }
 
     if (lonStat) {
-      lonStat.innerText = lon.toFixed(4);
+      lonStat.innerText =
+        lon.toFixed(4);
     }
 
     if (altStat) {
@@ -142,7 +164,11 @@ window.onload = () => {
         Math.floor(altitude) + " m";
     }
 
-    db.ref("players/" + playerCode).set({
+    db.ref(
+      "players/" + playerCode
+    )
+
+    .set({
 
       name: playerCode,
 
@@ -155,11 +181,13 @@ window.onload = () => {
       updated: Date.now()
 
     })
+
     .then(() => {
 
       console.log("PLAYER SAVED");
 
     })
+
     .catch(err => {
 
       console.error(
@@ -171,6 +199,10 @@ window.onload = () => {
 
   }
 
+  /* =========================================
+     GPS
+  ========================================= */
+
   if (navigator.geolocation) {
 
     navigator.geolocation.watchPosition(
@@ -179,10 +211,14 @@ window.onload = () => {
 
         console.log("GPS OK");
 
-        updatePlayer(
+        savePlayer(
+
           pos.coords.latitude,
+
           pos.coords.longitude,
+
           pos.coords.altitude || 0
+
         );
 
       },
@@ -193,9 +229,6 @@ window.onload = () => {
           "GPS ERROR",
           err
         );
-
-        /* fallback */
-        updatePlayer(0, 0, 0);
 
       },
 
@@ -217,9 +250,9 @@ window.onload = () => {
 
   }
 
-  /* =========================
-     FIREBASE READ
-  ========================= */
+  /* =========================================
+     READ PLAYERS
+  ========================================= */
 
   db.ref("players").on(
 
@@ -227,8 +260,7 @@ window.onload = () => {
 
     snapshot => {
 
-      const data =
-        snapshot.val();
+      const data = snapshot.val();
 
       console.log(
         "DATABASE =",
@@ -238,6 +270,11 @@ window.onload = () => {
       onlinePlayers = [];
 
       if (!data) {
+
+        console.log(
+          "AUCUN JOUEUR"
+        );
+
         return;
       }
 
@@ -247,9 +284,7 @@ window.onload = () => {
 
         if (!p) continue;
 
-        /* TEST MODE :
-           affiche TOUT
-        */
+        /* affiche tous les joueurs */
 
         onlinePlayers.push({
 
@@ -274,9 +309,9 @@ window.onload = () => {
         onlinePlayers
       );
 
-      /* =========================
+      /* =========================================
          UI
-      ========================= */
+      ========================================= */
 
       if (targetCount) {
 
@@ -330,9 +365,9 @@ window.onload = () => {
 
   );
 
-  /* =========================
+  /* =========================================
      RADAR
-  ========================= */
+  ========================================= */
 
   let angle = 0;
 
@@ -393,9 +428,15 @@ window.onload = () => {
 
       ctx.beginPath();
 
-      ctx.moveTo(cx, cy);
+      ctx.moveTo(
+        cx,
+        cy
+      );
 
-      ctx.lineTo(x, y);
+      ctx.lineTo(
+        x,
+        y
+      );
 
       ctx.strokeStyle =
         `rgba(220,120,255,${
@@ -440,7 +481,9 @@ window.onload = () => {
         "#00d5ff";
 
       ctx.shadowBlur = 15;
-      ctx.shadowColor = "#00d5ff";
+
+      ctx.shadowColor =
+        "#00d5ff";
 
       ctx.fill();
 
@@ -465,7 +508,7 @@ window.onload = () => {
     ctx.arc(
       cx,
       cy,
-      9,
+      10,
       0,
       Math.PI * 2
     );
@@ -474,7 +517,9 @@ window.onload = () => {
       "#cc88ff";
 
     ctx.shadowBlur = 25;
-    ctx.shadowColor = "#cc88ff";
+
+    ctx.shadowColor =
+      "#cc88ff";
 
     ctx.fill();
 
@@ -483,9 +528,9 @@ window.onload = () => {
     if (statusText) {
 
       statusText.innerText =
-        "TRACKING " +
-        onlinePlayers.length +
-        " TARGET(S)";
+        "TRACKING "
+        + onlinePlayers.length
+        + " TARGET(S)";
 
     }
 
