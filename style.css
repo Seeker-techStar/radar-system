@@ -14,20 +14,25 @@ body{
 
   overflow:hidden;
 
-  background:#050816;
-
-  color:white;
+  background:
+    radial-gradient(
+      circle at center,
+      #0b1020,
+      #050816
+    );
 
   font-family:Arial, sans-serif;
+
+  color:white;
 }
 
 /* =========================
-   HUD
+   HUD LAYOUT
 ========================= */
 
 .hud{
-  width:100vw;
-  height:100vh;
+  width:100%;
+  height:100%;
 
   display:grid;
 
@@ -53,8 +58,6 @@ body{
 
   gap:10px;
 
-  height:100%;
-
   overflow:hidden;
 }
 
@@ -66,36 +69,56 @@ body{
   background:
     linear-gradient(
       145deg,
-      rgba(15,15,30,0.95),
+      rgba(15,15,30,0.96),
       rgba(5,5,15,0.98)
     );
 
   border:1px solid rgba(180,0,255,0.25);
 
+  border-radius:12px;
+
   padding:16px;
 
   overflow:hidden;
+
+  box-shadow:
+    0 0 20px rgba(180,0,255,0.08),
+    inset 0 0 20px rgba(180,0,255,0.04);
 }
 
 /* =========================
    TITLES
 ========================= */
 
-h1,
-h2{
-  color:#bb5cff;
+.title{
+  color:#c86cff;
+
+  font-size:34px;
+
+  letter-spacing:3px;
+
+  text-shadow:
+    0 0 12px #bb5cff;
+}
+
+.subtitle{
+  margin-top:8px;
+
+  font-size:12px;
+
+  color:#8e7cbf;
 
   letter-spacing:2px;
-
-  margin-bottom:14px;
-}
-
-.title{
-  font-size:34px;
 }
 
 h2{
+  margin-bottom:14px;
+
+  color:#bb5cff;
+
   font-size:18px;
+
+  letter-spacing:2px;
 }
 
 /* =========================
@@ -103,11 +126,15 @@ h2{
 ========================= */
 
 p{
-  color:#c86cff;
+  color:#d58cff;
 
   margin-bottom:12px;
 
   font-size:14px;
+}
+
+span{
+  color:#ffffff;
 }
 
 /* =========================
@@ -123,6 +150,8 @@ p{
 
   overflow:hidden;
 
+  border-radius:14px;
+
   border:1px solid rgba(180,0,255,0.25);
 
   background:black;
@@ -135,8 +164,31 @@ p{
 #radar{
   width:100%;
   height:100%;
+}
 
-  object-fit:cover;
+/* =========================
+   RADAR GRID
+========================= */
+
+.radar-overlay{
+  position:absolute;
+
+  inset:0;
+
+  background:
+    linear-gradient(
+      rgba(212,0,255,0.03) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(212,0,255,0.03) 1px,
+      transparent 1px
+    );
+
+  background-size:40px 40px;
+
+  pointer-events:none;
 }
 
 /* =========================
@@ -153,6 +205,52 @@ p{
   font-size:18px;
 
   letter-spacing:3px;
+
+  text-shadow:
+    0 0 8px #bb5cff;
+}
+
+/* =========================
+   TARGET NUMBER
+========================= */
+
+.target-number{
+  font-size:48px;
+
+  text-align:center;
+
+  color:#bb5cff;
+
+  text-shadow:
+    0 0 15px #bb5cff;
+}
+
+/* =========================
+   CONSOLE
+========================= */
+
+.console{
+  display:flex;
+
+  flex-direction:column;
+
+  gap:8px;
+}
+
+/* =========================
+   MINI MAP
+========================= */
+
+#miniMap{
+  width:100%;
+
+  height:180px;
+
+  background:black;
+
+  border-radius:10px;
+
+  border:1px solid rgba(180,0,255,0.2);
 }
 
 /* =========================
@@ -172,12 +270,74 @@ p{
 
   overflow:hidden;
 
+  border-radius:12px;
+
   background:
     radial-gradient(
       circle at center,
       rgba(180,0,255,0.12),
-      rgba(0,0,0,0.4)
+      rgba(0,0,0,0.45)
     );
+
+  box-shadow:
+    inset 0 0 40px rgba(180,0,255,0.15),
+    0 0 25px rgba(180,0,255,0.12);
+}
+
+/* =========================
+   GRID
+========================= */
+
+.jet-panel::before{
+  content:"";
+
+  position:absolute;
+
+  inset:0;
+
+  background:
+    linear-gradient(
+      rgba(212,0,255,0.05) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(212,0,255,0.05) 1px,
+      transparent 1px
+    );
+
+  background-size:28px 28px;
+
+  opacity:0.35;
+}
+
+/* =========================
+   SCAN LINE
+========================= */
+
+.jet-panel::after{
+  content:"";
+
+  position:absolute;
+
+  left:0;
+  top:0;
+
+  width:100%;
+  height:2px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      #d400ff,
+      transparent
+    );
+
+  box-shadow:
+    0 0 10px #d400ff;
+
+  animation:scanLine 4s linear infinite;
 }
 
 /* =========================
@@ -187,73 +347,88 @@ p{
 .jet-image{
   position:absolute;
 
-  width:85%;
+  top:50%;
+  left:50%;
 
-  max-width:360px;
+  width:78%;
+
+  max-width:420px;
+
+  transform:
+    translate(-50%, -50%);
 
   object-fit:contain;
 
-  opacity:0.9;
+  opacity:0.95;
 
   mix-blend-mode:screen;
 
   filter:
-    brightness(0)
-    invert(1)
     hue-rotate(250deg)
-    contrast(3)
+    saturate(1.4)
+    brightness(1.1)
 
     drop-shadow(0 0 8px #bb5cff)
-    drop-shadow(0 0 20px #7a00ff);
+    drop-shadow(0 0 20px #7a00ff)
+    drop-shadow(0 0 35px #d400ff);
 
   animation:
-    jetMove 6s ease-in-out infinite,
-    jetGlow 2s ease-in-out infinite;
+    jetFloat 6s ease-in-out infinite,
+    jetPulse 2.2s ease-in-out infinite;
 }
 
 /* =========================
-   MINI MAP
+   SCAN RING
 ========================= */
 
-#miniMap{
-  width:100%;
+.scan-ring{
+  position:absolute;
 
+  width:180px;
   height:180px;
 
-  border:1px solid rgba(180,0,255,0.25);
+  border-radius:50%;
 
-  background:black;
+  border:1px solid rgba(212,0,255,0.35);
+
+  box-shadow:
+    0 0 25px rgba(212,0,255,0.45);
+
+  animation:scanPulse 2.5s linear infinite;
 }
 
 /* =========================
    ANIMATIONS
 ========================= */
 
-@keyframes jetMove{
+@keyframes jetFloat{
 
   0%{
     transform:
-      rotateY(-5deg)
-      scale(1);
+      translate(-50%, -50%)
+      rotateY(-6deg)
+      translateY(0px);
   }
 
   50%{
     transform:
-      rotateY(5deg)
-      scale(1.03);
+      translate(-50%, -50%)
+      rotateY(6deg)
+      translateY(-4px);
   }
 
   100%{
     transform:
-      rotateY(-5deg)
-      scale(1);
+      translate(-50%, -50%)
+      rotateY(-6deg)
+      translateY(0px);
   }
 }
 
-@keyframes jetGlow{
+@keyframes jetPulse{
 
   0%{
-    opacity:0.5;
+    opacity:0.55;
   }
 
   50%{
@@ -261,7 +436,41 @@ p{
   }
 
   100%{
-    opacity:0.5;
+    opacity:0.55;
+  }
+}
+
+@keyframes scanPulse{
+
+  0%{
+    transform:scale(0.8);
+    opacity:0.1;
+  }
+
+  50%{
+    opacity:1;
+  }
+
+  100%{
+    transform:scale(1.4);
+    opacity:0;
+  }
+}
+
+@keyframes scanLine{
+
+  0%{
+    top:10%;
+    opacity:0;
+  }
+
+  50%{
+    opacity:1;
+  }
+
+  100%{
+    top:90%;
+    opacity:0;
   }
 }
 
