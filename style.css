@@ -29,7 +29,7 @@ body{
       rgba(5,10,20,0.98)
     );
 
-  border:1px solid rgba(0,200,255,0.15);
+  border:1px solid rgba(180,0,255,0.18);
 
   border-radius:20px;
 
@@ -38,8 +38,8 @@ body{
   overflow:hidden;
 
   box-shadow:
-    0 0 25px rgba(0,180,255,0.08),
-    inset 0 0 25px rgba(0,180,255,0.05);
+    0 0 25px rgba(180,0,255,0.08),
+    inset 0 0 25px rgba(180,0,255,0.05);
 
   backdrop-filter:blur(8px);
 }
@@ -51,7 +51,7 @@ body{
 .box h2{
   margin:0 0 18px 0;
 
-  color:#00d9ff;
+  color:#d400ff;
 
   letter-spacing:3px;
 
@@ -60,8 +60,8 @@ body{
   font-weight:700;
 
   text-shadow:
-    0 0 8px #00d9ff,
-    0 0 18px rgba(0,217,255,0.5);
+    0 0 8px #d400ff,
+    0 0 18px rgba(212,0,255,0.5);
 }
 
 /* =========================
@@ -112,12 +112,12 @@ body{
 
   background:
     linear-gradient(
-      rgba(0,255,255,0.05) 1px,
+      rgba(212,0,255,0.05) 1px,
       transparent 1px
     ),
     linear-gradient(
       90deg,
-      rgba(0,255,255,0.05) 1px,
+      rgba(212,0,255,0.05) 1px,
       transparent 1px
     );
 
@@ -138,20 +138,21 @@ body{
   position:absolute;
 
   left:0;
+  top:0;
 
   width:100%;
- height:min(38vw, 260px);
+  height:2px;
 
   background:
     linear-gradient(
       90deg,
       transparent,
-      #00e5ff,
+      #d400ff,
       transparent
     );
 
   box-shadow:
-    0 0 10px #00e5ff;
+    0 0 10px #d400ff;
 
   animation:scanLine 4s linear infinite;
 }
@@ -166,14 +167,13 @@ body{
   top:50%;
   left:50%;
 
-  width:min(78vw, 520px);
+  width:min(72vw, 540px);
 
-  max-height:82%;
+  max-width:100%;
+
+  max-height:78%;
 
   object-fit:contain;
-
-  transform:
-    translate(-50%, -50%);
 
   opacity:0.82;
 
@@ -196,9 +196,11 @@ body{
     jetBlueprint 6s ease-in-out infinite,
     jetGlowPurple 2.2s ease-in-out infinite;
 }
+
 /* =========================
    SCAN RING
 ========================= */
+
 .scan-ring{
   position:absolute;
 
@@ -224,66 +226,94 @@ body{
 
   0%{
     transform:
+      translate(-50%, -50%)
       perspective(1200px)
       rotateY(-8deg)
       rotateX(3deg)
-      translateY(0px)
       scale(1);
   }
 
   25%{
     transform:
+      translate(-50%, -50%)
       perspective(1200px)
       rotateY(4deg)
       rotateX(-2deg)
-      translateY(-3px)
       scale(1.01);
   }
 
   50%{
     transform:
+      translate(-50%, -50%)
       perspective(1200px)
       rotateY(8deg)
       rotateX(4deg)
-      translateY(-6px)
       scale(1.03);
   }
 
   75%{
     transform:
+      translate(-50%, -50%)
       perspective(1200px)
       rotateY(-4deg)
       rotateX(-1deg)
-      translateY(-3px)
       scale(1.01);
   }
 
   100%{
     transform:
+      translate(-50%, -50%)
       perspective(1200px)
       rotateY(-8deg)
       rotateX(3deg)
-      translateY(0px)
       scale(1);
   }
 }
 
 /* =========================
-   ENERGY GLOW
+   PURPLE GLOW
 ========================= */
 
-@keyframes jetGlow{
+@keyframes jetGlowPurple{
 
   0%{
     opacity:0.45;
+
+    filter:
+      brightness(0)
+      invert(1)
+      contrast(3)
+      hue-rotate(250deg)
+
+      drop-shadow(0 0 3px #c400ff)
+      drop-shadow(0 0 10px #c400ff);
   }
 
   50%{
     opacity:1;
+
+    filter:
+      brightness(0)
+      invert(1)
+      contrast(4)
+      hue-rotate(250deg)
+
+      drop-shadow(0 0 8px #d400ff)
+      drop-shadow(0 0 20px #b100ff)
+      drop-shadow(0 0 45px #6f00ff);
   }
 
   100%{
     opacity:0.45;
+
+    filter:
+      brightness(0)
+      invert(1)
+      contrast(3)
+      hue-rotate(250deg)
+
+      drop-shadow(0 0 3px #c400ff)
+      drop-shadow(0 0 10px #c400ff);
   }
 }
 
@@ -348,11 +378,13 @@ body{
   }
 
   .jet-panel{
-    height:180px;
+    height:190px;
   }
 
   .jet-image{
-    width:115%;
+    width:min(90vw, 460px);
+
+    max-height:72%;
   }
 
   .scan-ring{
@@ -360,59 +392,26 @@ body{
     height:130px;
   }
 }
+
+/* =========================
+   LANDSCAPE
+========================= */
+
 @media (orientation:landscape){
 
   .jet-panel{
 
     height:42vh;
-    min-height:180px;
-    max-height:300px;
+
+    min-height:190px;
+
+    max-height:320px;
   }
 
   .jet-image{
 
-    width:min(65vw, 620px);
+    width:min(58vw, 520px);
 
-    max-height:85%;
-  }
-}
-@keyframes jetGlowPurple{
-
-  0%{
-    opacity:0.45;
-
-    filter:
-      brightness(0)
-      invert(1)
-      contrast(3)
-      hue-rotate(250deg)
-      drop-shadow(0 0 3px #c400ff)
-      drop-shadow(0 0 10px #c400ff);
-  }
-
-  50%{
-    opacity:1;
-
-    filter:
-      brightness(0)
-      invert(1)
-      contrast(4)
-      hue-rotate(250deg)
-
-      drop-shadow(0 0 8px #d400ff)
-      drop-shadow(0 0 20px #b100ff)
-      drop-shadow(0 0 45px #6f00ff);
-  }
-
-  100%{
-    opacity:0.45;
-
-    filter:
-      brightness(0)
-      invert(1)
-      contrast(3)
-      hue-rotate(250deg)
-      drop-shadow(0 0 3px #c400ff)
-      drop-shadow(0 0 10px #c400ff);
+    max-height:80%;
   }
 }
