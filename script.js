@@ -1,5 +1,9 @@
 window.onload = () => {
 
+  /* ===================== INIT ===================== */
+
+  console.log("SYSTEM START");
+
   /* ===================== CANVAS ===================== */
 
   const canvas = document.getElementById("radar");
@@ -37,12 +41,14 @@ window.onload = () => {
   };
 
   if (!window.firebase) {
-    console.error("Firebase SDK non chargé !");
+    console.error("Firebase SDK NOT LOADED");
     return;
   }
 
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
+
+  console.log("Firebase initialized");
 
   /* ===================== PLAYER ===================== */
 
@@ -54,7 +60,8 @@ window.onload = () => {
     .trim()
     .toUpperCase();
 
-  console.log("PLAYER:", playerCode, squadCode);
+  console.log("PLAYER =", playerCode);
+  console.log("SQUAD =", squadCode);
 
   /* ===================== UI ===================== */
 
@@ -65,10 +72,6 @@ window.onload = () => {
   const altStat = document.getElementById("altStat");
   const statusText = document.getElementById("statusText");
 
-  if (!onlineList || !targetCount || !latStat || !lonStat || !altStat || !statusText) {
-    console.error("UI elements manquants !");
-  }
-
   /* ===================== DATA ===================== */
 
   let myLat = 0;
@@ -78,8 +81,11 @@ window.onload = () => {
   /* ===================== GPS ===================== */
 
   if (!navigator.geolocation) {
-    console.error("Geolocation non supportée");
+    console.error("GEOLOCATION NOT SUPPORTED");
   } else {
+
+    console.log("Starting GPS...");
+
     navigator.geolocation.watchPosition(
       pos => {
 
@@ -110,12 +116,12 @@ window.onload = () => {
     );
   }
 
-  /* ===================== RECEIVE PLAYERS ===================== */
+  /* ===================== FIREBASE READ ===================== */
 
-  db.ref("players").on("value", snapshot => {
+  db.ref("players").on("value", snap => {
 
-    const data = snapshot.val();
-    console.log("FIREBASE RAW:", data);
+    const data = snap.val();
+    console.log("FIREBASE DATA:", data);
 
     onlinePlayers = [];
 
@@ -126,22 +132,22 @@ window.onload = () => {
       const p = data[id];
       if (!p) continue;
 
-      // filtre squad + exclusion soi-même
-      if (id !== playerCode && p.squad === squadCode) {
+      const squad = (p.squad || "").trim().toUpperCase();
+
+      // TEST SAFE FILTER
+      if (id !== playerCode && squad === squadCode) {
 
         onlinePlayers.push({
           name: p.name || "UNKNOWN",
-          squad: p.squad || "NO SQUAD",
+          squad: squad,
           lat: p.lat || 0,
           lon: p.lon || 0
         });
       }
     }
 
-    /* COUNT */
     targetCount.innerText = onlinePlayers.length;
 
-    /* LIST UI */
     onlineList.innerHTML = "";
 
     onlinePlayers.forEach(player => {
@@ -150,7 +156,7 @@ window.onload = () => {
           <div class="player-jet">✈</div>
           <div class="player-info">
             <div class="player-name">${player.name}</div>
-            <div style="color:#00d5ff;font-size:11px;margin-top:4px;letter-spacing:1px;">
+            <div style="color:#00d5ff;font-size:11px;margin-top:4px;">
               ✦ ${player.squad}
             </div>
           </div>
@@ -171,7 +177,6 @@ window.onload = () => {
 
     /* glow */
     const glow = ctx.createRadialGradient(cx, cy, 50, cx, cy, canvas.width / 2);
-
     glow.addColorStop(0, "rgba(180,100,255,0.18)");
     glow.addColorStop(1, "rgba(0,0,0,0)");
 
@@ -185,7 +190,6 @@ window.onload = () => {
       ctx.beginPath();
       ctx.arc(cx, cy, i * (canvas.width / 14), 0, Math.PI * 2);
       ctx.strokeStyle = "rgba(200,120,255,0.22)";
-      ctx.lineWidth = 1;
       ctx.stroke();
     }
 
@@ -196,11 +200,11 @@ window.onload = () => {
     ctx.beginPath();
     ctx.arc(cx, cy, pulse, 0, Math.PI * 2);
     ctx.strokeStyle = `rgba(220,120,255,${1 - pulse / (canvas.width / 2)})`;
-    ctx.lineWidth = 2;
     ctx.stroke();
 
     /* sweep */
     for (let i = 0; i < 45; i++) {
+
       const a = angle - i * 0.02;
 
       const x = cx + (canvas.width / 2.2) * Math.cos(a);
@@ -211,7 +215,6 @@ window.onload = () => {
       ctx.lineTo(x, y);
 
       ctx.strokeStyle = `rgba(220,120,255,${1 - i / 45})`;
-      ctx.lineWidth = 3;
       ctx.stroke();
     }
 
@@ -232,6 +235,7 @@ window.onload = () => {
       ctx.fill();
 
       ctx.shadowBlur = 0;
+
       ctx.fillStyle = "#00d5ff";
       ctx.font = "12px Arial";
       ctx.fillText(player.name, px + 12, py - 8);
@@ -246,7 +250,6 @@ window.onload = () => {
     ctx.fill();
     ctx.shadowBlur = 0;
 
-    /* status */
     statusText.innerText = `TRACKING ${onlinePlayers.length} TARGET(S)`;
 
     angle += 0.003;
