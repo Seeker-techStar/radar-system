@@ -1,34 +1,56 @@
 window.onload = () => {
 
-  /* ===================== INIT ===================== */
+  /* ===================== SAFE START ===================== */
 
-  console.log("SYSTEM START");
+  console.log("RADAR SCRIPT LOADED");
 
-  /* ===================== CANVAS ===================== */
+  /* ===================== DOM CHECK ===================== */
 
   const canvas = document.getElementById("radar");
+
+  if (!canvas) {
+    console.error("❌ Canvas #radar introuvable dans le HTML");
+    return;
+  }
+
   const ctx = canvas.getContext("2d");
+
+  const onlineList = document.getElementById("onlineList");
+  const targetCount = document.getElementById("targetCount");
+  const latStat = document.getElementById("latStat");
+  const lonStat = document.getElementById("lonStat");
+  const altStat = document.getElementById("altStat");
+  const statusText = document.getElementById("statusText");
+
+  if (!ctx) {
+    console.error("❌ Canvas context introuvable");
+    return;
+  }
+
+  /* ===================== RESIZE ===================== */
 
   let cx = 0;
   let cy = 0;
 
-  function resizeRadar() {
-    const size = Math.min(
-      window.innerWidth * 0.55,
-      window.innerHeight * 0.82
-    );
+  function resize() {
+    const size = Math.min(window.innerWidth * 0.55, window.innerHeight * 0.82);
 
     canvas.width = size;
     canvas.height = size;
 
-    cx = canvas.width / 2;
-    cy = canvas.height / 2;
+    cx = size / 2;
+    cy = size / 2;
   }
 
-  resizeRadar();
-  window.addEventListener("resize", resizeRadar);
+  resize();
+  window.addEventListener("resize", resize);
 
   /* ===================== FIREBASE ===================== */
+
+  if (!window.firebase) {
+    console.error("❌ Firebase non chargé");
+    return;
+  }
 
   const firebaseConfig = {
     apiKey: "AIzaSyBdgLpGGlr-OaTJRQu62HwO1b_PJAoQqp4",
@@ -40,37 +62,15 @@ window.onload = () => {
     appId: "1:914143995056:web:df9b96174e3d279fbac775"
   };
 
-  if (!window.firebase) {
-    console.error("Firebase SDK NOT LOADED");
-    return;
-  }
-
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  console.log("Firebase initialized");
-
   /* ===================== PLAYER ===================== */
 
-  const playerCode = (prompt("ENTER YOUR CALLSIGN") || "UNKNOWN")
-    .trim()
-    .toUpperCase();
+  const playerCode = (prompt("CALLSIGN") || "UNKNOWN").trim().toUpperCase();
+  const squadCode = (prompt("SQUAD") || "PUBLIC").trim().toUpperCase();
 
-  const squadCode = (prompt("ENTER YOUR SQUAD") || "PUBLIC")
-    .trim()
-    .toUpperCase();
-
-  console.log("PLAYER =", playerCode);
-  console.log("SQUAD =", squadCode);
-
-  /* ===================== UI ===================== */
-
-  const onlineList = document.getElementById("onlineList");
-  const targetCount = document.getElementById("targetCount");
-  const latStat = document.getElementById("latStat");
-  const lonStat = document.getElementById("lonStat");
-  const altStat = document.getElementById("altStat");
-  const statusText = document.getElementById("statusText");
+  console.log("PLAYER:", playerCode, squadCode);
 
   /* ===================== DATA ===================== */
 
@@ -81,10 +81,10 @@ window.onload = () => {
   /* ===================== GPS ===================== */
 
   if (!navigator.geolocation) {
-    console.error("GEOLOCATION NOT SUPPORTED");
+    console.error("❌ Geolocation not supported");
   } else {
 
-    console.log("Starting GPS...");
+    console.log("GPS INIT...");
 
     navigator.geolocation.watchPosition(
       pos => {
@@ -92,11 +92,11 @@ window.onload = () => {
         myLat = pos.coords.latitude;
         myLon = pos.coords.longitude;
 
-        console.log("GPS OK:", myLat, myLon);
+        console.log("GPS OK", myLat, myLon);
 
-        latStat.innerText = myLat.toFixed(4);
-        lonStat.innerText = myLon.toFixed(4);
-        altStat.innerText = Math.floor(pos.coords.altitude || 0) + " m";
+        if (latStat) latStat.innerText = myLat.toFixed(4);
+        if (lonStat) lonStat.innerText = myLon.toFixed(4);
+        if (altStat) altStat.innerText = Math.floor(pos.coords.altitude || 0) + " m";
 
         db.ref("players/" + playerCode).set({
           name: playerCode,
@@ -134,35 +134,35 @@ window.onload = () => {
 
       const squad = (p.squad || "").trim().toUpperCase();
 
-      // TEST SAFE FILTER
       if (id !== playerCode && squad === squadCode) {
-
         onlinePlayers.push({
           name: p.name || "UNKNOWN",
-          squad: squad,
+          squad,
           lat: p.lat || 0,
           lon: p.lon || 0
         });
       }
     }
 
-    targetCount.innerText = onlinePlayers.length;
+    if (targetCount) targetCount.innerText = onlinePlayers.length;
 
-    onlineList.innerHTML = "";
+    if (onlineList) {
+      onlineList.innerHTML = "";
 
-    onlinePlayers.forEach(player => {
-      onlineList.innerHTML += `
-        <div class="player-card">
-          <div class="player-jet">✈</div>
-          <div class="player-info">
-            <div class="player-name">${player.name}</div>
-            <div style="color:#00d5ff;font-size:11px;margin-top:4px;">
-              ✦ ${player.squad}
+      onlinePlayers.forEach(player => {
+        onlineList.innerHTML += `
+          <div class="player-card">
+            <div class="player-jet">✈</div>
+            <div class="player-info">
+              <div class="player-name">${player.name}</div>
+              <div style="color:#00d5ff;font-size:11px;margin-top:4px;">
+                ✦ ${player.squad}
+              </div>
             </div>
           </div>
-        </div>
-      `;
-    });
+        `;
+      });
+    }
 
   });
 
@@ -171,44 +171,25 @@ window.onload = () => {
   let angle = 0;
   let pulse = 0;
 
-  function drawRadar() {
+  function draw() {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    /* glow */
-    const glow = ctx.createRadialGradient(cx, cy, 50, cx, cy, canvas.width / 2);
-    glow.addColorStop(0, "rgba(180,100,255,0.18)");
-    glow.addColorStop(1, "rgba(0,0,0,0)");
-
-    ctx.fillStyle = glow;
-    ctx.beginPath();
-    ctx.arc(cx, cy, canvas.width / 2.2, 0, Math.PI * 2);
-    ctx.fill();
 
     /* grid */
     for (let i = 1; i <= 6; i++) {
       ctx.beginPath();
       ctx.arc(cx, cy, i * (canvas.width / 14), 0, Math.PI * 2);
-      ctx.strokeStyle = "rgba(200,120,255,0.22)";
+      ctx.strokeStyle = "rgba(200,120,255,0.2)";
       ctx.stroke();
     }
-
-    /* pulse */
-    pulse += 1.2;
-    if (pulse > canvas.width / 2) pulse = 0;
-
-    ctx.beginPath();
-    ctx.arc(cx, cy, pulse, 0, Math.PI * 2);
-    ctx.strokeStyle = `rgba(220,120,255,${1 - pulse / (canvas.width / 2)})`;
-    ctx.stroke();
 
     /* sweep */
     for (let i = 0; i < 45; i++) {
 
       const a = angle - i * 0.02;
 
-      const x = cx + (canvas.width / 2.2) * Math.cos(a);
-      const y = cy + (canvas.width / 2.2) * Math.sin(a);
+      const x = cx + Math.cos(a) * (canvas.width / 2.2);
+      const y = cy + Math.sin(a) * (canvas.width / 2.2);
 
       ctx.beginPath();
       ctx.moveTo(cx, cy);
@@ -219,43 +200,36 @@ window.onload = () => {
     }
 
     /* players */
-    onlinePlayers.forEach(player => {
+    onlinePlayers.forEach(p => {
 
-      const dx = (player.lon - myLon) * 50000;
-      const dy = (player.lat - myLat) * -50000;
+      const dx = (p.lon - myLon) * 50000;
+      const dy = (p.lat - myLat) * -50000;
 
-      const px = cx + dx;
-      const py = cy + dy;
+      const x = cx + dx;
+      const y = cy + dy;
 
       ctx.beginPath();
-      ctx.arc(px, py, 8, 0, Math.PI * 2);
+      ctx.arc(x, y, 6, 0, Math.PI * 2);
       ctx.fillStyle = "#00d5ff";
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = "#00d5ff";
       ctx.fill();
 
-      ctx.shadowBlur = 0;
-
-      ctx.fillStyle = "#00d5ff";
-      ctx.font = "12px Arial";
-      ctx.fillText(player.name, px + 12, py - 8);
+      ctx.fillText(p.name, x + 10, y);
     });
 
     /* center */
     ctx.beginPath();
-    ctx.arc(cx, cy, 10, 0, Math.PI * 2);
+    ctx.arc(cx, cy, 8, 0, Math.PI * 2);
     ctx.fillStyle = "#cc88ff";
-    ctx.shadowBlur = 25;
-    ctx.shadowColor = "#cc88ff";
     ctx.fill();
-    ctx.shadowBlur = 0;
 
-    statusText.innerText = `TRACKING ${onlinePlayers.length} TARGET(S)`;
+    if (statusText) {
+      statusText.innerText = `TRACKING ${onlinePlayers.length}`;
+    }
 
     angle += 0.003;
 
-    requestAnimationFrame(drawRadar);
+    requestAnimationFrame(draw);
   }
 
-  drawRadar();
+  draw();
 };
