@@ -101,23 +101,28 @@ body{
 
   object-fit:contain;
 
+  opacity:0.9;
+
   transform-style:preserve-3d;
 
   mix-blend-mode:screen;
 
-  opacity:0.95;
+  /* SILHOUETTE */
 
   filter:
-    brightness(1.15)
-    contrast(1.25)
+    brightness(0)
+    invert(1)
+    contrast(2)
     saturate(0)
-    hue-rotate(180deg)
-    drop-shadow(0 0 12px #00d9ff)
-    drop-shadow(0 0 45px #009dff);
+    hue-rotate(160deg)
+    drop-shadow(0 0 8px #00d9ff)
+    drop-shadow(0 0 25px #00d9ff)
+    drop-shadow(0 0 45px #008cff);
 
   animation:
-    jet3D 7s ease-in-out infinite,
-    jetPulse 2.5s ease-in-out infinite;
+    jetRotate 7s ease-in-out infinite,
+    jetPulse 2.2s ease-in-out infinite,
+    jetFloat 4s ease-in-out infinite;
 }
 
 /* =========================
