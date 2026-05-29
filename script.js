@@ -6,14 +6,16 @@ window.onload = () => {
      DOM
   ========================================= */
 
-  const canvas = document.getElementById("radar");
+  const canvas =
+    document.getElementById("radar");
 
   if (!canvas) {
     console.error("Canvas radar introuvable");
     return;
   }
 
-  const ctx = canvas.getContext("2d");
+  const ctx =
+    canvas.getContext("2d");
 
   const onlineList =
     document.getElementById("onlineList");
@@ -32,6 +34,9 @@ window.onload = () => {
 
   const statusText =
     document.getElementById("statusText");
+
+  const disconnectBtn =
+    document.getElementById("disconnectBtn");
 
   /* =========================================
      RADAR SIZE
@@ -100,36 +105,54 @@ window.onload = () => {
 
   };
 
-  firebase.initializeApp(firebaseConfig);
-
-  const db = firebase.database();
-  const disconnectBtn =
-  document.getElementById(
-    "disconnectBtn"
+  firebase.initializeApp(
+    firebaseConfig
   );
 
-  console.log("Firebase connecté");
+  const db =
+    firebase.database();
+
+  console.log(
+    "Firebase connecté"
+  );
 
   /* =========================================
      PLAYER
   ========================================= */
 
   const playerCode = (
+
     prompt("ENTER CALLSIGN")
+
     || "UNKNOWN"
+
   )
+
   .trim()
+
   .toUpperCase();
 
   const squadCode = (
+
     prompt("ENTER SQUAD")
+
     || "PUBLIC"
+
   )
+
   .trim()
+
   .toUpperCase();
 
-  console.log("PLAYER =", playerCode);
-  console.log("SQUAD =", squadCode);
+  console.log(
+    "PLAYER =",
+    playerCode
+  );
+
+  console.log(
+    "SQUAD =",
+    squadCode
+  );
 
   /* =========================================
      DATA
@@ -165,7 +188,8 @@ window.onload = () => {
 
     if (altStat) {
       altStat.innerText =
-        Math.floor(altitude) + " m";
+        Math.floor(altitude)
+        + " m";
     }
 
     db.ref(
@@ -174,21 +198,28 @@ window.onload = () => {
 
     .set({
 
-      name: playerCode,
+      name:
+        playerCode,
 
-      squad: squadCode,
+      squad:
+        squadCode,
 
-      lat: lat,
+      lat:
+        lat,
 
-      lon: lon,
+      lon:
+        lon,
 
-      updated: Date.now()
+      updated:
+        Date.now()
 
     })
 
     .then(() => {
 
-      console.log("PLAYER SAVED");
+      console.log(
+        "PLAYER SAVED"
+      );
 
     })
 
@@ -213,7 +244,9 @@ window.onload = () => {
 
       pos => {
 
-        console.log("GPS OK");
+        console.log(
+          "GPS OK"
+        );
 
         savePlayer(
 
@@ -264,7 +297,8 @@ window.onload = () => {
 
     snapshot => {
 
-      const data = snapshot.val();
+      const data =
+        snapshot.val();
 
       console.log(
         "DATABASE =",
@@ -284,11 +318,20 @@ window.onload = () => {
 
       for (let id in data) {
 
-        const p = data[id];
+        const p =
+          data[id];
 
         if (!p) continue;
 
-        /* affiche tous les joueurs */
+        const age =
+          Date.now() -
+          (p.updated || 0);
+
+        /* remove offline players */
+
+        if (age > 15000) {
+          continue;
+        }
 
         onlinePlayers.push({
 
@@ -330,6 +373,9 @@ window.onload = () => {
 
         onlinePlayers.forEach(player => {
 
+          const isAdmin =
+            playerCode === "STARSCREAM";
+
           onlineList.innerHTML += `
 
             <div class="player-card">
@@ -357,6 +403,29 @@ window.onload = () => {
 
               </div>
 
+              ${
+
+                isAdmin
+
+                ?
+
+                `
+
+                <div
+                  class="kick-btn"
+                  onclick="kickPlayer('${player.name}')"
+                >
+                  ✖
+                </div>
+
+                `
+
+                :
+
+                ""
+
+              }
+
             </div>
 
           `;
@@ -364,6 +433,83 @@ window.onload = () => {
         });
 
       }
+
+    }
+
+  );
+
+  /* =========================================
+     ADMIN REMOVE PLAYER
+  ========================================= */
+
+  window.kickPlayer = function(name) {
+
+    const confirmKick =
+      confirm(
+        "REMOVE " + name + " ?"
+      );
+
+    if (!confirmKick) {
+      return;
+    }
+
+    db.ref(
+      "players/" + name
+    )
+
+    .remove()
+
+    .then(() => {
+
+      console.log(
+        name + " REMOVED"
+      );
+
+    });
+
+  };
+
+  /* =========================================
+     DISCONNECT BUTTON
+  ========================================= */
+
+  if (disconnectBtn) {
+
+    disconnectBtn.onclick = () => {
+
+      db.ref(
+        "players/" + playerCode
+      )
+
+      .remove()
+
+      .then(() => {
+
+        alert(
+          "DISCONNECTED"
+        );
+
+        location.reload();
+
+      });
+
+    };
+
+  }
+
+  /* =========================================
+     AUTO REMOVE PLAYER
+  ========================================= */
+
+  window.addEventListener(
+
+    "beforeunload",
+
+    () => {
+
+      db.ref(
+        "players/" + playerCode
+      ).remove();
 
     }
 
@@ -457,19 +603,43 @@ window.onload = () => {
 
     onlinePlayers.forEach(player => {
 
+      const radarRange = 0.02;
+
       const dx =
-        (player.lon - myLon)
-        * 50000;
+        (
+          (player.lon - myLon)
+          / radarRange
+        )
+        * (canvas.width / 2);
 
       const dy =
-        (player.lat - myLat)
-        * -50000;
+        (
+          (player.lat - myLat)
+          / radarRange
+        )
+        * -(canvas.height / 2);
 
       const px =
         cx + dx;
 
       const py =
         cy + dy;
+
+      /* radar bounds */
+
+      const dist =
+        Math.sqrt(
+          Math.pow(px - cx, 2)
+          +
+          Math.pow(py - cy, 2)
+        );
+
+      if (
+        dist >
+        canvas.width / 2.2
+      ) {
+        return;
+      }
 
       ctx.beginPath();
 
@@ -484,7 +654,8 @@ window.onload = () => {
       ctx.fillStyle =
         "#00d5ff";
 
-      ctx.shadowBlur = 15;
+      ctx.shadowBlur =
+        15;
 
       ctx.shadowColor =
         "#00d5ff";
@@ -520,7 +691,8 @@ window.onload = () => {
     ctx.fillStyle =
       "#cc88ff";
 
-    ctx.shadowBlur = 25;
+    ctx.shadowBlur =
+      25;
 
     ctx.shadowColor =
       "#cc88ff";
@@ -545,29 +717,7 @@ window.onload = () => {
     );
 
   }
-if (disconnectBtn) {
 
-  disconnectBtn.onclick = () => {
-
-    db.ref(
-      "players/" + playerCode
-    )
-
-    .remove()
-
-    .then(() => {
-
-      alert(
-        "DISCONNECTED"
-      );
-
-      location.reload();
-
-    });
-
-  };
-
-}
   drawRadar();
 
 };
