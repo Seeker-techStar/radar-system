@@ -518,5 +518,34 @@ body {
     display: none;
 
   }
+   #disconnectBtn {
+
+  width: 100%;
+
+  padding: 12px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background: rgba(255,0,80,0.2);
+
+  color: #ff4d88;
+
+  font-weight: bold;
+
+  letter-spacing: 2px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+
+}
+
+#disconnectBtn:hover {
+
+  background: rgba(255,0,80,0.35);
+
+}
 
 }
