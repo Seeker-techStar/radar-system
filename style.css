@@ -96,17 +96,27 @@ body{
 .jet-image{
   position:relative;
 
-  width:100%;
-  max-width:430px;
+  width:95%;
+  max-width:520px;
 
   object-fit:contain;
 
-  opacity:0.9;
-
-  transform-style:preserve-3d;
+  opacity:0.75;
 
   mix-blend-mode:screen;
 
+  filter:
+    brightness(0)
+    invert(1)
+    contrast(3)
+    hue-rotate(180deg)
+    drop-shadow(0 0 4px #00d9ff)
+    drop-shadow(0 0 12px #00d9ff);
+
+  animation:
+    jetBlueprint 6s ease-in-out infinite,
+    jetGlow 2.5s ease-in-out infinite;
+}
   /* SILHOUETTE */
 
   filter:
