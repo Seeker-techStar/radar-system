@@ -17,17 +17,17 @@ body{
   background:
     radial-gradient(
       circle at center,
-      #0b1020,
-      #050816
+      #090012,
+      #020308
     );
 
-  font-family:Arial, sans-serif;
+  font-family:Arial,sans-serif;
 
   color:white;
 }
 
 /* =========================
-   HUD LAYOUT
+   HUD
 ========================= */
 
 .hud{
@@ -69,13 +69,14 @@ body{
   background:
     linear-gradient(
       145deg,
-      rgba(15,15,30,0.96),
-      rgba(5,5,15,0.98)
+      rgba(18,8,30,0.95),
+      rgba(6,3,15,0.98)
     );
 
-  border:1px solid rgba(180,0,255,0.25);
+  border:
+    1px solid rgba(180,0,255,0.22);
 
-  border-radius:12px;
+  border-radius:14px;
 
   padding:16px;
 
@@ -91,22 +92,22 @@ body{
 ========================= */
 
 .title{
-  color:#c86cff;
+  color:#d16cff;
 
   font-size:34px;
 
-  letter-spacing:3px;
+  letter-spacing:4px;
 
   text-shadow:
-    0 0 12px #bb5cff;
+    0 0 15px #bb5cff;
 }
 
 .subtitle{
   margin-top:8px;
 
-  font-size:12px;
+  color:#8e73b5;
 
-  color:#8e7cbf;
+  font-size:12px;
 
   letter-spacing:2px;
 }
@@ -114,11 +115,14 @@ body{
 h2{
   margin-bottom:14px;
 
-  color:#bb5cff;
+  color:#c95fff;
 
   font-size:18px;
 
   letter-spacing:2px;
+
+  text-shadow:
+    0 0 10px #b14dff;
 }
 
 /* =========================
@@ -126,7 +130,7 @@ h2{
 ========================= */
 
 p{
-  color:#d58cff;
+  color:#cb9eff;
 
   margin-bottom:12px;
 
@@ -134,7 +138,7 @@ p{
 }
 
 span{
-  color:#ffffff;
+  color:white;
 }
 
 /* =========================
@@ -144,17 +148,14 @@ span{
 .center{
   position:relative;
 
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  border-radius:14px;
 
   overflow:hidden;
 
-  border-radius:14px;
-
-  border:1px solid rgba(180,0,255,0.25);
-
   background:black;
+
+  border:
+    1px solid rgba(180,0,255,0.25);
 }
 
 /* =========================
@@ -198,31 +199,35 @@ span{
 .bottom-text{
   position:absolute;
 
-  bottom:25px;
+  bottom:24px;
 
-  color:#bb5cff;
-
-  font-size:18px;
-
-  letter-spacing:3px;
-
-  text-shadow:
-    0 0 8px #bb5cff;
-}
-
-/* =========================
-   TARGET NUMBER
-========================= */
-
-.target-number{
-  font-size:48px;
+  width:100%;
 
   text-align:center;
 
-  color:#bb5cff;
+  color:#d400ff;
+
+  font-size:18px;
+
+  letter-spacing:4px;
 
   text-shadow:
-    0 0 15px #bb5cff;
+    0 0 12px #d400ff;
+}
+
+/* =========================
+   TARGETS
+========================= */
+
+.target-number{
+  font-size:52px;
+
+  text-align:center;
+
+  color:#d400ff;
+
+  text-shadow:
+    0 0 20px #d400ff;
 }
 
 /* =========================
@@ -246,11 +251,12 @@ span{
 
   height:180px;
 
-  background:black;
-
   border-radius:10px;
 
-  border:1px solid rgba(180,0,255,0.2);
+  background:black;
+
+  border:
+    1px solid rgba(180,0,255,0.2);
 }
 
 /* =========================
@@ -262,30 +268,40 @@ span{
 
   width:100%;
 
-  height:180px;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  height:220px;
 
   overflow:hidden;
 
-  border-radius:12px;
+  border-radius:14px;
 
   background:
     radial-gradient(
       circle at center,
-      rgba(180,0,255,0.12),
-      rgba(0,0,0,0.45)
+      rgba(180,0,255,0.16),
+      rgba(0,0,0,0.55)
     );
 
+  border:
+    1px solid rgba(180,0,255,0.22);
+
   box-shadow:
-    inset 0 0 40px rgba(180,0,255,0.15),
-    0 0 25px rgba(180,0,255,0.12);
+    inset 0 0 40px rgba(180,0,255,0.12),
+    0 0 30px rgba(180,0,255,0.1);
 }
 
 /* =========================
-   GRID
+   3D CANVAS
+========================= */
+
+#jetCanvas{
+  width:100%;
+  height:100%;
+
+  display:block;
+}
+
+/* =========================
+   GRID OVERLAY
 ========================= */
 
 .jet-panel::before{
@@ -297,27 +313,25 @@ span{
 
   background:
     linear-gradient(
-      rgba(212,0,255,0.05) 1px,
+      rgba(212,0,255,0.04) 1px,
       transparent 1px
     ),
     linear-gradient(
       90deg,
-      rgba(212,0,255,0.05) 1px,
+      rgba(212,0,255,0.04) 1px,
       transparent 1px
     );
 
   background-size:28px 28px;
 
-  opacity:0.35;
+  pointer-events:none;
 }
 
 /* =========================
    SCAN LINE
 ========================= */
 
-.jet-panel::after{
-  content:"";
-
+.scan-line{
   position:absolute;
 
   left:0;
@@ -335,50 +349,10 @@ span{
     );
 
   box-shadow:
-    0 0 10px #d400ff;
-
-  animation:scanLine 4s linear infinite;
-}
-
-/* =========================
-   JET IMAGE
-========================= */
-
-.jet-image{
-  position:absolute;
-
-  top:50%;
-  left:50%;
-
-  width:82%;
-  height:82%;
-
-  transform:
-    translate(-50%, -50%);
-
-  background-image:
-    url("https://repository-images.githubusercontent.com/110713888/6ff25680-058a-11ea-8f1c-0817c69701bb");
-
-  background-position:center;
-  background-repeat:no-repeat;
-  background-size:contain;
-
-  opacity:0.92;
-
-  mix-blend-mode:screen;
-
-  filter:
-    hue-rotate(250deg)
-    saturate(1.6)
-    brightness(1.15)
-
-    drop-shadow(0 0 8px #bb5cff)
-    drop-shadow(0 0 22px #7a00ff)
-    drop-shadow(0 0 45px #d400ff);
+    0 0 12px #d400ff;
 
   animation:
-    jetFloat 6s ease-in-out infinite,
-    jetPulse 2.2s ease-in-out infinite;
+    scanMove 4s linear infinite;
 }
 
 /* =========================
@@ -388,66 +362,55 @@ span{
 .scan-ring{
   position:absolute;
 
+  top:50%;
+  left:50%;
+
   width:180px;
   height:180px;
 
+  transform:
+    translate(-50%, -50%);
+
   border-radius:50%;
 
-  border:1px solid rgba(212,0,255,0.35);
+  border:
+    1px solid rgba(212,0,255,0.35);
 
   box-shadow:
     0 0 25px rgba(212,0,255,0.45);
 
-  animation:scanPulse 2.5s linear infinite;
+  animation:
+    scanPulse 2.5s linear infinite;
 }
 
 /* =========================
    ANIMATIONS
 ========================= */
 
-@keyframes jetFloat{
+@keyframes scanMove{
 
   0%{
-    transform:
-      translate(-50%, -50%)
-      rotateY(-6deg)
-      translateY(0px);
+    top:8%;
+    opacity:0;
   }
 
-  50%{
-    transform:
-      translate(-50%, -50%)
-      rotateY(6deg)
-      translateY(-4px);
-  }
-
-  100%{
-    transform:
-      translate(-50%, -50%)
-      rotateY(-6deg)
-      translateY(0px);
-  }
-}
-
-@keyframes jetPulse{
-
-  0%{
-    opacity:0.55;
-  }
-
-  50%{
+  20%{
     opacity:1;
   }
 
   100%{
-    opacity:0.55;
+    top:92%;
+    opacity:0;
   }
 }
 
 @keyframes scanPulse{
 
   0%{
-    transform:scale(0.8);
+    transform:
+      translate(-50%, -50%)
+      scale(0.7);
+
     opacity:0.1;
   }
 
@@ -456,30 +419,16 @@ span{
   }
 
   100%{
-    transform:scale(1.4);
-    opacity:0;
-  }
-}
+    transform:
+      translate(-50%, -50%)
+      scale(1.45);
 
-@keyframes scanLine{
-
-  0%{
-    top:10%;
-    opacity:0;
-  }
-
-  50%{
-    opacity:1;
-  }
-
-  100%{
-    top:90%;
     opacity:0;
   }
 }
 
 /* =========================
-   MOBILE LANDSCAPE
+   MOBILE
 ========================= */
 
 @media(max-width:900px){
@@ -509,7 +458,7 @@ span{
   }
 
   .jet-panel{
-    height:120px;
+    height:150px;
   }
 
   #miniMap{
