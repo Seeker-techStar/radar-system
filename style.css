@@ -350,27 +350,31 @@ span{
   top:50%;
   left:50%;
 
-  width:78%;
-
-  max-width:420px;
+  width:82%;
+  height:82%;
 
   transform:
     translate(-50%, -50%);
 
-  object-fit:contain;
+  background-image:
+    url("https://repository-images.githubusercontent.com/110713888/6ff25680-058a-11ea-8f1c-0817c69701bb");
 
-  opacity:0.95;
+  background-position:center;
+  background-repeat:no-repeat;
+  background-size:contain;
+
+  opacity:0.92;
 
   mix-blend-mode:screen;
 
   filter:
     hue-rotate(250deg)
-    saturate(1.4)
-    brightness(1.1)
+    saturate(1.6)
+    brightness(1.15)
 
     drop-shadow(0 0 8px #bb5cff)
-    drop-shadow(0 0 20px #7a00ff)
-    drop-shadow(0 0 35px #d400ff);
+    drop-shadow(0 0 22px #7a00ff)
+    drop-shadow(0 0 45px #d400ff);
 
   animation:
     jetFloat 6s ease-in-out infinite,
