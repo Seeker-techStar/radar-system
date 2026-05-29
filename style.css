@@ -527,6 +527,25 @@ body{
   display:block;
   object-fit:cover;
 }
+  .jet-image{
+
+  mix-blend-mode:screen;
+
+  opacity:0.9;
+
+  filter:
+    brightness(1.1)
+    contrast(1.2)
+    saturate(0)
+    hue-rotate(180deg)
+    drop-shadow(0 0 10px #00d9ff)
+    drop-shadow(0 0 35px #00d9ff);
+
+  animation:
+    jetFloat 4s ease-in-out infinite,
+    jetPulse 2.5s ease-in-out infinite,
+    jetTilt 6s ease-in-out infinite;
+}
 
 }
 .jet-panel{
