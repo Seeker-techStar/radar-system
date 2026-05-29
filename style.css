@@ -167,11 +167,11 @@ body{
   top:50%;
   left:50%;
 
-  width:min(72vw, 540px);
+  width:min(58vw, 420px);
 
-  max-width:100%;
+  max-width:82%;
 
-  max-height:78%;
+  max-height:68%;
 
   object-fit:contain;
 
@@ -193,7 +193,7 @@ body{
     drop-shadow(0 0 28px #7a00ff);
 
   animation:
-    jetBlueprint 6s ease-in-out infinite,
+    jetBlueprint 7s ease-in-out infinite,
     jetGlowPurple 2.2s ease-in-out infinite;
 }
 
@@ -228,8 +228,8 @@ body{
     transform:
       translate(-50%, -50%)
       perspective(1200px)
-      rotateY(-8deg)
-      rotateX(3deg)
+      rotateY(-5deg)
+      rotateX(2deg)
       scale(1);
   }
 
@@ -237,8 +237,8 @@ body{
     transform:
       translate(-50%, -50%)
       perspective(1200px)
-      rotateY(4deg)
-      rotateX(-2deg)
+      rotateY(2deg)
+      rotateX(-1deg)
       scale(1.01);
   }
 
@@ -246,16 +246,16 @@ body{
     transform:
       translate(-50%, -50%)
       perspective(1200px)
-      rotateY(8deg)
-      rotateX(4deg)
-      scale(1.03);
+      rotateY(5deg)
+      rotateX(3deg)
+      scale(1.02);
   }
 
   75%{
     transform:
       translate(-50%, -50%)
       perspective(1200px)
-      rotateY(-4deg)
+      rotateY(-2deg)
       rotateX(-1deg)
       scale(1.01);
   }
@@ -264,8 +264,8 @@ body{
     transform:
       translate(-50%, -50%)
       perspective(1200px)
-      rotateY(-8deg)
-      rotateX(3deg)
+      rotateY(-5deg)
+      rotateX(2deg)
       scale(1);
   }
 }
@@ -382,9 +382,9 @@ body{
   }
 
   .jet-image{
-    width:min(90vw, 460px);
+    width:min(90vw, 360px);
 
-    max-height:72%;
+    max-height:65%;
   }
 
   .scan-ring{
@@ -410,8 +410,8 @@ body{
 
   .jet-image{
 
-    width:min(58vw, 520px);
+    width:min(42vw, 380px);
 
-    max-height:80%;
+    max-height:72%;
   }
 }
