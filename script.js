@@ -103,6 +103,10 @@ window.onload = () => {
   firebase.initializeApp(firebaseConfig);
 
   const db = firebase.database();
+  const disconnectBtn =
+  document.getElementById(
+    "disconnectBtn"
+  );
 
   console.log("Firebase connecté");
 
@@ -541,7 +545,29 @@ window.onload = () => {
     );
 
   }
+if (disconnectBtn) {
 
+  disconnectBtn.onclick = () => {
+
+    db.ref(
+      "players/" + playerCode
+    )
+
+    .remove()
+
+    .then(() => {
+
+      alert(
+        "DISCONNECTED"
+      );
+
+      location.reload();
+
+    });
+
+  };
+
+}
   drawRadar();
 
 };
