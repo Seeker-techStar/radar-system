@@ -327,9 +327,6 @@ window.onload = () => {
         const sameSquad =
           p.squad === squadCode;
 
-        /* joueurs normaux :
-           voient tout mais couleurs différentes */
-
         onlinePlayers.push({
 
           name:
@@ -726,6 +723,20 @@ window.onload = () => {
       "#cc88ff";
 
     ctx.fill();
+
+    /* YOUR NAME */
+
+    ctx.font =
+      "13px Arial";
+
+    ctx.fillStyle =
+      "#cc88ff";
+
+    ctx.fillText(
+      playerCode + " (YOU)",
+      cx + 15,
+      cy - 10
+    );
 
     /* STATUS */
 
