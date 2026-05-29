@@ -105,9 +105,13 @@ window.onload = () => {
 
   };
 
-  firebase.initializeApp(
-    firebaseConfig
-  );
+  if (!firebase.apps.length) {
+
+    firebase.initializeApp(
+      firebaseConfig
+    );
+
+  }
 
   const db =
     firebase.database();
@@ -143,6 +147,9 @@ window.onload = () => {
   .trim()
 
   .toUpperCase();
+
+  const isAdmin =
+    playerCode === "STARSCREAM";
 
   console.log(
     "PLAYER =",
@@ -279,12 +286,6 @@ window.onload = () => {
 
     );
 
-  } else {
-
-    console.error(
-      "Geolocation non supportée"
-    );
-
   }
 
   /* =========================================
@@ -300,19 +301,9 @@ window.onload = () => {
       const data =
         snapshot.val();
 
-      console.log(
-        "DATABASE =",
-        data
-      );
-
       onlinePlayers = [];
 
       if (!data) {
-
-        console.log(
-          "AUCUN JOUEUR"
-        );
-
         return;
       }
 
@@ -327,11 +318,17 @@ window.onload = () => {
           Date.now() -
           (p.updated || 0);
 
-        /* remove offline players */
+        /* remove offline */
 
-        if (age > 15000) {
+        if (age > 60000) {
           continue;
         }
+
+        const sameSquad =
+          p.squad === squadCode;
+
+        /* joueurs normaux :
+           voient tout mais couleurs différentes */
 
         onlinePlayers.push({
 
@@ -345,19 +342,20 @@ window.onload = () => {
             p.lat || 0,
 
           lon:
-            p.lon || 0
+            p.lon || 0,
+
+          sameSquad:
+            sameSquad,
+
+          self:
+            id === playerCode
 
         });
 
       }
 
-      console.log(
-        "ONLINE PLAYERS =",
-        onlinePlayers
-      );
-
       /* =========================================
-         UI
+         TARGET COUNT
       ========================================= */
 
       if (targetCount) {
@@ -367,31 +365,54 @@ window.onload = () => {
 
       }
 
+      /* =========================================
+         ONLINE PILOTS
+      ========================================= */
+
       if (onlineList) {
 
         onlineList.innerHTML = "";
 
         onlinePlayers.forEach(player => {
 
-          const isAdmin =
-            playerCode === "STARSCREAM";
+          const color =
+            player.sameSquad
+            ? "#00d5ff"
+            : "#ff4444";
+
+          const label =
+            player.self
+            ? " (YOU)"
+            : "";
 
           onlineList.innerHTML += `
 
             <div class="player-card">
 
-              <div class="player-jet">
+              <div
+                class="player-jet"
+                style="
+                  color:${color};
+                "
+              >
                 ✈
               </div>
 
               <div class="player-info">
 
-                <div class="player-name">
-                  ${player.name}
+                <div
+                  class="player-name"
+                  style="
+                    color:${color};
+                  "
+                >
+
+                  ${player.name}${label}
+
                 </div>
 
                 <div style="
-                  color:#00d5ff;
+                  color:${color};
                   font-size:11px;
                   margin-top:4px;
                   letter-spacing:1px;
@@ -406,6 +427,10 @@ window.onload = () => {
               ${
 
                 isAdmin
+
+                &&
+
+                !player.self
 
                 ?
 
@@ -498,7 +523,7 @@ window.onload = () => {
   }
 
   /* =========================================
-     AUTO REMOVE PLAYER
+     AUTO REMOVE
   ========================================= */
 
   window.addEventListener(
@@ -625,8 +650,6 @@ window.onload = () => {
       const py =
         cy + dy;
 
-      /* radar bounds */
-
       const dist =
         Math.sqrt(
           Math.pow(px - cx, 2)
@@ -641,24 +664,29 @@ window.onload = () => {
         return;
       }
 
+      const color =
+        player.sameSquad
+        ? "#00d5ff"
+        : "#ff4444";
+
       ctx.beginPath();
 
       ctx.arc(
         px,
         py,
-        7,
+        player.self ? 10 : 7,
         0,
         Math.PI * 2
       );
 
       ctx.fillStyle =
-        "#00d5ff";
+        color;
 
       ctx.shadowBlur =
         15;
 
       ctx.shadowColor =
-        "#00d5ff";
+        color;
 
       ctx.fill();
 
@@ -666,7 +694,7 @@ window.onload = () => {
         "12px Arial";
 
       ctx.fillStyle =
-        "#00d5ff";
+        color;
 
       ctx.fillText(
         player.name,
