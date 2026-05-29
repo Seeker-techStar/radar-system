@@ -1,15 +1,13 @@
 window.onload = () => {
 
-  /* ===================== SAFE START ===================== */
+  console.log("RADAR STARTED");
 
-  console.log("RADAR SCRIPT LOADED");
-
-  /* ===================== DOM CHECK ===================== */
+  /* ===================== DOM ===================== */
 
   const canvas = document.getElementById("radar");
 
   if (!canvas) {
-    console.error("❌ Canvas #radar introuvable dans le HTML");
+    console.error("Canvas missing");
     return;
   }
 
@@ -22,24 +20,12 @@ window.onload = () => {
   const altStat = document.getElementById("altStat");
   const statusText = document.getElementById("statusText");
 
-  if (!ctx) {
-    console.error("❌ Canvas context introuvable");
-    return;
-  }
-
-  /* ===================== RESIZE ===================== */
-
-  let cx = 0;
-  let cy = 0;
+  /* ===================== SIZE ===================== */
 
   function resize() {
-    const size = Math.min(window.innerWidth * 0.55, window.innerHeight * 0.82);
-
+    const size = Math.min(window.innerWidth * 0.6, window.innerHeight * 0.8);
     canvas.width = size;
     canvas.height = size;
-
-    cx = size / 2;
-    cy = size / 2;
   }
 
   resize();
@@ -48,11 +34,11 @@ window.onload = () => {
   /* ===================== FIREBASE ===================== */
 
   if (!window.firebase) {
-    console.error("❌ Firebase non chargé");
+    console.error("Firebase not loaded");
     return;
   }
 
-  const firebaseConfig = {
+  firebase.initializeApp({
     apiKey: "AIzaSyBdgLpGGlr-OaTJRQu62HwO1b_PJAoQqp4",
     authDomain: "radarsystem-8475f.firebaseapp.com",
     databaseURL: "https://radarsystem-8475f-default-rtdb.firebaseio.com",
@@ -60,9 +46,8 @@ window.onload = () => {
     storageBucket: "radarsystem-8475f.appspot.com",
     messagingSenderId: "914143995056",
     appId: "1:914143995056:web:df9b96174e3d279fbac775"
-  };
+  });
 
-  firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
   /* ===================== PLAYER ===================== */
@@ -72,48 +57,56 @@ window.onload = () => {
 
   console.log("PLAYER:", playerCode, squadCode);
 
-  /* ===================== DATA ===================== */
+  /* ===================== STATE ===================== */
 
   let myLat = 0;
   let myLon = 0;
-  let onlinePlayers = [];
+  let players = [];
 
-  /* ===================== GPS ===================== */
+  /* ===================== SAFE GPS ===================== */
 
-  if (!navigator.geolocation) {
-    console.error("❌ Geolocation not supported");
-  } else {
+  function updateSelf(lat, lon) {
 
-    console.log("GPS INIT...");
+    myLat = lat;
+    myLon = lon;
+
+    if (latStat) latStat.innerText = lat.toFixed(4);
+    if (lonStat) lonStat.innerText = lon.toFixed(4);
+
+    db.ref("players/" + playerCode).set({
+      name: playerCode,
+      squad: squadCode,
+      lat,
+      lon,
+      updated: Date.now()
+    }).catch(err => console.error("DB WRITE ERROR", err));
+  }
+
+  if (navigator.geolocation) {
 
     navigator.geolocation.watchPosition(
+
       pos => {
-
-        myLat = pos.coords.latitude;
-        myLon = pos.coords.longitude;
-
-        console.log("GPS OK", myLat, myLon);
-
-        if (latStat) latStat.innerText = myLat.toFixed(4);
-        if (lonStat) lonStat.innerText = myLon.toFixed(4);
-        if (altStat) altStat.innerText = Math.floor(pos.coords.altitude || 0) + " m";
-
-        db.ref("players/" + playerCode).set({
-          name: playerCode,
-          squad: squadCode,
-          lat: myLat,
-          lon: myLon,
-          updated: Date.now()
-        });
-
+        console.log("GPS OK");
+        updateSelf(pos.coords.latitude, pos.coords.longitude);
       },
+
       err => {
-        console.error("GPS ERROR:", err);
+        console.error("GPS ERROR", err);
+
+        // fallback (radar reste visible)
+        updateSelf(0, 0);
       },
+
       {
-        enableHighAccuracy: true
+        enableHighAccuracy: true,
+        timeout: 10000
       }
+
     );
+
+  } else {
+    console.error("GPS not supported");
   }
 
   /* ===================== FIREBASE READ ===================== */
@@ -121,9 +114,9 @@ window.onload = () => {
   db.ref("players").on("value", snap => {
 
     const data = snap.val();
-    console.log("FIREBASE DATA:", data);
+    players = [];
 
-    onlinePlayers = [];
+    console.log("DB SNAPSHOT:", data);
 
     if (!data) return;
 
@@ -135,29 +128,27 @@ window.onload = () => {
       const squad = (p.squad || "").trim().toUpperCase();
 
       if (id !== playerCode && squad === squadCode) {
-        onlinePlayers.push({
+
+        players.push({
           name: p.name || "UNKNOWN",
-          squad,
           lat: p.lat || 0,
-          lon: p.lon || 0
+          lon: p.lon || 0,
+          squad
         });
       }
     }
 
-    if (targetCount) targetCount.innerText = onlinePlayers.length;
+    if (targetCount) targetCount.innerText = players.length;
 
     if (onlineList) {
       onlineList.innerHTML = "";
-
-      onlinePlayers.forEach(player => {
+      players.forEach(p => {
         onlineList.innerHTML += `
           <div class="player-card">
             <div class="player-jet">✈</div>
             <div class="player-info">
-              <div class="player-name">${player.name}</div>
-              <div style="color:#00d5ff;font-size:11px;margin-top:4px;">
-                ✦ ${player.squad}
-              </div>
+              <div class="player-name">${p.name}</div>
+              <div style="color:#00d5ff;font-size:11px;">✦ ${p.squad}</div>
             </div>
           </div>
         `;
@@ -166,25 +157,29 @@ window.onload = () => {
 
   });
 
-  /* ===================== RADAR ===================== */
+  /* ===================== RADAR LOOP ===================== */
 
   let angle = 0;
-  let pulse = 0;
 
   function draw() {
 
+    if (!ctx) return;
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
 
     /* grid */
     for (let i = 1; i <= 6; i++) {
       ctx.beginPath();
       ctx.arc(cx, cy, i * (canvas.width / 14), 0, Math.PI * 2);
-      ctx.strokeStyle = "rgba(200,120,255,0.2)";
+      ctx.strokeStyle = "rgba(180,120,255,0.2)";
       ctx.stroke();
     }
 
     /* sweep */
-    for (let i = 0; i < 45; i++) {
+    for (let i = 0; i < 40; i++) {
 
       const a = angle - i * 0.02;
 
@@ -195,12 +190,12 @@ window.onload = () => {
       ctx.moveTo(cx, cy);
       ctx.lineTo(x, y);
 
-      ctx.strokeStyle = `rgba(220,120,255,${1 - i / 45})`;
+      ctx.strokeStyle = `rgba(220,120,255,${1 - i / 40})`;
       ctx.stroke();
     }
 
     /* players */
-    onlinePlayers.forEach(p => {
+    players.forEach(p => {
 
       const dx = (p.lon - myLon) * 50000;
       const dy = (p.lat - myLat) * -50000;
@@ -213,7 +208,8 @@ window.onload = () => {
       ctx.fillStyle = "#00d5ff";
       ctx.fill();
 
-      ctx.fillText(p.name, x + 10, y);
+      ctx.fillStyle = "#00d5ff";
+      ctx.fillText(p.name, x + 8, y - 8);
     });
 
     /* center */
@@ -223,7 +219,7 @@ window.onload = () => {
     ctx.fill();
 
     if (statusText) {
-      statusText.innerText = `TRACKING ${onlinePlayers.length}`;
+      statusText.innerText = "TRACKING " + players.length;
     }
 
     angle += 0.003;
