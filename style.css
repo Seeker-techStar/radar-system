@@ -342,3 +342,108 @@ body{
     height:140px;
   }
 }
+/* ANGLE CHANGE */
+
+@keyframes jetRotate{
+
+  0%{
+    transform:
+      perspective(1200px)
+      rotateY(-18deg)
+      rotateX(8deg)
+      rotateZ(-2deg)
+      scale(1);
+  }
+
+  25%{
+    transform:
+      perspective(1200px)
+      rotateY(10deg)
+      rotateX(-5deg)
+      rotateZ(1deg)
+      scale(1.03);
+  }
+
+  50%{
+    transform:
+      perspective(1200px)
+      rotateY(0deg)
+      rotateX(10deg)
+      rotateZ(0deg)
+      scale(1.06);
+  }
+
+  75%{
+    transform:
+      perspective(1200px)
+      rotateY(-10deg)
+      rotateX(-4deg)
+      rotateZ(-1deg)
+      scale(1.03);
+  }
+
+  100%{
+    transform:
+      perspective(1200px)
+      rotateY(-18deg)
+      rotateX(8deg)
+      rotateZ(-2deg)
+      scale(1);
+  }
+}
+
+/* FLOAT */
+
+@keyframes jetFloat{
+
+  0%{
+    margin-top:0px;
+  }
+
+  50%{
+    margin-top:-8px;
+  }
+
+  100%{
+    margin-top:0px;
+  }
+}
+
+/* ENERGY PULSE */
+
+@keyframes jetPulse{
+
+  0%{
+    opacity:0.55;
+
+    filter:
+      brightness(0)
+      invert(1)
+      contrast(2)
+      drop-shadow(0 0 4px #00d9ff)
+      drop-shadow(0 0 15px #00d9ff);
+  }
+
+  50%{
+    opacity:1;
+
+    filter:
+      brightness(0)
+      invert(1)
+      contrast(2.4)
+      drop-shadow(0 0 10px #00d9ff)
+      drop-shadow(0 0 35px #00d9ff)
+      drop-shadow(0 0 60px #008cff);
+  }
+
+  100%{
+    opacity:0.55;
+
+    filter:
+      brightness(0)
+      invert(1)
+      contrast(2)
+      drop-shadow(0 0 4px #00d9ff)
+      drop-shadow(0 0 15px #00d9ff);
+  }
+}
