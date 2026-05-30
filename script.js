@@ -760,5 +760,40 @@ document
    );
    });
   drawRadar();
+  document.querySelectorAll(".draggable").forEach(panel => {
+
+  let isDragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  const header = panel.querySelector(".box-header");
+
+  header.addEventListener("mousedown", e => {
+
+    isDragging = true;
+
+    panel.style.position = "absolute";
+
+    offsetX = e.clientX - panel.offsetLeft;
+    offsetY = e.clientY - panel.offsetTop;
+
+  });
+
+  document.addEventListener("mousemove", e => {
+
+    if (!isDragging) return;
+
+    panel.style.left = (e.clientX - offsetX) + "px";
+    panel.style.top = (e.clientY - offsetY) + "px";
+
+  });
+
+  document.addEventListener("mouseup", () => {
+
+    isDragging = false;
+
+  });
+
+});
 
 };
