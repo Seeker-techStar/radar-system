@@ -8,6 +8,11 @@ window.onload = () => {
 
   const canvas =
     document.getElementById("radar");
+  const miniMap =
+  document.getElementById("miniMap");
+
+const miniCtx =
+  miniMap.getContext("2d");
 
   if (!canvas) {
     console.error("Canvas radar introuvable");
@@ -776,6 +781,76 @@ document
   }
   );
 });
+  function drawMiniMap(){
+
+  miniCtx.clearRect(
+    0,
+    0,
+    miniMap.width,
+    miniMap.height
+  );
+
+  const centerX =
+    miniMap.width / 2;
+
+  const centerY =
+    miniMap.height / 2;
+
+  miniCtx.beginPath();
+
+  miniCtx.arc(
+    centerX,
+    centerY,
+    4,
+    0,
+    Math.PI * 2
+  );
+
+  miniCtx.fillStyle =
+    "#cc88ff";
+
+  miniCtx.fill();
+
+  onlinePlayers.forEach(player=>{
+
+    const dx =
+      (player.lon - myLon)
+      * 3000;
+
+    const dy =
+      (player.lat - myLat)
+      * -3000;
+
+    const x =
+      centerX + dx;
+
+    const y =
+      centerY + dy;
+
+    const color =
+      player.sameSquad
+      ? "#00d5ff"
+      : "#ff4444";
+
+    miniCtx.beginPath();
+
+    miniCtx.arc(
+      x,
+      y,
+      3,
+      0,
+      Math.PI * 2
+    );
+
+    miniCtx.fillStyle =
+      color;
+
+    miniCtx.fill();
+
+  });
+
+}
+  drawMiniMap();
   drawRadar();
   document
   .querySelectorAll(".draggable")
