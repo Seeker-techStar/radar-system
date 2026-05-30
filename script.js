@@ -781,12 +781,18 @@ document
 
   document.addEventListener("mousemove", e => {
 
-    if (!isDragging) return;
+  if (!isDragging) return;
 
-    panel.style.left = (e.clientX - offsetX) + "px";
-    panel.style.top = (e.clientY - offsetY) + "px";
+  const newLeft =
+    Math.max(280, e.clientX - offsetX);
 
-  });
+  box.style.left =
+    newLeft + "px";
+
+  box.style.top =
+    (e.clientY - offsetY) + "px";
+
+});
 
   document.addEventListener("mouseup", () => {
 
