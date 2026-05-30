@@ -611,3 +611,10 @@ body{
   cursor:move;
   user-select:none;
 }
+#miniMap{
+  width:320px;
+  height:320px;
+  border:1px solid #00d5ff;
+  border-radius:8px;
+  margin:auto;
+}
