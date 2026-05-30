@@ -124,7 +124,16 @@ window.onload = () => {
      PLAYER
   ========================================= */
 
-  const playerCode = (
+/* =========================================
+   PLAYER LOGIN
+========================================= */
+
+let playerCode =
+  localStorage.getItem("callsign");
+
+if (!playerCode) {
+
+  playerCode = (
 
     prompt("ENTER CALLSIGN")
 
@@ -136,7 +145,18 @@ window.onload = () => {
 
   .toUpperCase();
 
-  const squadCode = (
+  localStorage.setItem(
+    "callsign",
+    playerCode
+  );
+}
+
+let squadCode =
+  localStorage.getItem("squad");
+
+if (!squadCode) {
+
+  squadCode = (
 
     prompt("ENTER SQUAD")
 
@@ -147,6 +167,27 @@ window.onload = () => {
   .trim()
 
   .toUpperCase();
+
+  localStorage.setItem(
+    "squad",
+    squadCode
+  );
+}
+
+console.log(
+  "PLAYER =",
+  playerCode
+);
+
+console.log(
+  "SQUAD =",
+  squadCode
+);
+
+alert(
+  "CONNECTED AS: " +
+  playerCode
+);
 
   const isAdmin =
     playerCode === "STARSCREAM";
