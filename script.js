@@ -666,38 +666,66 @@ window.onload = () => {
         ? "#00d5ff"
         : "#ff4444";
 
-      ctx.beginPath();
+   ctx.beginPath();
 
-      ctx.arc(
-        px,
-        py,
-        player.self ? 10 : 7,
-        0,
-        Math.PI * 2
-      );
+const dotSize =
+  player.self
+    ? Math.max(12, canvas.width * 0.015)
+    : Math.max(10, canvas.width * 0.012);
 
-      ctx.fillStyle =
-        color;
+ctx.arc(
+  px,
+  py,
+  dotSize,
+  0,
+  Math.PI * 2
+);
 
-      ctx.shadowBlur =
-        15;
+ctx.fillStyle =
+  color;
 
-      ctx.shadowColor =
-        color;
+ctx.shadowBlur =
+  20;
 
-      ctx.fill();
+ctx.shadowColor =
+  color;
 
-      ctx.font =
-        "12px Arial";
+ctx.fill();
 
-      ctx.fillStyle =
-        color;
+/* NOM JOUEUR */
 
-      ctx.fillText(
-        player.name,
-        px + 10,
-        py - 8
-      );
+const fontSize =
+  Math.max(
+    22,
+    canvas.width * 0.025
+  );
+
+ctx.font =
+  `bold ${fontSize}px Arial`;
+
+ctx.fillStyle =
+  color;
+
+ctx.strokeStyle =
+  "rgba(0,0,0,0.9)";
+
+ctx.lineWidth =
+  Math.max(
+    3,
+    canvas.width * 0.004
+  );
+
+ctx.strokeText(
+  player.name,
+  px + 15,
+  py - 15
+);
+
+ctx.fillText(
+  player.name,
+  px + 15,
+  py - 15
+);
 
     });
 
