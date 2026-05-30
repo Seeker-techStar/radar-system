@@ -744,18 +744,21 @@ window.onload = () => {
   }
 document
   .querySelectorAll(".box-header")
-                    .forEach(header=>{
-                      header.addEventListener(
-                        "click",
-                        ()=>{
-                          const content =
-                            header.nextElementSibling;
-                          content.classList.toggle(
-                            "hidden"
-                            );
-                        }
-                        );
-                    });
+   .forEach(header=>{
+     
+   header.addEventListener(
+     "click",
+   ()=>{
+     
+  const content =
+    header.nextElementSibling;
+     
+     content.classList.toggle(
+    "hidden"
+     );
+  }
+   );
+   });
   drawRadar();
 
 };
