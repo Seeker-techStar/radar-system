@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+decepticons.tech<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -32,26 +32,41 @@
         <p>RADAR <span>ACTIVE</span></p>
         <p>SHIELD <span id="energyStat">100%</span></p>
         </div>
+       
       </div>
+<div class="box collapsible">
 
-      <div class="box">
-        <h2>TACTICAL DATA</h2>
+  <h2 class="box-header">TACTICAL DATA</h2>
 
-        <p>LOCK : <span id="lockStat">SEARCHING</span></p>
-        <p>SPEED : <span id="speedStat">0 km/h</span></p>
-        <p>DIR : <span id="dirStat">EAST</span></p>
-        <p>TEMP : <span id="tempStat">0°C</span></p>
-      </div>
+  <div class="box-content">
 
-      <div class="box">
-        <h2>ONLINE PILOTS</h2>
-        <div id="onlineList"></div>
-      </div>
+    <p>LOCK : <span id="lockStat">SEARCHING</span></p>
+    <p>SPEED : <span id="speedStat">0 km/h</span></p>
+    <p>DIR : <span id="dirStat">EAST</span></p>
+    <p>TEMP : <span id="tempStat">0°C</span></p>
 
-     <div class="box">
-  <h2>F-16 SYSTEM</h2>
+  </div>
 
-  <div class="jet-panel">
+</div>
+
+
+<div class="box collapsible">
+
+  <h2 class="box-header">ONLINE PILOTS</h2>
+
+  <div class="box-content">
+
+    <div id="onlineList"></div>
+
+  </div>
+
+</div>
+
+     <div class="box collapsible">                    <h2 class="box-header">F-16 SYSTEM</h2>
+   <div class="box-content">
+   
+   
+    <div class="jet-panel">
 
     <div class="scan-ring"></div>
 
@@ -59,20 +74,21 @@
   src="https://motionarray.imgix.net/preview-1131259-xF7GtGNJ4C-high_0016.jpg?w=660&q=60&fit=max&auto=format"
   class="jet-image"
 />
-
-  </div>
-</div>
-
+                   
+    </div>
     </div>
 
-    <div class="center">
+    </div>
+    </div>
+
+    <div class="box collapsible">
       <canvas id="radar"></canvas>
       <div class="bottom-text" id="statusText">SCANNING AREA...</div>
     </div>
 
     <div class="right-panel">
 
-      <div class="box">
+      <div class="box ">
         <h2>TARGETS</h2>
         <div class="target-number" id="targetCount">0</div>
       </div>
@@ -84,17 +100,21 @@
         <p>ALT : <span id="altStat">0m</span></p>
       </div>
 
-      <div class="box">
-        <h2>MINI MAP</h2>
+      <div class="box collapsible">
+        <h2 class="box-header">MINI MAP</h2>
+        <div class="box-content">
         <canvas id="miniMap" width="220" height="220"></canvas>
+        </div>
       </div>
 
-      <div class="box">
-        <h2>CONSOLE</h2>
+      <div class="box collapsible">
+        <h2 class="box-header">CONSOLE</h2>
+        <div class="box-content">
         <div id="console">
           <p>> SYSTEM ONLINE</p>
           <p>> RADAR ACTIVE</p>
           <p>> LIVE NETWORK CONNECTED</p>
+        </div>
         </div>
       </div>
 
