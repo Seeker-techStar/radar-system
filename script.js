@@ -744,55 +744,60 @@ window.onload = () => {
   }
 document
   .querySelectorAll(".box-header")
-   .forEach(header=>{
-     
-   header.addEventListener(
-     "click",
-   ()=>{
-     
-  const content =
-    header.nextElementSibling;
-     
-     content.classList.toggle(
+  .forEach(header=>{
+  
+  header.addEventListener(
+  "click",
+  ()=>{
+    
+    const content =
+          header.nextElementSibling;
+    
+    content.classList.toggle(
     "hidden"
-     );
+    );
   }
-   );
-   });
+  );
+});
   drawRadar();
-  document.querySelectorAll(".draggable").forEach(panel => {
+  document.querySelectorAll(".draggable")
+.forEach(box => {
+
+  const header =
+    box.querySelector(".box-header");
 
   let isDragging = false;
   let offsetX = 0;
   let offsetY = 0;
 
-  const header = panel.querySelector(".box-header");
-
   header.addEventListener("mousedown", e => {
 
     isDragging = true;
 
-    panel.style.position = "absolute";
+    box.style.position = "fixed";
+    box.style.zIndex = "9999";
 
-    offsetX = e.clientX - panel.offsetLeft;
-    offsetY = e.clientY - panel.offsetTop;
+    offsetX =
+      e.clientX -
+      box.getBoundingClientRect().left;
+
+    offsetY =
+      e.clientY -
+      box.getBoundingClientRect().top;
 
   });
 
   document.addEventListener("mousemove", e => {
 
-  if (!isDragging) return;
+    if (!isDragging) return;
 
-  const newLeft =
-    Math.max(280, e.clientX - offsetX);
+    box.style.left =
+      (e.clientX - offsetX) + "px";
 
-  box.style.left =
-    newLeft + "px";
+    box.style.top =
+      (e.clientY - offsetY) + "px";
 
-  box.style.top =
-    (e.clientY - offsetY) + "px";
-
-});
+  });
 
   document.addEventListener("mouseup", () => {
 
