@@ -777,8 +777,34 @@ document
   );
 });
   drawRadar();
+  document
+  .querySelectorAll(".draggable")
+  .forEach((box,index)=>{
+
+    const saved =
+      localStorage.getItem(
+        "panel_" + index
+      );
+
+    if(saved){
+
+      const pos =
+        JSON.parse(saved);
+
+      box.style.position =
+        "fixed";
+
+      box.style.left =
+        pos.left;
+
+      box.style.top =
+        pos.top;
+
+    }
+
+});
   document.querySelectorAll(".draggable")
-.forEach(box => {
+.forEach((box,index) => {
 
   const header =
     box.querySelector(".box-header");
@@ -813,6 +839,20 @@ document
 
     box.style.top =
       (e.clientY - offsetY) + "px";
+    localStorage.setItem(
+  "panel_" + index,
+
+  JSON.stringify({
+
+    left:
+      box.style.left,
+
+    top:
+      box.style.top
+
+  })
+
+);
 
   });
 
@@ -825,3 +865,4 @@ document
 });
 
 };
+   
