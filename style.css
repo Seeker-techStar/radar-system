@@ -607,3 +607,7 @@ body{
 .box-content.hidden{
   display:none;
 }
+.box-header{
+  cursor:move;
+  user-select:none;
+}
