@@ -8,6 +8,10 @@ decepticons.tech<!DOCTYPE html>
 
   <link rel="stylesheet" href="style.css?v=99">
   <link rel="manifest" href="manifest.json">
+  <link
+rel="stylesheet"
+href="https://unpkg.com/leaflet/dist/leaflet.css"
+/>
 </head>
 
 <body>
@@ -94,7 +98,7 @@ decepticons.tech<!DOCTYPE html>
       <div class="box ">
         <h2>TARGETS</h2>
         <div class="target-number" id="targetCount">0</div>
-      </div>
+      
     </div>
 
       <div class="box collapsible draggable">
@@ -109,7 +113,7 @@ decepticons.tech<!DOCTYPE html>
       <div class="box collapsible draggable">
         <h2 class="box-header">MINI MAP</h2>
         <div class="box-content">
-        <canvas id="miniMap" width="220" height="220"></canvas>
+       <div id="miniMap"></div>
         </div>
       </div>
 
@@ -133,6 +137,7 @@ decepticons.tech<!DOCTYPE html>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
   <!-- IMPORTANT: defer = évite ton bug "script qui ne tourne pas" -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="script.js?v=99" defer></script>
 
 </body>
