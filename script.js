@@ -668,13 +668,18 @@ window.onload = () => {
 
       ctx.beginPath();
 
-      ctx.arc(
-        px,
-        py,
-        player.self ? 10 : 7,
-        0,
-        Math.PI * 2
-      );
+     const dotSize =
+  player.self
+    ? Math.max(10, canvas.width * 0.012)
+    : Math.max(8, canvas.width * 0.009);
+
+ctx.arc(
+  px,
+  py,
+  dotSize,
+  0,
+  Math.PI * 2
+);
 
       ctx.fillStyle =
         color;
@@ -687,17 +692,35 @@ window.onload = () => {
 
       ctx.fill();
 
-      ctx.font =
-        "12px Arial";
+     const fontSize =
+  Math.max(
+    18,
+    canvas.width * 0.018
+  );
 
-      ctx.fillStyle =
-        color;
+ctx.font =
+  `bold ${fontSize}px Arial`;
 
-      ctx.fillText(
-        player.name,
-        px + 10,
-        py - 8
-      );
+ctx.fillStyle =
+  color;
+
+ctx.strokeStyle =
+  "#000";
+
+ctx.lineWidth =
+  4;
+
+ctx.strokeText(
+  player.name,
+  px + 14,
+  py - 12
+);
+
+ctx.fillText(
+  player.name,
+  px + 14,
+  py - 12
+);
 
     });
 
