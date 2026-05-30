@@ -8,12 +8,7 @@ window.onload = () => {
 
   const canvas =
     document.getElementById("radar");
-  const miniMap =
-  document.getElementById("miniMap");
-
-const miniCtx =
-  miniMap.getContext("2d");
-
+  
   if (!canvas) {
     console.error("Canvas radar introuvable");
     return;
@@ -124,7 +119,17 @@ const miniCtx =
   console.log(
     "Firebase connecté"
   );
+const map = L.map("miniMap")
+  .setView([0,0],15);
 
+L.tileLayer(
+  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  {
+    attribution:"© OpenStreetMap"
+  }
+).addTo(map);
+
+let myMarker = null;
   /* =========================================
      PLAYER
   ========================================= */
@@ -204,6 +209,27 @@ localStorage.setItem(
 
     myLat = lat;
     myLon = lon;
+    
+    if (!myMarker) {
+
+  myMarker = L.marker([
+    lat,
+    lon
+  ]).addTo(map);
+
+} else {
+
+  myMarker.setLatLng([
+    lat,
+    lon
+  ]);
+
+}
+
+map.setView(
+  [lat, lon],
+  15
+);
 
     if (latStat) {
       latStat.innerText =
@@ -781,78 +807,14 @@ document
   }
   );
 });
-  function drawMiniMap(){
-
-  miniCtx.clearRect(
-    0,
-    0,
-    miniMap.width,
-    miniMap.height
-  );
-
-  const centerX =
-    miniMap.width / 2;
-
-  const centerY =
-    miniMap.height / 2;
-
-  miniCtx.beginPath();
-
-  miniCtx.arc(
-    centerX,
-    centerY,
-    4,
-    0,
-    Math.PI * 2
-  );
-
-  miniCtx.fillStyle =
-    "#cc88ff";
-
-  miniCtx.fill();
-
-  onlinePlayers.forEach(player=>{
-
-    const dx =
-      (player.lon - myLon)
-      * 3000;
-
-    const dy =
-      (player.lat - myLat)
-      * -3000;
-
-    const x =
-      centerX + dx;
-
-    const y =
-      centerY + dy;
-
-    const color =
-      player.sameSquad
-      ? "#00d5ff"
-      : "#ff4444";
-
-    miniCtx.beginPath();
-
-    miniCtx.arc(
-      x,
-      y,
-      3,
-      0,
-      Math.PI * 2
-    );
-
-    miniCtx.fillStyle =
-      color;
-
-    miniCtx.fill();
-
-  });
-
-}
-  drawMiniMap();
+  
   drawRadar();
-  document
+
+/* =========================
+   RESTORE PANELS
+========================= */
+
+document
   .querySelectorAll(".draggable")
   .forEach((box,index)=>{
 
@@ -878,66 +840,99 @@ document
     }
 
 });
-  document.querySelectorAll(".draggable")
-.forEach((box,index) => {
 
-  const header =
-    box.querySelector(".box-header");
+/* =========================
+   DRAG PANELS
+========================= */
 
-  let isDragging = false;
-  let offsetX = 0;
-  let offsetY = 0;
+document
+  .querySelectorAll(".draggable")
+  .forEach((box,index)=>{
 
-  header.addEventListener("mousedown", e => {
+    const header =
+      box.querySelector(
+        ".box-header"
+      );
 
-    isDragging = true;
+    if(!header) return;
 
-    box.style.position = "fixed";
-    box.style.zIndex = "9999";
+    let isDragging = false;
 
-    offsetX =
-      e.clientX -
-      box.getBoundingClientRect().left;
+    let offsetX = 0;
+    let offsetY = 0;
 
-    offsetY =
-      e.clientY -
-      box.getBoundingClientRect().top;
+    header.addEventListener(
+      "mousedown",
+      e=>{
 
-  });
+        isDragging = true;
 
-  document.addEventListener("mousemove", e => {
+        box.style.position =
+          "fixed";
 
-    if (!isDragging) return;
+        box.style.zIndex =
+          "9999";
 
-    box.style.left =
-      (e.clientX - offsetX) + "px";
+        offsetX =
+          e.clientX -
+          box.getBoundingClientRect()
+          .left;
 
-    box.style.top =
-      (e.clientY - offsetY) + "px";
-    localStorage.setItem(
-  "panel_" + index,
+        offsetY =
+          e.clientY -
+          box.getBoundingClientRect()
+          .top;
 
-  JSON.stringify({
+      }
+    );
 
-    left:
-      box.style.left,
+    document.addEventListener(
+      "mousemove",
+      e=>{
 
-    top:
-      box.style.top
+        if(!isDragging)
+          return;
 
-  })
+        box.style.left =
+          (e.clientX - offsetX)
+          + "px";
 
-);
+        box.style.top =
+          (e.clientY - offsetY)
+          + "px";
 
-  });
+        localStorage.setItem(
 
-  document.addEventListener("mouseup", () => {
+          "panel_" + index,
 
-    isDragging = false;
+          JSON.stringify({
 
-  });
+            left:
+              box.style.left,
+
+            top:
+              box.style.top
+
+          })
+
+        );
+
+      }
+    );
+
+    document.addEventListener(
+      "mouseup",
+      ()=>{
+
+        isDragging = false;
+
+      }
+    );
 
 });
 
+/* =========================
+   END
+========================= */
+
 };
-   
