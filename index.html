@@ -82,53 +82,51 @@ decepticons.tech<!DOCTYPE html>
 
     </div>
     </div>
-    <div class="center">
 
-  <canvas id="radar"></canvas>
-
-  <div class="bottom-text" id="statusText">
-    SCANNING AREA...
-  </div>
-
-</div>
-
-<div class="right-panel">
-
-  <div class="box collapsible draggable">
-    <h2 class="box-header">TARGETS</h2>
-    <div class="box-content">
-      <div class="target-number" id="targetCount">0</div>
+    <div class="box">
+      <canvas id="radar"></canvas>
+      <div class="bottom-text" id="statusText">SCANNING AREA...</div>
     </div>
-  </div>
+   
 
-  <div class="box collapsible draggable">
-    <h2 class="box-header">COORDINATES</h2>
-    <div class="box-content">
-      <p>LAT : <span id="latStat">0</span></p>
-      <p>LON : <span id="lonStat">0</span></p>
-      <p>ALT : <span id="altStat">0m</span></p>
-    </div>
-  </div>
+    <div class="right-panel">
 
-  <div class="box collapsible draggable">
-    <h2 class="box-header">MINI MAP</h2>
-    <div class="box-content">
-      <canvas id="miniMap" width="220" height="220"></canvas>
-    </div>
-  </div>
-
-  <div class="box collapsible draggable">
-    <h2 class="box-header">CONSOLE</h2>
-    <div class="box-content">
-      <div id="console">
-        <p>> SYSTEM ONLINE</p>
-        <p>> RADAR ACTIVE</p>
-        <p>> LIVE NETWORK CONNECTED</p>
+      <div class="box ">
+        <h2>TARGETS</h2>
+        <div class="target-number" id="targetCount">0</div>
       </div>
     </div>
-  </div>
 
-</div>
+      <div class="box collapsible draggable">
+        <h2 class="box-header">COORDINATES</h2>
+        <div class="box-content">
+        <p>LAT : <span id="latStat">0</span></p>
+        <p>LON : <span id="lonStat">0</span></p>
+        <p>ALT : <span id="altStat">0m</span></p>
+        </div>
+      </div>
+
+      <div class="box collapsible draggable">
+        <h2 class="box-header">MINI MAP</h2>
+        <div class="box-content">
+        <canvas id="miniMap" width="220" height="220"></canvas>
+        </div>
+      </div>
+
+      <div class="box collapsible draggable">
+        <h2 class="box-header">CONSOLE</h2>
+        <div class="box-content">
+        <div id="console">
+          <p>> SYSTEM ONLINE</p>
+          <p>> RADAR ACTIVE</p>
+          <p>> LIVE NETWORK CONNECTED</p>
+        </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
