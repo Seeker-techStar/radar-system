@@ -20,7 +20,7 @@ decepticons.tech<!DOCTYPE html>
 
       <p class="subtitle">SIC-AIR COMMANDER OF DECEPTICONS</p>
 
-      <div class="box collapsible">
+      <div class="box collapsible draggable">
         <button id="disconnectBtn">
   DISCONNECT
 </button>
@@ -34,7 +34,7 @@ decepticons.tech<!DOCTYPE html>
         </div>
        
       </div>
-<div class="box collapsible">
+<div class="box collapsible draggable">
 
   <h2 class="box-header">TACTICAL DATA</h2>
 
@@ -50,7 +50,7 @@ decepticons.tech<!DOCTYPE html>
 </div>
 
 
-<div class="box collapsible">
+<div class="box collapsible draggable">
 
   <h2 class="box-header">ONLINE PILOTS</h2>
 
@@ -62,7 +62,9 @@ decepticons.tech<!DOCTYPE html>
 
 </div>
 
-     <div class="box collapsible">                    <h2 class="box-header">F-16 SYSTEM</h2>
+     <div class="box collapsible draggable"> 
+       
+       <h2 class="box-header">F-16 SYSTEM</h2>
    <div class="box-content">
    
    
@@ -81,10 +83,11 @@ decepticons.tech<!DOCTYPE html>
     </div>
     </div>
 
-    <div class="box collapsible">
+    <div class="box">
       <canvas id="radar"></canvas>
       <div class="bottom-text" id="statusText">SCANNING AREA...</div>
     </div>
+   
 
     <div class="right-panel">
 
@@ -92,22 +95,25 @@ decepticons.tech<!DOCTYPE html>
         <h2>TARGETS</h2>
         <div class="target-number" id="targetCount">0</div>
       </div>
+    </div>
 
-      <div class="box">
-        <h2>COORDINATES</h2>
+      <div class="box collapsible draggable">
+        <h2 class="box-header">COORDINATES</h2>
+        <div class="box-content">
         <p>LAT : <span id="latStat">0</span></p>
         <p>LON : <span id="lonStat">0</span></p>
         <p>ALT : <span id="altStat">0m</span></p>
+        </div>
       </div>
 
-      <div class="box collapsible">
+      <div class="box collapsible draggable">
         <h2 class="box-header">MINI MAP</h2>
         <div class="box-content">
         <canvas id="miniMap" width="220" height="220"></canvas>
         </div>
       </div>
 
-      <div class="box collapsible">
+      <div class="box collapsible draggable">
         <h2 class="box-header">CONSOLE</h2>
         <div class="box-content">
         <div id="console">
