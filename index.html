@@ -1,858 +1,111 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
-  <meta charset="UTF-8" />
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>STARSCREAM RADAR</title>
 
-  <style>
-
-/* =========================
-   GLOBAL
-========================= */
-
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
-
-body{
-  width:100vw;
-  height:100vh;
-
-  overflow:hidden;
-
-  background:
-    radial-gradient(
-      circle at center,
-      #090012,
-      #020308
-    );
-
-  font-family:Arial,sans-serif;
-
-  color:white;
-}
-
-/* =========================
-   HUD
-========================= */
-
-.hud{
-  width:100%;
-  height:100%;
-
-  display:grid;
-
-  grid-template-columns:
-    24vw
-    1fr
-    24vw;
-
-  gap:10px;
-
-  padding:10px;
-}
-
-/* =========================
-   PANELS
-========================= */
-
-.left-panel,
-.right-panel{
-  display:flex;
-
-  flex-direction:column;
-
-  gap:10px;
-}
-
-/* =========================
-   BOX
-========================= */
-
-.box{
-  background:
-    linear-gradient(
-      145deg,
-      rgba(18,8,30,0.95),
-      rgba(6,3,15,0.98)
-    );
-
-  border:
-    1px solid rgba(180,0,255,0.22);
-
-  border-radius:14px;
-
-  padding:16px;
-
-  overflow:hidden;
-
-  box-shadow:
-    0 0 20px rgba(180,0,255,0.08),
-    inset 0 0 20px rgba(180,0,255,0.04);
-}
-
-/* =========================
-   TITLES
-========================= */
-
-.title{
-  color:#d16cff;
-
-  font-size:34px;
-
-  letter-spacing:4px;
-
-  text-shadow:
-    0 0 15px #bb5cff;
-}
-
-.subtitle{
-  margin-top:8px;
-
-  color:#8e73b5;
-
-  font-size:12px;
-
-  letter-spacing:2px;
-}
-
-h2{
-  margin-bottom:14px;
-
-  color:#c95fff;
-
-  font-size:18px;
-
-  letter-spacing:2px;
-
-  text-shadow:
-    0 0 10px #b14dff;
-}
-
-/* =========================
-   TEXT
-========================= */
-
-p{
-  color:#cb9eff;
-
-  margin-bottom:12px;
-
-  font-size:14px;
-}
-
-span{
-  color:white;
-}
-
-/* =========================
-   CENTER RADAR
-========================= */
-
-.center{
-  position:relative;
-
-  border-radius:14px;
-
-  overflow:hidden;
-
-  background:black;
-
-  border:
-    1px solid rgba(180,0,255,0.25);
-}
-
-/* =========================
-   RADAR
-========================= */
-
-#radar{
-  width:100%;
-  height:100%;
-}
-
-/* =========================
-   RADAR GRID
-========================= */
-
-.radar-overlay{
-  position:absolute;
-
-  inset:0;
-
-  background:
-    linear-gradient(
-      rgba(212,0,255,0.03) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      90deg,
-      rgba(212,0,255,0.03) 1px,
-      transparent 1px
-    );
-
-  background-size:40px 40px;
-
-  pointer-events:none;
-}
-
-/* =========================
-   SCANNING TEXT
-========================= */
-
-.bottom-text{
-  position:absolute;
-
-  bottom:24px;
-
-  width:100%;
-
-  text-align:center;
-
-  color:#d400ff;
-
-  font-size:18px;
-
-  letter-spacing:4px;
-
-  text-shadow:
-    0 0 12px #d400ff;
-}
-
-/* =========================
-   TARGETS
-========================= */
-
-.target-number{
-  font-size:52px;
-
-  text-align:center;
-
-  color:#d400ff;
-
-  text-shadow:
-    0 0 20px #d400ff;
-}
-
-/* =========================
-   CONSOLE
-========================= */
-
-.console{
-  display:flex;
-
-  flex-direction:column;
-
-  gap:8px;
-}
-
-/* =========================
-   MINI MAP
-========================= */
-
-#miniMap{
-  width:100%;
-
-  height:180px;
-
-  border-radius:10px;
-
-  background:black;
-
-  border:
-    1px solid rgba(180,0,255,0.2);
-}
-
-/* =========================
-   JET PANEL
-========================= */
-
-.jet-panel{
-  position:relative;
-
-  width:100%;
-
-  height:220px;
-
-  overflow:hidden;
-
-  border-radius:14px;
-
-  background:
-    radial-gradient(
-      circle at center,
-      rgba(180,0,255,0.16),
-      rgba(0,0,0,0.55)
-    );
-
-  border:
-    1px solid rgba(180,0,255,0.22);
-
-  box-shadow:
-    inset 0 0 40px rgba(180,0,255,0.12),
-    0 0 30px rgba(180,0,255,0.1);
-}
-
-/* =========================
-   CANVAS
-========================= */
-
-#jetCanvas{
-  width:100%;
-  height:100%;
-
-  display:block;
-}
-
-/* =========================
-   GRID
-========================= */
-
-.jet-panel::before{
-  content:"";
-
-  position:absolute;
-
-  inset:0;
-
-  background:
-    linear-gradient(
-      rgba(212,0,255,0.04) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      90deg,
-      rgba(212,0,255,0.04) 1px,
-      transparent 1px
-    );
-
-  background-size:28px 28px;
-
-  pointer-events:none;
-}
-
-/* =========================
-   SCAN LINE
-========================= */
-
-.scan-line{
-  position:absolute;
-
-  left:0;
-  top:0;
-
-  width:100%;
-  height:2px;
-
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      #d400ff,
-      transparent
-    );
-
-  box-shadow:
-    0 0 12px #d400ff;
-
-  animation:
-    scanMove 4s linear infinite;
-}
-
-/* =========================
-   SCAN RING
-========================= */
-
-.scan-ring{
-  position:absolute;
-
-  top:50%;
-  left:50%;
-
-  width:180px;
-  height:180px;
-
-  transform:
-    translate(-50%, -50%);
-
-  border-radius:50%;
-
-  border:
-    1px solid rgba(212,0,255,0.35);
-
-  box-shadow:
-    0 0 25px rgba(212,0,255,0.45);
-
-  animation:
-    scanPulse 2.5s linear infinite;
-}
-
-/* =========================
-   ANIMATIONS
-========================= */
-
-@keyframes scanMove{
-
-  0%{
-    top:8%;
-    opacity:0;
-  }
-
-  20%{
-    opacity:1;
-  }
-
-  100%{
-    top:92%;
-    opacity:0;
-  }
-}
-
-@keyframes scanPulse{
-
-  0%{
-    transform:
-      translate(-50%, -50%)
-      scale(0.7);
-
-    opacity:0.1;
-  }
-
-  50%{
-    opacity:1;
-  }
-
-  100%{
-    transform:
-      translate(-50%, -50%)
-      scale(1.45);
-
-    opacity:0;
-  }
-}
-
-/* =========================
-   MOBILE
-========================= */
-
-@media(max-width:900px){
-
-  .hud{
-
-    grid-template-columns:
-      26vw
-      1fr
-      26vw;
-
-    gap:6px;
-
-    padding:6px;
-  }
-
-  .title{
-    font-size:22px;
-  }
-
-  h2{
-    font-size:15px;
-  }
-
-  p{
-    font-size:12px;
-  }
-
-  .jet-panel{
-    height:150px;
-  }
-
-  #miniMap{
-    height:120px;
-  }
-}
-
-  </style>
-
+  <link rel="stylesheet" href="style.css?v=99">
+  <link rel="manifest" href="manifest.json">
 </head>
 
 <body>
 
   <div class="hud">
 
-    <!-- LEFT -->
     <div class="left-panel">
 
-      <div class="box">
+      <h1 class="title">STARSCREAM</h1>
 
-        <h1 class="title">
-          STARSCREAM
-        </h1>
-
-        <p class="subtitle">
-          SIC-AIR COMMANDER OF DECEPTICONS
-        </p>
-
-      </div>
+      <p class="subtitle">SIC-AIR COMMANDER OF DECEPTICONS</p>
 
       <div class="box">
-
+        <button id="disconnectBtn">
+  DISCONNECT
+</button>
         <h2>SYSTEM STATUS</h2>
 
-        <p>CORE : <span>ONLINE</span></p>
-
-        <p>GPS : <span>READY</span></p>
-
-        <p>RADAR : <span>ACTIVE</span></p>
-
-        <p>SHIELD : <span>100%</span></p>
-
+        <p>CORE <span id="coreStat">ONLINE</span></p>
+        <p>GPS <span>READY</span></p>
+        <p>RADAR <span>ACTIVE</span></p>
+        <p>SHIELD <span id="energyStat">100%</span></p>
       </div>
 
       <div class="box">
-
         <h2>TACTICAL DATA</h2>
 
-        <p>LOCK : <span>SEARCHING</span></p>
-
-        <p>SPEED : <span>0 km/h</span></p>
-
-        <p>DIR : <span>EAST</span></p>
-
-        <p>TEMP : <span>0°C</span></p>
-
+        <p>LOCK : <span id="lockStat">SEARCHING</span></p>
+        <p>SPEED : <span id="speedStat">0 km/h</span></p>
+        <p>DIR : <span id="dirStat">EAST</span></p>
+        <p>TEMP : <span id="tempStat">0°C</span></p>
       </div>
-
-      <!-- =========================
-           F16 SYSTEM
-      ========================= -->
 
       <div class="box">
-
-        <h2>F-16 SYSTEM</h2>
-
-        <div class="jet-panel">
-
-          <canvas id="jetCanvas"></canvas>
-
-          <div class="scan-ring"></div>
-
-          <div class="scan-line"></div>
-
-        </div>
-
+        <h2>ONLINE PILOTS</h2>
+        <div id="onlineList"></div>
       </div>
+
+     <div class="box">
+  <h2>F-16 SYSTEM</h2>
+
+  <div class="jet-panel">
+
+    <div class="scan-ring"></div>
+
+      <img
+  src="https://motionarray.imgix.net/preview-1131259-xF7GtGNJ4C-high_0016.jpg?w=660&q=60&fit=max&auto=format"
+  class="jet-image"
+/>
+
+  </div>
+</div>
 
     </div>
 
-    <!-- CENTER -->
     <div class="center">
-
       <canvas id="radar"></canvas>
-
-      <div class="radar-overlay"></div>
-
-      <div class="bottom-text">
-
-        SCANNING AREA...
-
-      </div>
-
+      <div class="bottom-text" id="statusText">SCANNING AREA...</div>
     </div>
 
-    <!-- RIGHT -->
     <div class="right-panel">
 
       <div class="box">
-
         <h2>TARGETS</h2>
-
-        <div class="target-number">
-
-          0
-
-        </div>
-
+        <div class="target-number" id="targetCount">0</div>
       </div>
 
       <div class="box">
-
         <h2>COORDINATES</h2>
-
-        <p>LAT : <span>0</span></p>
-
-        <p>LON : <span>0</span></p>
-
-        <p>ALT : <span>120m</span></p>
-
+        <p>LAT : <span id="latStat">0</span></p>
+        <p>LON : <span id="lonStat">0</span></p>
+        <p>ALT : <span id="altStat">0m</span></p>
       </div>
 
       <div class="box">
-
         <h2>MINI MAP</h2>
-
-        <canvas id="miniMap"></canvas>
-
+        <canvas id="miniMap" width="220" height="220"></canvas>
       </div>
 
       <div class="box">
-
         <h2>CONSOLE</h2>
-
-        <div class="console">
-
+        <div id="console">
           <p>> SYSTEM ONLINE</p>
-
           <p>> RADAR ACTIVE</p>
-
-          <p>> TARGET LOCK READY</p>
-
+          <p>> LIVE NETWORK CONNECTED</p>
         </div>
-
       </div>
 
     </div>
 
   </div>
 
-  <!-- =========================
-       THREE JS
-  ========================= -->
-
-  <script type="module">
-
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160/build/three.module.js";
-
-import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/loaders/GLTFLoader.js";
-
-/* =========================
-   SCENE
-========================= */
-
-const canvas =
-document.getElementById("jetCanvas");
-
-const scene = new THREE.Scene();
-
-const camera =
-new THREE.PerspectiveCamera(
-  45,
-  canvas.clientWidth /
-  canvas.clientHeight,
-  0.1,
-  1000
-);
-
-camera.position.set(0,1.5,5);
-
-/* =========================
-   RENDERER
-========================= */
-
-const renderer =
-new THREE.WebGLRenderer({
-
-  canvas,
-
-  alpha:true,
-
-  antialias:true
-
-});
-
-renderer.setPixelRatio(
-  window.devicePixelRatio
-);
-
-renderer.setSize(
-  canvas.clientWidth,
-  canvas.clientHeight
-);
-
-/* =========================
-   LIGHTS
-========================= */
-
-const ambient =
-new THREE.AmbientLight(
-  0xbb55ff,
-  2
-);
-
-scene.add(ambient);
-
-const light =
-new THREE.PointLight(
-  0xd400ff,
-  4
-);
-
-light.position.set(4,4,4);
-
-scene.add(light);
-
-/* =========================
-   GRID
-========================= */
-
-const grid =
-new THREE.GridHelper(
-  12,
-  24,
-  0xbb55ff,
-  0x551177
-);
-
-grid.material.transparent = true;
-
-grid.material.opacity = 0.25;
-
-scene.add(grid);
-
-/* =========================
-   LOAD MODEL
-========================= */
-
-const loader =
-new GLTFLoader();
-
-let jet;
-
-loader.load(
-"Fighter_Jet-USA_v1_L1.123c6171f308-fe45-4d37.glb",
-
-  (gltf)=>{
-
-    jet = gltf.scene;
-
-    jet.scale.set(1.4,1.4,1.4);
-
-    jet.position.y = 0.2;
-
-    scene.add(jet);
-
-  },
-
-  undefined,
-
-  (error)=>{
-
-    console.error("Erreur GLB :", error);
-
-  }
-
-);{
-
-    jet = gltf.scene;
-
-    jet.scale.set(1.4,1.4,1.4);
-
-    jet.position.y = 0.2;
-
-    jet.traverse((child)=>{
-
-      if(child.isMesh){
-
-        child.material =
-        new THREE.MeshStandardMaterial({
-
-          color:0xbb55ff,
-
-          emissive:0x8a2eff,
-
-          emissiveIntensity:2,
-
-          transparent:true,
-
-          opacity:0.82,
-
-          metalness:0.2,
-
-          roughness:0.3
-
-        });
-
-      }
-
-    });
-
-    scene.add(jet);
-
-  }
-
-);
-
-/* =========================
-   ANIMATION
-========================= */
-
-function animate(){
-
-  requestAnimationFrame(
-    animate
-  );
-
-  if(jet){
-
-    jet.rotation.y += 0.006;
-
-    jet.rotation.z =
-    Math.sin(
-      Date.now()*0.0015
-    )*0.03;
-
-    jet.position.y =
-      0.2 +
-      Math.sin(
-        Date.now()*0.002
-      )*0.08;
-
-  }
-
-  renderer.render(
-    scene,
-    camera
-  );
-
-}
-
-animate();
-
-/* =========================
-   RESIZE
-========================= */
-
-window.addEventListener(
-  "resize",
-  ()=>{
-
-    camera.aspect =
-      canvas.clientWidth /
-      canvas.clientHeight;
-
-    camera.updateProjectionMatrix();
-
-    renderer.setSize(
-      canvas.clientWidth,
-      canvas.clientHeight
-    );
-
-  }
-);
-
-  </script>
-<script type="module">
-
-// code three.js ici
-
-</script>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+  <!-- IMPORTANT: defer = évite ton bug "script qui ne tourne pas" -->
+  <script src="script.js?v=99" defer></script>
 
 </body>
 </html>
