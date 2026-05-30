@@ -743,13 +743,13 @@ window.onload = () => {
 
   }
 document
-  .querySelectorAll(".box-header)
+  .querySelectorAll(".box-header")
                     .forEach(header=>{
                       header.addEventListener(
                         "click",
                         ()=>{
                           const content =
-                            header.nextElementSiblling;
+                            header.nextElementSibling;
                           content.classList.toggle(
                             "hidden"
                             );
