@@ -123,31 +123,48 @@ window.onload = () => {
   /* =========================================
      PLAYER
   ========================================= */
+const savedCallsign =
+  localStorage.getItem("callsign");
 
-  const playerCode = (
+const savedSquad =
+  localStorage.getItem("squad");
 
-    prompt("ENTER CALLSIGN")
+const playerCode = (
 
-    || "UNKNOWN"
-
+  prompt(
+    "ENTER CALLSIGN",
+    savedCallsign || ""
   )
 
-  .trim()
+  || "UNKNOWN"
 
-  .toUpperCase();
+)
+.trim()
+.toUpperCase();
 
-  const squadCode = (
+const squadCode = (
 
-    prompt("ENTER SQUAD")
-
-    || "PUBLIC"
-
+  prompt(
+    "ENTER SQUAD",
+    savedSquad || ""
   )
 
-  .trim()
+  || "PUBLIC"
 
-  .toUpperCase();
+)
+.trim()
+.toUpperCase();
 
+localStorage.setItem(
+  "callsign",
+  playerCode
+);
+
+localStorage.setItem(
+  "squad",
+  squadCode
+);
+  
   const isAdmin =
     playerCode === "STARSCREAM";
 
