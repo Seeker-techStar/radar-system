@@ -726,10 +726,29 @@ new GLTFLoader();
 let jet;
 
 loader.load(
-  "Fighter_Jet-USA_v1_L1.123c6171f308-fe45-4d37.glb"
-)
+"Fighter_Jet-USA_v1_L1.123c6171f308-fe45-4d37.glb",
 
   (gltf)=>{
+
+    jet = gltf.scene;
+
+    jet.scale.set(1.4,1.4,1.4);
+
+    jet.position.y = 0.2;
+
+    scene.add(jet);
+
+  },
+
+  undefined,
+
+  (error)=>{
+
+    console.error("Erreur GLB :", error);
+
+  }
+
+);{
 
     jet = gltf.scene;
 
@@ -835,6 +854,5 @@ window.addEventListener(
 
 </script>
 
-</body>
 </body>
 </html>
