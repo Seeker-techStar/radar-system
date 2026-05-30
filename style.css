@@ -601,3 +601,9 @@ body{
     height:130px;
   }
 }
+.box-header{
+  cursor:pointer;
+}
+.box-content.hidden{
+  display:none;
+}
