@@ -828,3 +828,53 @@ logo-container {
   background: rgba(0,213,255,0.25);
   box-shadow: 0 0 12px rgba(0,213,255,0.3);
 }
+.seeker-intro {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #05020a;
+  z-index: 10000;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+}
+
+.intro-logo {
+  width: 320px;
+  height: auto;
+  object-fit: contain;
+  mix-blend-mode: screen;
+  animation: introPulse 0.8s ease-in-out infinite;
+}
+
+@keyframes introPulse {
+  0%   { opacity: 0.3; transform: scale(0.95); }
+  50%  { opacity: 1;   transform: scale(1.05); }
+  100% { opacity: 0.3; transform: scale(0.95); }
+}
+
+.intro-text {
+  font-size: 14px;
+  letter-spacing: 4px;
+  color: #bb66ff;
+  text-shadow: 0 0 10px #bb66ff;
+}
+
+.intro-bar {
+  width: 320px;
+  height: 3px;
+  background: rgba(187,102,255,0.2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.intro-fill {
+  height: 100%;
+  width: 0%;
+  background: #bb66ff;
+  box-shadow: 0 0 8px #bb66ff;
+  transition: width 0.05s linear;
+}
