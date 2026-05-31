@@ -618,26 +618,150 @@ html, body {
   border: 1px solid rgba(0,213,255,0.2);
 }
 
-.chill-spotify {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px;
-  border: 1px solid rgba(0,213,255,0.2);
-  border-radius: 10px;
-  background: rgba(0,213,255,0.03);
+/* =========================
+   SPOTIFY PANEL
+========================= */
+
+.chill-spotify{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+
+  padding:14px;
+
+  border:1px solid rgba(0,213,255,.25);
+  border-radius:14px;
+
+  background:rgba(0,213,255,.04);
+
+  box-shadow:
+    0 0 20px rgba(0,213,255,.08),
+    inset 0 0 20px rgba(0,213,255,.03);
 }
 
-.spotify-title {
-  font-size: 12px;
-  letter-spacing: 3px;
-  color: #00d5ff;
+.spotify-header{
+  width:100%;
+  text-align:center;
+
+  font-size:12px;
+  letter-spacing:3px;
+  font-weight:bold;
+
+  color:#00d5ff;
+
+  text-shadow:0 0 10px #00d5ff;
 }
 
-.spotify-track {
-  font-size: 12px;
-  letter-spacing: 1px;
-  color: rgba(255,255,255,0.5);
+.spotify-cover{
+  width:160px;
+  height:160px;
+
+  border-radius:12px;
+
+  object-fit:cover;
+
+  border:1px solid rgba(0,213,255,.3);
+
+  box-shadow:
+    0 0 20px rgba(0,213,255,.2);
+}
+
+.spotify-track{
+  width:100%;
+
+  text-align:center;
+
+  color:white;
+
+  font-size:13px;
+  font-weight:bold;
+
+  letter-spacing:1px;
+
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+
+.spotify-artist{
+  width:100%;
+
+  text-align:center;
+
+  color:rgba(255,255,255,.6);
+
+  font-size:11px;
+
+  letter-spacing:2px;
+
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+
+.spotify-controls{
+  display:flex;
+  gap:10px;
+}
+
+.spotify-controls button{
+
+  width:42px;
+  height:42px;
+
+  border:none;
+  border-radius:50%;
+
+  background:rgba(0,213,255,.12);
+
+  color:#00d5ff;
+
+  cursor:pointer;
+
+  font-size:18px;
+
+  transition:.2s;
+}
+
+.spotify-controls button:hover{
+
+  background:rgba(0,213,255,.25);
+
+  box-shadow:
+    0 0 15px rgba(0,213,255,.4);
+
+  transform:scale(1.08);
+}
+
+#spotifyConnectBtn{
+
+  width:100%;
+
+  padding:10px;
+
+  border:none;
+  border-radius:10px;
+
+  background:rgba(30,215,96,.15);
+
+  color:#1DB954;
+
+  font-weight:bold;
+
+  letter-spacing:2px;
+
+  cursor:pointer;
+
+  transition:.2s;
+}
+
+#spotifyConnectBtn:hover{
+
+  background:rgba(30,215,96,.3);
+
+  box-shadow:
+    0 0 15px rgba(30,215,96,.4);
 }
 
 #exitChillBtn {
