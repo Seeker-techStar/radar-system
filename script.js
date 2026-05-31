@@ -506,7 +506,7 @@ function drawSeekerRadar() {
   for (let i = 1; i <= 6; i++) {
     seekerCtx.beginPath();
     seekerCtx.arc(seekerCx, seekerCy, i * (seekerCanvas.width / 14), 0, Math.PI * 2);
-    seekerCtx.strokeStyle = "rgba(200,120,255,0.2)";
+    seekerCtx.strokeStyle = "rgba(255,34,68,0.2)";
     seekerCtx.lineWidth = 1;
     seekerCtx.stroke();
   }
@@ -517,7 +517,7 @@ function drawSeekerRadar() {
   seekerCtx.lineTo(seekerCx, seekerCy + seekerCanvas.height / 2.2);
   seekerCtx.moveTo(seekerCx - seekerCanvas.width / 2.2, seekerCy);
   seekerCtx.lineTo(seekerCx + seekerCanvas.width / 2.2, seekerCy);
-  seekerCtx.strokeStyle = "rgba(200,120,255,0.1)";
+  seekerCtx.strokeStyle = "rgba(255,34,68,0.2)";
   seekerCtx.lineWidth = 1;
   seekerCtx.stroke();
 
@@ -529,7 +529,7 @@ function drawSeekerRadar() {
     seekerCtx.beginPath();
     seekerCtx.moveTo(seekerCx, seekerCy);
     seekerCtx.lineTo(x, y);
-    seekerCtx.strokeStyle = `rgba(220,120,255,${1 - i / 45})`;
+    seekerCtx.strokeStyle =`rgba(255,34,68,${1 - i / 45})` ;
     seekerCtx.lineWidth = 3;
     seekerCtx.stroke();
   }
@@ -582,9 +582,9 @@ function drawSeekerRadar() {
   /* TOI au centre */
   seekerCtx.beginPath();
   seekerCtx.arc(seekerCx, seekerCy, 10, 0, Math.PI * 2);
-  seekerCtx.fillStyle = "#cc88ff";
+  seekerCtx.fillStyle ="#ff2244" ;
   seekerCtx.shadowBlur = 25;
-  seekerCtx.shadowColor = "#cc88ff";
+  seekerCtx.shadowColor ="#ff2244";
   seekerCtx.fill();
   seekerCtx.shadowBlur = 0;
 
