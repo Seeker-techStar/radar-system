@@ -709,3 +709,67 @@ html, body {
   border-bottom: 1px solid rgba(0,213,255,0.1);
   padding-bottom: 6px;
 }
+/* FREE MODE */
+
+#freeMode{
+
+  position:fixed;
+  inset:0;
+
+  background:#05020a;
+
+  z-index:99999;
+
+  color:white;
+
+}
+
+.free-header{
+
+  display:flex;
+
+  justify-content:space-between;
+
+  align-items:center;
+
+  padding:20px;
+
+}
+
+.free-grid{
+
+  display:grid;
+
+  grid-template-columns:1fr 1fr;
+
+  grid-template-rows:1fr 1fr;
+
+  gap:20px;
+
+  padding:20px;
+
+  height:calc(100vh - 100px);
+
+}
+
+.free-widget{
+
+  border:1px solid rgba(187,102,255,.3);
+
+  border-radius:15px;
+
+  background:rgba(255,255,255,.03);
+
+  padding:15px;
+
+  overflow:hidden;
+
+}
+
+#freeRadar{
+
+  width:100%;
+
+  height:100%;
+
+}
