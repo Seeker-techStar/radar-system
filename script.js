@@ -21,7 +21,8 @@ window.onload = () => {
   let cy = 0;
 
   function resizeRadar() {
-    const size = Math.min(window.innerWidth * 0.75, window.innerHeight * 0.82);
+    const size = Math.floor(Math.min(window.innerWidth * 0.75, window.innerHeight * 0.82));
+    if (canvas.width === size && canvas.height === size) return;
     canvas.width = size;
     canvas.height = size;
     cx = size / 2;
@@ -233,12 +234,15 @@ window.onload = () => {
   let angle = 0;
 
   function drawRadar() {
+    cx = canvas.width / 2;
+    cy = canvas.height / 2;
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     for (let i = 1; i <= 6; i++) {
       ctx.beginPath();
       ctx.arc(cx, cy, i * (canvas.width / 14), 0, Math.PI * 2);
-      ctx.strokeStyle = "rgba(200,120,255,0.2)";
+      ctx.strokeStyle = "rgba(200,120,255,0.5)";
       ctx.lineWidth = 1;
       ctx.stroke();
     }
@@ -248,7 +252,7 @@ window.onload = () => {
     ctx.lineTo(cx, cy + canvas.height / 2.2);
     ctx.moveTo(cx - canvas.width / 2.2, cy);
     ctx.lineTo(cx + canvas.width / 2.2, cy);
-    ctx.strokeStyle = "rgba(200,120,255,0.1)";
+    ctx.strokeStyle = "rgba(200,120,255,0.25)";
     ctx.lineWidth = 1;
     ctx.stroke();
 
@@ -463,7 +467,8 @@ window.onload = () => {
   let seekerCy = 0;
 
   function resizeSeeker() {
-    const size = Math.min(window.innerWidth * 0.7, window.innerHeight * 0.65);
+    const size = Math.floor(Math.min(window.innerWidth * 0.7, window.innerHeight * 0.65));
+    if (seekerCanvas.width === size && seekerCanvas.height === size) return;
     seekerCanvas.width = size;
     seekerCanvas.height = size;
     seekerCx = size / 2;
@@ -493,12 +498,15 @@ window.onload = () => {
   function drawSeekerRadar() {
     if (!seekerActive) return;
 
+    seekerCx = seekerCanvas.width / 2;
+    seekerCy = seekerCanvas.height / 2;
+
     seekerCtx.clearRect(0, 0, seekerCanvas.width, seekerCanvas.height);
 
     for (let i = 1; i <= 6; i++) {
       seekerCtx.beginPath();
       seekerCtx.arc(seekerCx, seekerCy, i * (seekerCanvas.width / 14), 0, Math.PI * 2);
-      seekerCtx.strokeStyle = "rgba(255,34,68,0.2)";
+      seekerCtx.strokeStyle = "rgba(255,34,68,0.5)";
       seekerCtx.lineWidth = 1;
       seekerCtx.stroke();
     }
@@ -508,7 +516,7 @@ window.onload = () => {
     seekerCtx.lineTo(seekerCx, seekerCy + seekerCanvas.height / 2.2);
     seekerCtx.moveTo(seekerCx - seekerCanvas.width / 2.2, seekerCy);
     seekerCtx.lineTo(seekerCx + seekerCanvas.width / 2.2, seekerCy);
-    seekerCtx.strokeStyle = "rgba(255,34,68,0.2)";
+    seekerCtx.strokeStyle = "rgba(255,34,68,0.25)";
     seekerCtx.lineWidth = 1;
     seekerCtx.stroke();
 
@@ -691,6 +699,7 @@ window.onload = () => {
 
   function resizeChillRadar() {
     if (!chillRadarCanvas) return;
+    if (chillRadarCanvas.width === 180 && chillRadarCanvas.height === 180) return;
     chillRadarCanvas.width = 180;
     chillRadarCanvas.height = 180;
     chillRadarCx = 90;
@@ -991,36 +1000,27 @@ window.onload = () => {
   }
 
   drawRadar();
-const enterFreeBtn =
-document.getElementById("enterFreeBtn");
 
-const exitFreeBtn =
-document.getElementById("exitFreeBtn");
+  /* =========================================
+     FREE MODE
+  ========================================= */
 
-const freeMode =
-document.getElementById("freeMode");
+  const enterFreeBtn = document.getElementById("enterFreeBtn");
+  const exitFreeBtn = document.getElementById("exitFreeBtn");
+  const freeMode = document.getElementById("freeMode");
 
-if(enterFreeBtn){
+  if (enterFreeBtn) {
+    enterFreeBtn.onclick = () => {
+      document.querySelector(".hud").style.display = "none";
+      freeMode.style.display = "block";
+    };
+  }
 
-  enterFreeBtn.onclick = () => {
+  if (exitFreeBtn) {
+    exitFreeBtn.onclick = () => {
+      freeMode.style.display = "none";
+      document.querySelector(".hud").style.display = "flex";
+    };
+  }
 
-    document.querySelector(".hud").style.display = "none";
-
-    freeMode.style.display = "block";
-
-  };
-
-}
-
-if(exitFreeBtn){
-
-  exitFreeBtn.onclick = () => {
-
-    freeMode.style.display = "none";
-
-    document.querySelector(".hud").style.display = "flex";
-
-  };
-
-}
 };
