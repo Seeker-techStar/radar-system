@@ -2,937 +2,386 @@ window.onload = () => {
 
   console.log("RADAR SYSTEM STARTED");
 
-  /* =========================================
-     DOM
-  ========================================= */
+  const canvas = document.getElementById("radar");
+  if (!canvas) { console.error("Canvas radar introuvable"); return; }
 
-  const canvas =
-    document.getElementById("radar");
-  
-  if (!canvas) {
-    console.error("Canvas radar introuvable");
-    return;
-  }
-
-  const ctx =
-    canvas.getContext("2d");
-
-  const onlineList =
-    document.getElementById("onlineList");
-
-  const targetCount =
-    document.getElementById("targetCount");
-
-  const latStat =
-    document.getElementById("latStat");
-
-  const lonStat =
-    document.getElementById("lonStat");
-
-  const altStat =
-    document.getElementById("altStat");
-
-  const statusText =
-    document.getElementById("statusText");
-
-  const disconnectBtn =
-    document.getElementById("disconnectBtn");
-
-  /* =========================================
-     RADAR SIZE
-  ========================================= */
+  const ctx = canvas.getContext("2d");
+  const onlineList = document.getElementById("onlineList");
+  const targetCount = document.getElementById("targetCount");
+  const destDistance = document.getElementById("destDistance");
+  const destDirection = document.getElementById("destDirection");
+  const destStatus = document.getElementById("destStatus");
+  const latStat = document.getElementById("latStat");
+  const lonStat = document.getElementById("lonStat");
+  const altStat = document.getElementById("altStat");
+  const statusText = document.getElementById("statusText");
+  const disconnectBtn = document.getElementById("disconnectBtn");
 
   let cx = 0;
   let cy = 0;
 
   function resizeRadar() {
-
-    const size = Math.min(
-      window.innerWidth * 0.75,
-      window.innerHeight * 0.82
-    );
-
+    const size = Math.min(window.innerWidth * 0.75, window.innerHeight * 0.82);
     canvas.width = size;
     canvas.height = size;
-
     cx = size / 2;
     cy = size / 2;
   }
 
   resizeRadar();
+  window.addEventListener("resize", resizeRadar);
 
-  window.addEventListener(
-    "resize",
-    resizeRadar
-  );
-
-  /* =========================================
-     FIREBASE
-  ========================================= */
-
-  if (!window.firebase) {
-
-    console.error("Firebase non chargé");
-
-    return;
-  }
+  if (!window.firebase) { console.error("Firebase non chargé"); return; }
 
   const firebaseConfig = {
-
-    apiKey:
-      "AIzaSyABz5zXmBbdzcaU92fRwRyjSlx3v6UD0E8",
-
-    authDomain:
-      "radarsystem-2c230.firebaseapp.com",
-
-    databaseURL:
-      "https://radarsystem-2c230-default-rtdb.europe-west1.firebasedatabase.app",
-
-    projectId:
-      "radarsystem-2c230",
-
-    storageBucket:
-      "radarsystem-2c230.firebasestorage.app",
-
-    messagingSenderId:
-      "741179182413",
-
-    appId:
-      "1:741179182413:web:cb930bd52f33527d3a3b04",
-
-    measurementId:
-      "G-BB01PEM4WE"
-
+    apiKey: "AIzaSyABz5zXmBbdzcaU92fRwRyjSlx3v6UD0E8",
+    authDomain: "radarsystem-2c230.firebaseapp.com",
+    databaseURL: "https://radarsystem-2c230-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "radarsystem-2c230",
+    storageBucket: "radarsystem-2c230.firebasestorage.app",
+    messagingSenderId: "741179182413",
+    appId: "1:741179182413:web:cb930bd52f33527d3a3b04",
+    measurementId: "G-BB01PEM4WE"
   };
 
-  if (!firebase.apps.length) {
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  console.log("Firebase connecté");
 
-    firebase.initializeApp(
-      firebaseConfig
-    );
+  const map = L.map("miniMap").setView([49.6116, 6.1319], 13);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "© OpenStreetMap"
+  }).addTo(map);
 
-  }
+  let myMarker = null;
 
-  const db =
-    firebase.database();
+  /* TARGET FIXE — Luxembourg City */
+  const TARGET = {
+    name: "LUXEMBOURG CITY",
+    lat: 49.6116,
+    lon: 6.1319
+  };
 
-  console.log(
-    "Firebase connecté"
-  );
-const map = L.map("miniMap")
-  .setView([0,0],15);
+  /* Marqueur vert cible sur minimap */
+  const targetMarker = L.circleMarker([TARGET.lat, TARGET.lon], {
+    radius: 8,
+    color: "#00ff88",
+    fillColor: "#00ff88",
+    fillOpacity: 0.8
+  }).addTo(map).bindPopup("TARGET: " + TARGET.name);
 
-L.tileLayer(
-  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-  {
-    attribution:"© OpenStreetMap"
-  }
-).addTo(map);
+  const savedCallsign = localStorage.getItem("callsign");
+  const savedSquad = localStorage.getItem("squad");
 
-let myMarker = null;
-  /* =========================================
-     PLAYER
-  ========================================= */
-const savedCallsign =
-  localStorage.getItem("callsign");
+  const playerCode = (
+    prompt("ENTER CALLSIGN", savedCallsign || "") || "UNKNOWN"
+  ).trim().toUpperCase();
 
-const savedSquad =
-  localStorage.getItem("squad");
+  const squadCode = (
+    prompt("ENTER SQUAD", savedSquad || "") || "PUBLIC"
+  ).trim().toUpperCase();
 
-const playerCode = (
+  localStorage.setItem("callsign", playerCode);
+  localStorage.setItem("squad", squadCode);
 
-  prompt(
-    "ENTER CALLSIGN",
-    savedCallsign || ""
-  )
+  const isAdmin = playerCode === "STARSCREAM";
 
-  || "UNKNOWN"
-
-)
-.trim()
-.toUpperCase();
-
-const squadCode = (
-
-  prompt(
-    "ENTER SQUAD",
-    savedSquad || ""
-  )
-
-  || "PUBLIC"
-
-)
-.trim()
-.toUpperCase();
-
-localStorage.setItem(
-  "callsign",
-  playerCode
-);
-
-localStorage.setItem(
-  "squad",
-  squadCode
-);
-  
-  const isAdmin =
-    playerCode === "STARSCREAM";
-
-  console.log(
-    "PLAYER =",
-    playerCode
-  );
-
-  console.log(
-    "SQUAD =",
-    squadCode
-  );
-
-  /* =========================================
-     DATA
-  ========================================= */
+  console.log("PLAYER =", playerCode);
+  console.log("SQUAD =", squadCode);
 
   let myLat = 0;
   let myLon = 0;
-
   let onlinePlayers = [];
 
-  /* =========================================
-     SAVE PLAYER
-  ========================================= */
+  /* CALCUL DISTANCE km */
+  function calcDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
 
-  function savePlayer(
-    lat,
-    lon,
-    altitude = 0
-  ) {
+  /* CALCUL DIRECTION */
+  function calcDirection(lat1, lon1, lat2, lon2) {
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const y = Math.sin(dLon) * Math.cos(lat2 * Math.PI / 180);
+    const x = Math.cos(lat1 * Math.PI/180) * Math.sin(lat2 * Math.PI/180) -
+               Math.sin(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) * Math.cos(dLon);
+    const bearing = (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+    const dirs = ["N","NE","E","SE","S","SW","W","NW"];
+    return dirs[Math.round(bearing / 45) % 8];
+  }
 
+  function savePlayer(lat, lon, altitude = 0, speed = 0) {
     myLat = lat;
     myLon = lon;
-    
+
+    const distance = calcDistance(lat, lon, TARGET.lat, TARGET.lon);
+    const direction = calcDirection(lat, lon, TARGET.lat, TARGET.lon);
+
+    if (destDistance) destDistance.innerText = distance.toFixed(1) + " km";
+    if (destDirection) destDirection.innerText = direction;
+    if (destStatus) destStatus.innerText = distance < 1 ? "REACHED" : "TRACKING";
+
     if (!myMarker) {
-
-  myMarker = L.marker([
-    lat,
-    lon
-  ]).addTo(map);
-
-} else {
-
-  myMarker.setLatLng([
-    lat,
-    lon
-  ]);
-
-}
-
-map.setView(
-  [lat, lon],
-  15
-);
-
-    if (latStat) {
-      latStat.innerText =
-        lat.toFixed(4);
+      myMarker = L.circleMarker([lat, lon], {
+        radius: 8,
+        color: "#bb66ff",
+        fillColor: "#bb66ff",
+        fillOpacity: 0.9
+      }).addTo(map).bindPopup(playerCode);
+    } else {
+      myMarker.setLatLng([lat, lon]);
     }
 
-    if (lonStat) {
-      lonStat.innerText =
-        lon.toFixed(4);
-    }
+    map.setView([lat, lon], 13);
 
-    if (altStat) {
-      altStat.innerText =
-        Math.floor(altitude)
-        + " m";
-    }
+    if (latStat) latStat.innerText = lat.toFixed(5);
+    if (lonStat) lonStat.innerText = lon.toFixed(5);
+    if (altStat) altStat.innerText = Math.floor(altitude) + " m";
 
-    db.ref(
-      "players/" + playerCode
-    )
+    /* SPEED dans tactical data */
+    const speedEl = document.getElementById("speedStat");
+    if (speedEl) speedEl.innerText = (speed * 3.6).toFixed(1) + " km/h";
 
-    .set({
-
-      name:
-        playerCode,
-
-      squad:
-        squadCode,
-
-      lat:
-        lat,
-
-      lon:
-        lon,
-
-      updated:
-        Date.now()
-
+    db.ref("players/" + playerCode).set({
+      name: playerCode,
+      squad: squadCode,
+      lat: lat,
+      lon: lon,
+      updated: Date.now()
     })
-
-    .then(() => {
-
-      console.log(
-        "PLAYER SAVED"
-      );
-
-    })
-
-    .catch(err => {
-
-      console.error(
-        "FIREBASE WRITE ERROR",
-        err
-      );
-
-    });
-
+    .then(() => console.log("PLAYER SAVED"))
+    .catch(err => console.error("FIREBASE WRITE ERROR", err));
   }
-
-  /* =========================================
-     GPS
-  ========================================= */
 
   if (navigator.geolocation) {
-
     navigator.geolocation.watchPosition(
-
       pos => {
-
-        console.log(
-          "GPS OK"
-        );
-
+        console.log("GPS OK");
         savePlayer(
-
           pos.coords.latitude,
-
           pos.coords.longitude,
-
-          pos.coords.altitude || 0
-
+          pos.coords.altitude || 0,
+          pos.coords.speed || 0
         );
-
       },
-
-      err => {
-
-        console.error(
-          "GPS ERROR",
-          err
-        );
-
-      },
-
-      {
-
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
-
-      }
-
+      err => console.error("GPS ERROR", err),
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
-
   }
 
-  /* =========================================
-     READ PLAYERS
-  ========================================= */
+  db.ref("players").on("value", snapshot => {
+    const data = snapshot.val();
+    onlinePlayers = [];
+    if (!data) return;
 
-  db.ref("players").on(
-
-    "value",
-
-    snapshot => {
-
-      const data =
-        snapshot.val();
-
-      onlinePlayers = [];
-
-      if (!data) {
-        return;
-      }
-
-      for (let id in data) {
-
-        const p =
-          data[id];
-
-        if (!p) continue;
-
-        const age =
-          Date.now() -
-          (p.updated || 0);
-
-        /* remove offline */
-
-        if (age > 60000) {
-          continue;
-        }
-
-        const sameSquad =
-          p.squad === squadCode;
-
-        onlinePlayers.push({
-
-          name:
-            p.name || "UNKNOWN",
-
-          squad:
-            p.squad || "NO SQUAD",
-
-          lat:
-            p.lat || 0,
-
-          lon:
-            p.lon || 0,
-
-          sameSquad:
-            sameSquad,
-
-          self:
-            id === playerCode
-
-        });
-
-      }
-
-      /* =========================================
-         TARGET COUNT
-      ========================================= */
-
-      if (targetCount) {
-
-        targetCount.innerText =
-          onlinePlayers.length;
-
-      }
-
-      /* =========================================
-         ONLINE PILOTS
-      ========================================= */
-
-      if (onlineList) {
-
-        onlineList.innerHTML = "";
-
-        onlinePlayers.forEach(player => {
-
-          const color =
-            player.sameSquad
-            ? "#00d5ff"
-            : "#ff4444";
-
-          const label =
-            player.self
-            ? " (YOU)"
-            : "";
-
-          onlineList.innerHTML += `
-
-            <div class="player-card">
-
-              <div
-                class="player-jet"
-                style="
-                  color:${color};
-                "
-              >
-                ✈
-              </div>
-
-              <div class="player-info">
-
-                <div
-                  class="player-name"
-                  style="
-                    color:${color};
-                  "
-                >
-
-                  ${player.name}${label}
-
-                </div>
-
-                <div style="
-                  color:${color};
-                  font-size:11px;
-                  margin-top:4px;
-                  letter-spacing:1px;
-                ">
-
-                  ✦ ${player.squad}
-
-                </div>
-
-              </div>
-
-              ${
-
-                isAdmin
-
-                &&
-
-                !player.self
-
-                ?
-
-                `
-
-                <div
-                  class="kick-btn"
-                  onclick="kickPlayer('${player.name}')"
-                >
-                  ✖
-                </div>
-
-                `
-
-                :
-
-                ""
-
-              }
-
-            </div>
-
-          `;
-
-        });
-
-      }
-
+    for (let id in data) {
+      const p = data[id];
+      if (!p) continue;
+      const age = Date.now() - (p.updated || 0);
+      if (age > 60000) continue;
+      const sameSquad = p.squad === squadCode;
+      onlinePlayers.push({
+        name: p.name || "UNKNOWN",
+        squad: p.squad || "NO SQUAD",
+        lat: p.lat || 0,
+        lon: p.lon || 0,
+        sameSquad: sameSquad,
+        self: id === playerCode
+      });
     }
 
-  );
+    if (targetCount) targetCount.innerText = onlinePlayers.filter(p => !p.self).length;
 
-  /* =========================================
-     ADMIN REMOVE PLAYER
-  ========================================= */
+    if (onlineList) {
+      onlineList.innerHTML = "";
+      onlinePlayers.forEach(player => {
+        const color = player.self ? "#bb66ff" : player.sameSquad ? "#00d5ff" : "#ff4444";
+        const label = player.self ? " (YOU)" : "";
+        onlineList.innerHTML += `
+          <div class="player-card">
+            <div class="player-jet" style="color:${color}">✈</div>
+            <div class="player-info">
+              <div class="player-name" style="color:${color}">${player.name}${label}</div>
+              <div style="color:${color}; font-size:11px; margin-top:4px; letter-spacing:1px;">✦ ${player.squad}</div>
+            </div>
+            ${isAdmin && !player.self ? `<div class="kick-btn" onclick="kickPlayer('${player.name}')">✖</div>` : ""}
+          </div>
+        `;
+      });
+    }
+  });
 
   window.kickPlayer = function(name) {
-
-    const confirmKick =
-      confirm(
-        "REMOVE " + name + " ?"
-      );
-
-    if (!confirmKick) {
-      return;
-    }
-
-    db.ref(
-      "players/" + name
-    )
-
-    .remove()
-
-    .then(() => {
-
-      console.log(
-        name + " REMOVED"
-      );
-
-    });
-
+    if (!confirm("REMOVE " + name + " ?")) return;
+    db.ref("players/" + name).remove()
+      .then(() => console.log(name + " REMOVED"));
   };
 
-  /* =========================================
-     DISCONNECT BUTTON
-  ========================================= */
-
   if (disconnectBtn) {
-
     disconnectBtn.onclick = () => {
-
-      db.ref(
-        "players/" + playerCode
-      )
-
-      .remove()
-
-      .then(() => {
-
-        alert(
-          "DISCONNECTED"
-        );
-
-        location.reload();
-
-      });
-
+      db.ref("players/" + playerCode).remove()
+        .then(() => { alert("DISCONNECTED"); location.reload(); });
     };
-
   }
 
-  /* =========================================
-     AUTO REMOVE
-  ========================================= */
-
-  window.addEventListener(
-
-    "beforeunload",
-
-    () => {
-
-      db.ref(
-        "players/" + playerCode
-      ).remove();
-
-    }
-
-  );
+  window.addEventListener("beforeunload", () => {
+    db.ref("players/" + playerCode).remove();
+  });
 
   /* =========================================
-     RADAR
+     RADAR DRAW
   ========================================= */
 
   let angle = 0;
 
   function drawRadar() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.clearRect(
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
-
-    /* GRID */
-
+    /* CERCLES */
     for (let i = 1; i <= 6; i++) {
-
       ctx.beginPath();
-
-      ctx.arc(
-
-        cx,
-        cy,
-
-        i * (
-          canvas.width / 14
-        ),
-
-        0,
-        Math.PI * 2
-
-      );
-
-      ctx.strokeStyle =
-        "rgba(200,120,255,0.2)";
-
+      ctx.arc(cx, cy, i * (canvas.width / 14), 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(200,120,255,0.2)";
       ctx.lineWidth = 1;
-
       ctx.stroke();
-
     }
+
+    /* CROIX */
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - canvas.height / 2.2);
+    ctx.lineTo(cx, cy + canvas.height / 2.2);
+    ctx.moveTo(cx - canvas.width / 2.2, cy);
+    ctx.lineTo(cx + canvas.width / 2.2, cy);
+    ctx.strokeStyle = "rgba(200,120,255,0.1)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
 
     /* SWEEP */
-
     for (let i = 0; i < 45; i++) {
-
-      const a =
-        angle - i * 0.02;
-
-      const x =
-        cx +
-        Math.cos(a)
-        * (canvas.width / 2.2);
-
-      const y =
-        cy +
-        Math.sin(a)
-        * (canvas.width / 2.2);
-
+      const a = angle - i * 0.02;
+      const x = cx + Math.cos(a) * (canvas.width / 2.2);
+      const y = cy + Math.sin(a) * (canvas.width / 2.2);
       ctx.beginPath();
-
-      ctx.moveTo(
-        cx,
-        cy
-      );
-
-      ctx.lineTo(
-        x,
-        y
-      );
-
-      ctx.strokeStyle =
-        `rgba(220,120,255,${
-          1 - i / 45
-        })`;
-
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = `rgba(220,120,255,${1 - i / 45})`;
       ctx.lineWidth = 3;
-
       ctx.stroke();
-
     }
 
-    /* PLAYERS */
+    /* POINT VERT — TARGET Luxembourg City */
+    const radarRange = 0.5;
+    const tdx = ((TARGET.lon - myLon) / radarRange) * (canvas.width / 2);
+    const tdy = ((TARGET.lat - myLat) / radarRange) * -(canvas.height / 2);
+    const tpx = cx + tdx;
+    const tpy = cy + tdy;
+    const tdist = Math.sqrt(Math.pow(tpx - cx, 2) + Math.pow(tpy - cy, 2));
 
+    if (tdist <= canvas.width / 2.2) {
+      ctx.beginPath();
+      ctx.arc(tpx, tpy, 8, 0, Math.PI * 2);
+      ctx.fillStyle = "#00ff88";
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = "#00ff88";
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.font = "11px Arial";
+      ctx.fillStyle = "#00ff88";
+      ctx.fillText("TARGET", tpx + 10, tpy - 6);
+    }
+
+    /* JOUEURS */
     onlinePlayers.forEach(player => {
-
       const radarRange = 0.02;
+      const dx = ((player.lon - myLon) / radarRange) * (canvas.width / 2);
+      const dy = ((player.lat - myLat) / radarRange) * -(canvas.height / 2);
+      const px = cx + dx;
+      const py = cy + dy;
+      const dist = Math.sqrt(Math.pow(px - cx, 2) + Math.pow(py - cy, 2));
+      if (dist > canvas.width / 2.2) return;
 
-      const dx =
-        (
-          (player.lon - myLon)
-          / radarRange
-        )
-        * (canvas.width / 2);
-
-      const dy =
-        (
-          (player.lat - myLat)
-          / radarRange
-        )
-        * -(canvas.height / 2);
-
-      const px =
-        cx + dx;
-
-      const py =
-        cy + dy;
-
-      const dist =
-        Math.sqrt(
-          Math.pow(px - cx, 2)
-          +
-          Math.pow(py - cy, 2)
-        );
-
-      if (
-        dist >
-        canvas.width / 2.2
-      ) {
-        return;
-      }
-
-      const color =
-        player.sameSquad
-        ? "#00d5ff"
-        : "#ff4444";
+      const color = player.self ? "#cc88ff" : player.sameSquad ? "#00d5ff" : "#ff4444";
 
       ctx.beginPath();
-
-      ctx.arc(
-        px,
-        py,
-        player.self ? 10 : 7,
-        0,
-        Math.PI * 2
-      );
-
-      ctx.fillStyle =
-        color;
-
-      ctx.shadowBlur =
-        15;
-
-      ctx.shadowColor =
-        color;
-
+      ctx.arc(px, py, player.self ? 10 : 7, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = color;
       ctx.fill();
+      ctx.shadowBlur = 0;
 
-      ctx.font =
-        "12px Arial";
-
-      ctx.fillStyle =
-        color;
-
-      ctx.fillText(
-        player.name,
-        px + 10,
-        py - 8
-      );
-
+      ctx.font = "12px Arial";
+      ctx.fillStyle = color;
+      ctx.fillText(player.name, px + 10, py - 8);
     });
 
-    /* CENTER */
-
+    /* POINT CENTRAL — TOI */
     ctx.beginPath();
-
-    ctx.arc(
-      cx,
-      cy,
-      10,
-      0,
-      Math.PI * 2
-    );
-
-    ctx.fillStyle =
-      "#cc88ff";
-
-    ctx.shadowBlur =
-      25;
-
-    ctx.shadowColor =
-      "#cc88ff";
-
+    ctx.arc(cx, cy, 10, 0, Math.PI * 2);
+    ctx.fillStyle = "#cc88ff";
+    ctx.shadowBlur = 25;
+    ctx.shadowColor = "#cc88ff";
     ctx.fill();
-
-    /* STATUS */
+    ctx.shadowBlur = 0;
 
     if (statusText) {
-
-      statusText.innerText =
-        "TRACKING "
-        + onlinePlayers.length
-        + " TARGET(S)";
-
+      statusText.innerText = "TRACKING " + onlinePlayers.filter(p => !p.self).length + " TARGET(S)";
     }
 
     angle += 0.003;
-
-    requestAnimationFrame(
-      drawRadar
-    );
-
+    requestAnimationFrame(drawRadar);
   }
-document
-  .querySelectorAll(".box-header")
-  .forEach(header=>{
-  
-  header.addEventListener(
-  "click",
-  ()=>{
-    
-    const content =
-          header.nextElementSibling;
-    
-    content.classList.toggle(
-    "hidden"
-    );
-  }
-  );
-});
-  
-  drawRadar();
 
-/* =========================
-   RESTORE PANELS
-========================= */
+  /* COLLAPSIBLE */
+  document.querySelectorAll(".box-header").forEach(header => {
+    header.addEventListener("click", () => {
+      const content = header.nextElementSibling;
+      if (content) content.classList.toggle("hidden");
+    });
+  });
 
-document
-  .querySelectorAll(".draggable")
-  .forEach((box,index)=>{
-
-    const saved =
-      localStorage.getItem(
-        "panel_" + index
-      );
-
-    if(saved){
-
-      const pos =
-        JSON.parse(saved);
-
-      box.style.position =
-        "fixed";
-
-      box.style.left =
-        pos.left;
-
-      box.style.top =
-        pos.top;
-
+  /* DRAG */
+  document.querySelectorAll(".draggable").forEach((box, index) => {
+    const saved = localStorage.getItem("panel_" + index);
+    if (saved) {
+      const pos = JSON.parse(saved);
+      box.style.position = "fixed";
+      box.style.left = pos.left;
+      box.style.top = pos.top;
     }
 
-});
-
-/* =========================
-   DRAG PANELS
-========================= */
-
-document
-  .querySelectorAll(".draggable")
-  .forEach((box,index)=>{
-
-    const header =
-      box.querySelector(
-        ".box-header"
-      );
-
-    if(!header) return;
+    const header = box.querySelector(".box-header");
+    if (!header) return;
 
     let isDragging = false;
-
     let offsetX = 0;
     let offsetY = 0;
 
-    header.addEventListener(
-      "mousedown",
-      e=>{
+    header.addEventListener("mousedown", e => {
+      isDragging = true;
+      box.style.position = "fixed";
+      box.style.zIndex = "9999";
+      offsetX = e.clientX - box.getBoundingClientRect().left;
+      offsetY = e.clientY - box.getBoundingClientRect().top;
+    });
 
-        isDragging = true;
+    document.addEventListener("mousemove", e => {
+      if (!isDragging) return;
+      box.style.left = (e.clientX - offsetX) + "px";
+      box.style.top = (e.clientY - offsetY) + "px";
+      localStorage.setItem("panel_" + index, JSON.stringify({
+        left: box.style.left,
+        top: box.style.top
+      }));
+    });
 
-        box.style.position =
-          "fixed";
+    document.addEventListener("mouseup", () => { isDragging = false; });
+  });
 
-        box.style.zIndex =
-          "9999";
-
-        offsetX =
-          e.clientX -
-          box.getBoundingClientRect()
-          .left;
-
-        offsetY =
-          e.clientY -
-          box.getBoundingClientRect()
-          .top;
-
-      }
-    );
-
-    document.addEventListener(
-      "mousemove",
-      e=>{
-
-        if(!isDragging)
-          return;
-
-        box.style.left =
-          (e.clientX - offsetX)
-          + "px";
-
-        box.style.top =
-          (e.clientY - offsetY)
-          + "px";
-
-        localStorage.setItem(
-
-          "panel_" + index,
-
-          JSON.stringify({
-
-            left:
-              box.style.left,
-
-            top:
-              box.style.top
-
-          })
-
-        );
-
-      }
-    );
-
-    document.addEventListener(
-      "mouseup",
-      ()=>{
-
-        isDragging = false;
-
-      }
-    );
-
-});
-
-/* =========================
-   END
-========================= */
-
+  drawRadar();
 };
