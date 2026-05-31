@@ -78,6 +78,9 @@
       <div class="box">
         <button id="enterChillBtn">🎵 CHILL MODE</button>
       </div>
+      <div class="box">
+  <button id="enterFreeBtn">🔓 FREE MODE</button>
+</div>
 
       <div class="box collapsible draggable">
         <h2 class="box-header">NAVIGATION</h2>
@@ -248,6 +251,50 @@
 
     </div><!-- fin .chill-layout -->
   </div><!-- fin #chillMode -->
+  <!-- FREE MODE -->
+<div id="freeMode" style="display:none;">
+
+  <div class="free-header">
+
+    <h1>🔓 FREE MODE</h1>
+
+    <button id="exitFreeBtn">
+      ✕ EXIT
+    </button>
+
+  </div>
+
+  <div class="free-grid">
+
+    <div class="free-widget">
+      <h3>RADAR</h3>
+      <canvas id="freeRadar"></canvas>
+    </div>
+
+    <div class="free-widget">
+      <h3>GPS</h3>
+      <div id="freeGps">
+        WAITING...
+      </div>
+    </div>
+
+    <div class="free-widget">
+      <h3>SPOTIFY</h3>
+      <div id="freeSpotify">
+        NOT CONNECTED
+      </div>
+    </div>
+
+    <div class="free-widget">
+      <h3>CONSOLE</h3>
+      <div id="freeConsole">
+        STARSCREAM ONLINE
+      </div>
+    </div>
+
+  </div>
+
+</div>
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
