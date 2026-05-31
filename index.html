@@ -1,10 +1,9 @@
-decepticons.tech
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>STARSCREAM RADAR</title>
+  <title>STARSCREAM</title>
   <link rel="stylesheet" href="style.css?v=99">
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
@@ -46,8 +45,8 @@ decepticons.tech
           <div id="onlineList"></div>
         </div>
       </div>
- 
-    </div><!-- ✅ fin .left-panel -->
+
+    </div><!-- fin .left-panel -->
 
     <!-- CENTER : RADAR -->
     <div class="center">
@@ -71,32 +70,37 @@ decepticons.tech
           <p>ALT : <span id="altStat">0m</span></p>
         </div>
       </div>
+
       <div class="box">
-  <button id="enterSeekerBtn">⚡ SEEKER MODE</button>
-</div>
-<div class="box collapsible draggable">
-  <h2 class="box-header">NAVIGATION</h2>
-  <div class="box-content">
-    <p>TARGET : <span id="targetCity">LUXEMBOURG CITY</span></p>
-    <p>DISTANCE : <span id="destDistance">0 km</span></p>
-    <p>DIRECTION : <span id="destDirection">---</span></p>
-    <p>STATUS : <span id="destStatus">TRACKING</span></p>
-  </div>
-</div>
+        <button id="enterSeekerBtn">⚡ SEEKER MODE</button>
+      </div>
 
-<div class="box collapsible draggable">
-  <h2 class="box-header">SET TARGET</h2>
-  <div class="box-content">
-    <div class="target-form">
-      <label>ADRESSE</label>
-      <input type="text" id="targetAddressInput" placeholder="20 rue centrale limpach"/>
-      <button id="searchAddressBtn">🔍 SEARCH</button>
-      <div id="searchResult"></div>
-      <button id="trackTargetBtn" style="display:none;">⊕ TRACK TARGET</button>
-    </div>
-  </div>
-</div>
+      <div class="box">
+        <button id="enterChillBtn">🎵 CHILL MODE</button>
+      </div>
 
+      <div class="box collapsible draggable">
+        <h2 class="box-header">NAVIGATION</h2>
+        <div class="box-content">
+          <p>TARGET : <span id="targetCity">LUXEMBOURG CITY</span></p>
+          <p>DISTANCE : <span id="destDistance">0 km</span></p>
+          <p>DIRECTION : <span id="destDirection">---</span></p>
+          <p>STATUS : <span id="destStatus">TRACKING</span></p>
+        </div>
+      </div>
+
+      <div class="box collapsible draggable">
+        <h2 class="box-header">SET TARGET</h2>
+        <div class="box-content">
+          <div class="target-form">
+            <label>ADRESSE</label>
+            <input type="text" id="targetAddressInput" placeholder="20 rue centrale limpach"/>
+            <button id="searchAddressBtn">🔍 SEARCH</button>
+            <div id="searchResult"></div>
+            <button id="trackTargetBtn" style="display:none;">⊕ TRACK TARGET</button>
+          </div>
+        </div>
+      </div>
 
       <div class="box collapsible draggable">
         <h2 class="box-header">MINI MAP</h2>
@@ -116,12 +120,21 @@ decepticons.tech
         </div>
       </div>
 
-    </div><!-- ✅ fin .right-panel -->
+    </div><!-- fin .right-panel -->
 
-  </div><!-- ✅ fin .hud -->
+  </div><!-- fin .hud -->
 
   <!-- SEEKER MODE -->
   <div id="seekerMode" style="display:none;">
+
+    <!-- INTRO -->
+    <div id="seekerIntro" class="seeker-intro">
+      <img src="decepticon_seeker_insignia_by_drawinrook_deo8gia-fullview.png" class="intro-logo" id="introLogo"/>
+      <div class="intro-text" id="introText">SEEKER MODE INITIALIZING...</div>
+      <div class="intro-bar"><div class="intro-fill" id="introFill"></div></div>
+    </div>
+
+    <!-- HUD -->
     <div class="seeker-hud">
       <div class="seeker-header">
         <span class="seeker-title">⚡ SEEKER MODE</span>
@@ -146,25 +159,63 @@ decepticons.tech
         </div>
         <div class="seeker-stat">
           <div class="seeker-stat-label">STATUS</div>
-          <div class="seeker-stat-value" id="seekerStatus" style="color:#00ff88;">TRACKING</div>
+          <div class="seeker-stat-value" id="seekerStatus" style="color:#ff2244;">TRACKING</div>
         </div>
       </div>
       <div class="seeker-instruction" id="seekerInstruction">
         ▶ CALCULATING ROUTE...
       </div>
-       <div id="seekerIntro" class="seeker-intro">
-  <img src="decepticon_seeker_insignia_by_drawinrook_deo8gia-fullview.png" class="intro-logo" id="introLogo"/>
-  <div class="intro-text" id="introText">SEEKER MODE INITIALIZING...</div>
-  <div class="intro-bar"><div class="intro-fill" id="introFill"></div></div>
-</div>
+    </div><!-- fin .seeker-hud -->
 
+  </div><!-- fin #seekerMode -->
+
+  <!-- CHILL MODE -->
+  <div id="chillMode" style="display:none;">
+    <div class="chill-layout">
+
+      <div class="chill-sidebar">
+        <h1 class="chill-title">CHILL</h1>
+
+        <div class="chill-chrono" id="chillChrono">00:00:00</div>
+
+        <div class="chill-stats">
+          <div class="chill-stat-row">
+            <span class="chill-label">SPEED</span>
+            <span class="chill-value" id="chillSpeed">0 km/h</span>
+          </div>
+          <div class="chill-stat-row">
+            <span class="chill-label">TEMP</span>
+            <span class="chill-value" id="chillTemp">--°C</span>
+          </div>
+          <div class="chill-stat-row">
+            <span class="chill-label">TIME</span>
+            <span class="chill-value" id="chillTime">--:--:--</span>
+          </div>
+          <div class="chill-stat-row">
+            <span class="chill-label">DIST</span>
+            <span class="chill-value" id="chillDist">0.00 km</span>
+          </div>
+        </div>
+
+        <div class="chill-mini-radar">
+          <canvas id="chillRadar"></canvas>
+        </div>
+
+        <button id="exitChillBtn">✕ EXIT</button>
+      </div><!-- fin .chill-sidebar -->
+
+      <div class="chill-center">
+        <canvas id="musicVisualizer"></canvas>
+      </div><!-- fin .chill-center -->
+
+    </div><!-- fin .chill-layout -->
+  </div><!-- fin #chillMode -->
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
- <script src="script.js?v=99" defer></script>
+  <script src="script.js?v=99" defer></script>
 
- 
 </body>
 </html>
