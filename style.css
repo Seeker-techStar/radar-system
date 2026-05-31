@@ -624,3 +624,70 @@ logo-container {
     justify-content: center;
     align-items: center;
 }
+.target-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.target-form label {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #bb66ff;
+}
+
+.target-form input {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(200,120,255,0.4);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.target-form input:focus {
+  border-color: #bb66ff;
+  box-shadow: 0 0 8px rgba(187,102,255,0.4);
+}
+
+.target-form input::placeholder {
+  color: rgba(255,255,255,0.2);
+}
+
+#searchAddressBtn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(187,102,255,0.15);
+  color: #bb66ff;
+  font-weight: bold;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+#searchAddressBtn:hover {
+  background: rgba(187,102,255,0.3);
+  box-shadow: 0 0 12px rgba(187,102,255,0.4);
+}
+
+#trackTargetBtn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(0,213,255,0.15);
+  color: #00d5ff;
+  font-weight: bold;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+#track
