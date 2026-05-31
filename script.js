@@ -991,5 +991,36 @@ window.onload = () => {
   }
 
   drawRadar();
+const enterFreeBtn =
+document.getElementById("enterFreeBtn");
 
+const exitFreeBtn =
+document.getElementById("exitFreeBtn");
+
+const freeMode =
+document.getElementById("freeMode");
+
+if(enterFreeBtn){
+
+  enterFreeBtn.onclick = () => {
+
+    document.querySelector(".hud").style.display = "none";
+
+    freeMode.style.display = "block";
+
+  };
+
+}
+
+if(exitFreeBtn){
+
+  exitFreeBtn.onclick = () => {
+
+    freeMode.style.display = "none";
+
+    document.querySelector(".hud").style.display = "flex";
+
+  };
+
+}
 };
