@@ -455,5 +455,180 @@ if (trackTargetBtn) {
     console.log("TARGET LOCKED:", TARGET);
   };
 }
+  /* =========================================
+   SEEKER MODE
+========================================= */
+
+const seekerMode = document.getElementById("seekerMode");
+const enterSeekerBtn = document.getElementById("enterSeekerBtn");
+const exitSeekerBtn = document.getElementById("exitSeekerBtn");
+const seekerCanvas = document.getElementById("seekerRadar");
+const seekerCtx = seekerCanvas.getContext("2d");
+let seekerActive = false;
+let seekerAngle = 0;
+let seekerCx = 0;
+let seekerCy = 0;
+
+function resizeSeeker() {
+  const size = Math.min(window.innerWidth * 0.7, window.innerHeight * 0.65);
+  seekerCanvas.width = size;
+  seekerCanvas.height = size;
+  seekerCx = size / 2;
+  seekerCy = size / 2;
+}
+
+function calcBearing(lat1, lon1, lat2, lon2) {
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const y = Math.sin(dLon) * Math.cos(lat2 * Math.PI / 180);
+  const x = Math.cos(lat1 * Math.PI/180) * Math.sin(lat2 * Math.PI/180) -
+             Math.sin(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) * Math.cos(dLon);
+  return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+}
+
+function getInstruction(bearing) {
+  const b = bearing;
+  if (b < 15 || b > 345) return "▲ GO STRAIGHT";
+  if (b < 80)  return "↗ TURN RIGHT — " + Math.round(b) + "°";
+  if (b < 100) return "▶ TURN RIGHT";
+  if (b < 170) return "↘ BEAR RIGHT — " + Math.round(b) + "°";
+  if (b < 190) return "▼ U-TURN";
+  if (b < 260) return "↙ BEAR LEFT — " + Math.round(360 - b) + "°";
+  if (b < 280) return "◀ TURN LEFT";
+  return "↖ TURN LEFT — " + Math.round(360 - b) + "°";
+}
+
+function drawSeekerRadar() {
+  if (!seekerActive) return;
+
+  seekerCtx.clearRect(0, 0, seekerCanvas.width, seekerCanvas.height);
+
+  /* CERCLES */
+  for (let i = 1; i <= 6; i++) {
+    seekerCtx.beginPath();
+    seekerCtx.arc(seekerCx, seekerCy, i * (seekerCanvas.width / 14), 0, Math.PI * 2);
+    seekerCtx.strokeStyle = "rgba(200,120,255,0.2)";
+    seekerCtx.lineWidth = 1;
+    seekerCtx.stroke();
+  }
+
+  /* CROIX */
+  seekerCtx.beginPath();
+  seekerCtx.moveTo(seekerCx, seekerCy - seekerCanvas.height / 2.2);
+  seekerCtx.lineTo(seekerCx, seekerCy + seekerCanvas.height / 2.2);
+  seekerCtx.moveTo(seekerCx - seekerCanvas.width / 2.2, seekerCy);
+  seekerCtx.lineTo(seekerCx + seekerCanvas.width / 2.2, seekerCy);
+  seekerCtx.strokeStyle = "rgba(200,120,255,0.1)";
+  seekerCtx.lineWidth = 1;
+  seekerCtx.stroke();
+
+  /* SWEEP */
+  for (let i = 0; i < 45; i++) {
+    const a = seekerAngle - i * 0.02;
+    const x = seekerCx + Math.cos(a) * (seekerCanvas.width / 2.2);
+    const y = seekerCy + Math.sin(a) * (seekerCanvas.width / 2.2);
+    seekerCtx.beginPath();
+    seekerCtx.moveTo(seekerCx, seekerCy);
+    seekerCtx.lineTo(x, y);
+    seekerCtx.strokeStyle = `rgba(220,120,255,${1 - i / 45})`;
+    seekerCtx.lineWidth = 3;
+    seekerCtx.stroke();
+  }
+
+  /* TARGET VERT */
+  const radarRange = 0.5;
+  const tdx = ((TARGET.lon - myLon) / radarRange) * (seekerCanvas.width / 2);
+  const tdy = ((TARGET.lat - myLat) / radarRange) * -(seekerCanvas.height / 2);
+  const tpx = seekerCx + tdx;
+  const tpy = seekerCy + tdy;
+  const tdist = Math.sqrt(Math.pow(tpx - seekerCx, 2) + Math.pow(tpy - seekerCy, 2));
+
+  if (tdist <= seekerCanvas.width / 2.2) {
+    seekerCtx.beginPath();
+    seekerCtx.arc(tpx, tpy, 8, 0, Math.PI * 2);
+    seekerCtx.fillStyle = "#00ff88";
+    seekerCtx.shadowBlur = 15;
+    seekerCtx.shadowColor = "#00ff88";
+    seekerCtx.fill();
+    seekerCtx.shadowBlur = 0;
+    seekerCtx.font = "11px Arial";
+    seekerCtx.fillStyle = "#00ff88";
+    seekerCtx.fillText("TARGET", tpx + 10, tpy - 6);
+  }
+
+  /* JOUEURS */
+  onlinePlayers.forEach(player => {
+    if (player.self) return;
+    const range = 0.02;
+    const dx = ((player.lon - myLon) / range) * (seekerCanvas.width / 2);
+    const dy = ((player.lat - myLat) / range) * -(seekerCanvas.height / 2);
+    const px = seekerCx + dx;
+    const py = seekerCy + dy;
+    const dist = Math.sqrt(Math.pow(px - seekerCx, 2) + Math.pow(py - seekerCy, 2));
+    if (dist > seekerCanvas.width / 2.2) return;
+
+    const color = player.sameSquad ? "#00d5ff" : "#ff4444";
+    seekerCtx.beginPath();
+    seekerCtx.arc(px, py, 7, 0, Math.PI * 2);
+    seekerCtx.fillStyle = color;
+    seekerCtx.shadowBlur = 12;
+    seekerCtx.shadowColor = color;
+    seekerCtx.fill();
+    seekerCtx.shadowBlur = 0;
+    seekerCtx.font = "11px Arial";
+    seekerCtx.fillStyle = color;
+    seekerCtx.fillText(player.name, px + 9, py - 6);
+  });
+
+  /* TOI au centre */
+  seekerCtx.beginPath();
+  seekerCtx.arc(seekerCx, seekerCy, 10, 0, Math.PI * 2);
+  seekerCtx.fillStyle = "#cc88ff";
+  seekerCtx.shadowBlur = 25;
+  seekerCtx.shadowColor = "#cc88ff";
+  seekerCtx.fill();
+  seekerCtx.shadowBlur = 0;
+
+  /* STATS */
+  const bearing = calcBearing(myLat, myLon, TARGET.lat, TARGET.lon);
+  const distance = calcDistance(myLat, myLon, TARGET.lat, TARGET.lon);
+  const direction = calcDirection(myLat, myLon, TARGET.lat, TARGET.lon);
+
+  const seekerBearingEl = document.getElementById("seekerBearing");
+  const seekerDistanceEl = document.getElementById("seekerDistance");
+  const seekerDirectionEl = document.getElementById("seekerDirection");
+  const seekerStatusEl = document.getElementById("seekerStatus");
+  const seekerInstructionEl = document.getElementById("seekerInstruction");
+  const seekerTargetEl = document.getElementById("seekerTarget");
+
+  if (seekerBearingEl) seekerBearingEl.innerText = Math.round(bearing) + "°";
+  if (seekerDistanceEl) seekerDistanceEl.innerText = distance.toFixed(1) + " km";
+  if (seekerDirectionEl) seekerDirectionEl.innerText = direction;
+  if (seekerStatusEl) seekerStatusEl.innerText = distance < 0.05 ? "REACHED" : "TRACKING";
+  if (seekerInstructionEl) seekerInstructionEl.innerText = getInstruction(bearing);
+  if (seekerTargetEl) seekerTargetEl.innerText = TARGET.name;
+
+  seekerAngle += 0.003;
+  requestAnimationFrame(drawSeekerRadar);
+}
+
+if (enterSeekerBtn) {
+  enterSeekerBtn.onclick = () => {
+    seekerActive = true;
+    seekerMode.style.display = "block";
+    resizeSeeker();
+    drawSeekerRadar();
+  };
+}
+
+if (exitSeekerBtn) {
+  exitSeekerBtn.onclick = () => {
+    seekerActive = false;
+    seekerMode.style.display = "none";
+  };
+}
+
+window.addEventListener("resize", () => {
+  if (seekerActive) resizeSeeker();
+});
   drawRadar();
 };
