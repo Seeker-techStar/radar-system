@@ -30,13 +30,28 @@ html, body {
   overflow-y: auto;
 }
 
-.right-panel {
-  width: 260px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  z-index: 2;
-  overflow-y: auto;
+.right-panel{
+  width:260px;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+
+  overflow-y:auto;
+  max-height:100vh;
+
+  padding-right:8px;
+}
+.right-panel::-webkit-scrollbar{
+  width:6px;
+}
+
+.right-panel::-webkit-scrollbar-thumb{
+  background:#bb66ff;
+  border-radius:10px;
+}
+
+.right-panel::-webkit-scrollbar-track{
+  background:rgba(255,255,255,0.05);
 }
 
 .title {
