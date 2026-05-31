@@ -55,13 +55,12 @@ window.onload = () => {
 
   let myMarker = null;
 
-  /* TARGET FIXE — Luxembourg City */
-  const TARGET = {
-    name: "LUXEMBOURG CITY",
-    lat: 49.6116,
-    lon: 6.1319
-  };
-
+  const savedTarget = localStorage.getItem("customTarget");
+const TARGET = savedTarget ? JSON.parse(savedTarget) : {
+  name: "LUXEMBOURG CITY",
+  lat: 49.6116,
+  lon: 6.1319
+};
   /* Marqueur vert cible sur minimap */
   const targetMarker = L.circleMarker([TARGET.lat, TARGET.lon], {
     radius: 8,
@@ -382,6 +381,79 @@ window.onload = () => {
 
     document.addEventListener("mouseup", () => { isDragging = false; });
   });
+/* SET TARGET */
+const targetCityEl = document.getElementById("targetCity");
+if (targetCityEl) targetCityEl.innerText = TARGET.name;
 
+const targetAddressInput = document.getElementById("targetAddressInput");
+const searchAddressBtn = document.getElementById("searchAddressBtn");
+const searchResult = document.getElementById("searchResult");
+const trackTargetBtn = document.getElementById("trackTargetBtn");
+
+let pendingTarget = null;
+
+if (searchAddressBtn) {
+  searchAddressBtn.onclick = async () => {
+    const address = targetAddressInput.value.trim();
+    if (!address) return;
+
+    searchResult.innerText = "SEARCHING...";
+    trackTargetBtn.style.display = "none";
+
+    const url = "https://nominatim.openstreetmap.org/search?format=json&q=" + encodeURIComponent(address);
+
+    try {
+      const res = await fetch(url, { headers: { "Accept-Language": "fr" } });
+      const data = await res.json();
+
+      if (!data || data.length === 0) {
+        searchResult.innerText = "NOT FOUND";
+        return;
+      }
+
+      const result = data[0];
+      pendingTarget = {
+        name: address.toUpperCase(),
+        lat: parseFloat(result.lat),
+        lon: parseFloat(result.lon)
+      };
+
+      searchResult.innerHTML = `
+        <p style="color:#00ff88; font-size:11px; margin:6px 0;">
+          LAT: ${pendingTarget.lat.toFixed(5)}<br/>
+          LON: ${pendingTarget.lon.toFixed(5)}
+        </p>
+      `;
+
+      trackTargetBtn.style.display = "block";
+
+    } catch(err) {
+      searchResult.innerText = "ERROR: " + err.message;
+    }
+  };
+}
+
+if (trackTargetBtn) {
+  trackTargetBtn.onclick = () => {
+    if (!pendingTarget) return;
+
+    TARGET.name = pendingTarget.name;
+    TARGET.lat = pendingTarget.lat;
+    TARGET.lon = pendingTarget.lon;
+
+    localStorage.setItem("customTarget", JSON.stringify(TARGET));
+
+    if (targetCityEl) targetCityEl.innerText = TARGET.name;
+    if (destStatus) destStatus.innerText = "TRACKING";
+
+    targetMarker.setLatLng([TARGET.lat, TARGET.lon]);
+    targetMarker.setPopupContent("TARGET: " + TARGET.name);
+
+    searchResult.innerHTML = `<p style="color:#00d5ff; font-size:11px;">✔ TARGET LOCKED</p>`;
+    trackTargetBtn.style.display = "none";
+
+    console.log("TARGET LOCKED:", TARGET);
+  };
+}
   drawRadar();
 };
