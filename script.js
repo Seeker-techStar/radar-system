@@ -613,10 +613,49 @@ function drawSeekerRadar() {
 
 if (enterSeekerBtn) {
   enterSeekerBtn.onclick = () => {
-    seekerActive = true;
+    seekerActive = false;
     seekerMode.style.display = "block";
-    resizeSeeker();
-    drawSeekerRadar();
+
+    const intro = document.getElementById("seekerIntro");
+    const fill = document.getElementById("introFill");
+    const introText = document.getElementById("introText");
+    const seekerHud = document.querySelector(".seeker-hud");
+
+    intro.style.display = "flex";
+    seekerHud.style.display = "none";
+    fill.style.width = "0%";
+
+    const messages = [
+      "SEEKER MODE INITIALIZING...",
+      "LOADING RADAR SYSTEMS...",
+      "ACQUIRING GPS SIGNAL...",
+      "TARGET LOCKED...",
+      "ENGAGING SEEKER MODE..."
+    ];
+
+    let progress = 0;
+    let msgIndex = 0;
+
+    const interval = setInterval(() => {
+      progress += 2;
+      fill.style.width = progress + "%";
+
+      if (progress % 20 === 0 && msgIndex < messages.length) {
+        introText.innerText = messages[msgIndex];
+        msgIndex++;
+      }
+
+      if (progress >= 100) {
+        clearInterval(interval);
+        setTimeout(() => {
+          intro.style.display = "none";
+          seekerHud.style.display = "flex";
+          seekerActive = true;
+          resizeSeeker();
+          drawSeekerRadar();
+        }, 400);
+      }
+    }, 30);
   };
 }
 
