@@ -690,7 +690,17 @@ logo-container {
   transition: 0.2s;
 }
 
-#track
+#trackTargetBtn:hover {
+  background: rgba(0,213,255,0.3);
+  box-shadow: 0 0 12px rgba(0,213,255,0.4);
+}
+
+#searchResult {
+  font-size: 11px;
+  letter-spacing: 1px;
+  min-height: 20px;
+}
+
 #seekerMode {
   position: fixed;
   top: 0; left: 0;
