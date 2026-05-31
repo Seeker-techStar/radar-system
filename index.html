@@ -50,16 +50,17 @@ decepticons.tech
   <h2 class="box-header">F-16 SYSTEM</h2>
   <div class="box-content">
     <div class="jet-panel">
- <img
-  src="https://seeker-techstar.github.io/radar-system/download.jpg"
-  class="jet-image"
-  alt=""
-  style="mix-blend-mode: screen; width: 100% !important; height: auto !important; display: block !important; opacity: 1 !important; visibility: visible !important;"
-/>
+      <div class="scan-ring"></div>
+      <img
+        src="Decepticon-Logo.png"
+        class="jet-image"
+        alt="Decepticons"
+        style="mix-blend-mode: screen;"
+      />
     </div>
   </div>
 </div>
-
+ 
     </div><!-- ✅ fin .left-panel -->
 
     <!-- CENTER : RADAR -->
@@ -84,25 +85,28 @@ decepticons.tech
           <p>ALT : <span id="altStat">0m</span></p>
         </div>
       </div>
+<div class="box collapsible draggable">
+  <h2 class="box-header">NAVIGATION</h2>
+  <div class="box-content">
+    <p>TARGET : <span id="targetCity">LUXEMBOURG CITY</span></p>
+    <p>DISTANCE : <span id="destDistance">0 km</span></p>
+    <p>DIRECTION : <span id="destDirection">---</span></p>
+    <p>STATUS : <span id="destStatus">TRACKING</span></p>
+  </div>
+</div>
 
-      
-      <div class="box collapsible draggable">
-        <h2 class="box-header">MINI MAP</h2>
-        <div class="box-content">
-          <div id="miniMap"></div>
-        </div>
-      </div>
-
-      <div class="box collapsible draggable">
-        <h2 class="box-header">CONSOLE</h2>
-        <div class="box-content">
-          <div id="console">
-            <p>> SYSTEM ONLINE</p>
-            <p>> RADAR ACTIVE</p>
-            <p>> LIVE NETWORK CONNECTED</p>
-          </div>
-        </div>
-      </div>
+<div class="box collapsible draggable">
+  <h2 class="box-header">SET TARGET</h2>
+  <div class="box-content">
+    <div class="target-form">
+      <label>ADRESSE</label>
+      <input type="text" id="targetAddressInput" placeholder="20 rue centrale limpach"/>
+      <button id="searchAddressBtn">🔍 SEARCH</button>
+      <div id="searchResult"></div>
+      <button id="trackTargetBtn" style="display:none;">⊕ TRACK TARGET</button>
+    </div>
+  </div>
+</div>
 
 
       <div class="box collapsible draggable">
@@ -131,7 +135,6 @@ decepticons.tech
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
- <script src="script.js?v=99" defer></script>
-  
+  <script src="script.js?v=99" defer></script>
 </body>
 </html>
