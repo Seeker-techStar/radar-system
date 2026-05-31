@@ -1630,3 +1630,21 @@ html, body {
   background: #ff4444;
   color: #000;
 }}
+#exitChillBtn {
+  display: block;
+  margin-top: 16px;
+  background: transparent;
+  border: 1px solid #ff4444;
+  color: #ff4444;
+  padding: 8px 18px;
+  cursor: pointer;
+  letter-spacing: 2px;
+  font-size: 13px;
+  font-family: inherit;
+  width: 100%;
+}
+
+#exitChillBtn:hover {
+  background: #ff4444;
+  color: #000;
+}
