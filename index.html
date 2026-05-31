@@ -85,6 +85,9 @@ decepticons.tech
           <p>ALT : <span id="altStat">0m</span></p>
         </div>
       </div>
+      <div class="box">
+  <button id="enterSeekerBtn">⚡ SEEKER MODE</button>
+</div>
 <div class="box collapsible draggable">
   <h2 class="box-header">NAVIGATION</h2>
   <div class="box-content">
@@ -107,7 +110,6 @@ decepticons.tech
     </div>
   </div>
 </div>
-
 
       <div class="box collapsible draggable">
         <h2 class="box-header">MINI MAP</h2>
@@ -136,5 +138,41 @@ decepticons.tech
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="script.js?v=99" defer></script>
+  <!-- SEEKER MODE -->
+<div id="seekerMode" style="display:none;">
+  <div class="seeker-hud">
+    <div class="seeker-header">
+      <span class="seeker-title">⚡ SEEKER MODE</span>
+      <span id="seekerTarget" class="seeker-target-name">LUXEMBOURG CITY</span>
+      <button id="exitSeekerBtn">✕ EXIT</button>
+    </div>
+    <div class="seeker-center">
+      <canvas id="seekerRadar"></canvas>
+    </div>
+    <div class="seeker-stats">
+      <div class="seeker-stat">
+        <div class="seeker-stat-label">BEARING</div>
+        <div class="seeker-stat-value" id="seekerBearing">---°</div>
+      </div>
+      <div class="seeker-stat">
+        <div class="seeker-stat-label">DISTANCE</div>
+        <div class="seeker-stat-value" id="seekerDistance">--- km</div>
+      </div>
+      <div class="seeker-stat">
+        <div class="seeker-stat-label">DIRECTION</div>
+        <div class="seeker-stat-value" id="seekerDirection">---</div>
+      </div>
+      <div class="seeker-stat">
+        <div class="seeker-stat-label">STATUS</div>
+        <div class="seeker-stat-value" id="seekerStatus" style="color:#00ff88;">TRACKING</div>
+      </div>
+    </div>
+    <div class="seeker-instruction" id="seekerInstruction">
+      ▶ CALCULATING ROUTE...
+    </div>
+  </div>
+</div>
+
+<!-- BOUTON SEEKER dans le HUD normal -->
 </body>
 </html>
