@@ -531,3 +531,166 @@ html, body {
   box-shadow: 0 0 8px #ff2244;
   transition: width 0.05s linear;
 }
+/* =========================================
+   CHILL MODE
+========================================= */
+
+#chillMode {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #05020a;
+  z-index: 9999;
+}
+
+.chill-layout {
+  display: flex;
+  height: 100vh;
+  padding: 16px;
+  box-sizing: border-box;
+  gap: 16px;
+}
+
+.chill-sidebar {
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-right: 1px solid rgba(0,213,255,0.2);
+  padding-right: 16px;
+}
+
+.chill-title {
+  font-size: 36px;
+  margin: 0;
+  letter-spacing: 8px;
+  color: #00d5ff;
+  text-shadow: 0 0 10px #00d5ff, 0 0 30px #00d5ff;
+}
+
+.chill-speed {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chill-label {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: #00d5ff;
+  opacity: 0.7;
+}
+
+.chill-value {
+  font-size: 28px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(0,213,255,0.5);
+}
+
+.chill-mini-radar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#chillRadar {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,213,255,0.2);
+}
+
+.chill-spotify {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid rgba(0,213,255,0.2);
+  border-radius: 10px;
+  background: rgba(0,213,255,0.03);
+}
+
+.spotify-title {
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: #00d5ff;
+}
+
+.spotify-track {
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.5);
+}
+
+#exitChillBtn {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid rgba(255,0,80,0.4);
+  border-radius: 10px;
+  background: rgba(255,0,80,0.1);
+  color: #ff4d88;
+  font-weight: bold;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: 0.2s;
+  margin-top: auto;
+}
+
+#exitChillBtn:hover {
+  background: rgba(255,0,80,0.3);
+}
+
+#enterChillBtn {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid rgba(0,213,255,0.4);
+  border-radius: 10px;
+  background: rgba(0,213,255,0.1);
+  color: #00d5ff;
+  font-weight: bold;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 14px;
+}
+
+#enterChillBtn:hover {
+  background: rgba(0,213,255,0.25);
+  box-shadow: 0 0 12px rgba(0,213,255,0.3);
+}
+
+.chill-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+#musicVisualizer {
+  width: 100%;
+  height: 100%;
+}
+.chill-chrono {
+  font-size: 28px;
+  letter-spacing: 4px;
+  color: #00d5ff;
+  text-shadow: 0 0 10px #00d5ff;
+  text-align: center;
+}
+
+.chill-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chill-stat-row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(0,213,255,0.1);
+  padding-bottom: 6px;
+}
