@@ -691,3 +691,130 @@ logo-container {
 }
 
 #track
+#seekerMode {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #05020a;
+  z-index: 9999;
+}
+
+.seeker-hud {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 16px;
+  box-sizing: border-box;
+  gap: 12px;
+}
+
+.seeker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(187,102,255,0.3);
+  padding-bottom: 12px;
+}
+
+.seeker-title {
+  font-size: 18px;
+  letter-spacing: 4px;
+  color: #cc88ff;
+  text-shadow: 0 0 10px #bb66ff;
+}
+
+.seeker-target-name {
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: #00ff88;
+  text-shadow: 0 0 8px #00ff88;
+}
+
+#exitSeekerBtn {
+  padding: 8px 16px;
+  border: 1px solid rgba(255,0,80,0.4);
+  border-radius: 8px;
+  background: rgba(255,0,80,0.1);
+  color: #ff4d88;
+  font-weight: bold;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+#exitSeekerBtn:hover {
+  background: rgba(255,0,80,0.3);
+}
+
+.seeker-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+#seekerRadar {
+  width: min(70vmin, 650px);
+  height: min(70vmin, 650px);
+}
+
+.seeker-stats {
+  display: flex;
+  justify-content: space-around;
+  gap: 12px;
+  border-top: 1px solid rgba(187,102,255,0.2);
+  border-bottom: 1px solid rgba(187,102,255,0.2);
+  padding: 12px 0;
+}
+
+.seeker-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.seeker-stat-label {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #bb66ff;
+}
+
+.seeker-stat-value {
+  font-size: 22px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(187,102,255,0.5);
+}
+
+.seeker-instruction {
+  text-align: center;
+  font-size: 18px;
+  letter-spacing: 4px;
+  color: #00d5ff;
+  text-shadow: 0 0 12px #00d5ff;
+  padding: 10px 0;
+  min-height: 44px;
+}
+
+#enterSeekerBtn {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid rgba(0,213,255,0.4);
+  border-radius: 10px;
+  background: rgba(0,213,255,0.1);
+  color: #00d5ff;
+  font-weight: bold;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 14px;
+}
+
+#enterSeekerBtn:hover {
+  background: rgba(0,213,255,0.25);
+  box-shadow: 0 0 12px rgba(0,213,255,0.3);
+}
