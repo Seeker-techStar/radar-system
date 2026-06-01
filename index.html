@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>STARSCREAM</title>
-  <link rel="stylesheet" href="style.css?v=99">
+  <link rel="stylesheet" href="style.css?v=100">
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 </head>
@@ -46,7 +46,7 @@
         </div>
       </div>
 
-    </div><!-- fin .left-panel -->
+    </div>
 
     <!-- CENTER : RADAR -->
     <div class="center">
@@ -78,9 +78,10 @@
       <div class="box">
         <button id="enterChillBtn">🎵 CHILL MODE</button>
       </div>
+
       <div class="box">
-  <button id="enterFreeBtn">🔓 FREE MODE</button>
-</div>
+        <button id="enterFreeBtn">🔓 FREE MODE</button>
+      </div>
 
       <div class="box collapsible draggable">
         <h2 class="box-header">NAVIGATION</h2>
@@ -123,21 +124,19 @@
         </div>
       </div>
 
-    </div><!-- fin .right-panel -->
+    </div>
 
-  </div><!-- fin .hud -->
+  </div>
 
   <!-- SEEKER MODE -->
   <div id="seekerMode" style="display:none;">
 
-    <!-- INTRO -->
     <div id="seekerIntro" class="seeker-intro">
       <img src="decepticon_seeker_insignia_by_drawinrook_deo8gia-fullview.png" class="intro-logo" id="introLogo"/>
       <div class="intro-text" id="introText">SEEKER MODE INITIALIZING...</div>
       <div class="intro-bar"><div class="intro-fill" id="introFill"></div></div>
     </div>
 
-    <!-- HUD -->
     <div class="seeker-hud">
       <div class="seeker-header">
         <span class="seeker-title">⚡ SEEKER MODE</span>
@@ -168,9 +167,9 @@
       <div class="seeker-instruction" id="seekerInstruction">
         ▶ CALCULATING ROUTE...
       </div>
-    </div><!-- fin .seeker-hud -->
+    </div>
 
-  </div><!-- fin #seekerMode -->
+  </div>
 
   <!-- CHILL MODE -->
   <div id="chillMode" style="display:none;">
@@ -200,105 +199,64 @@
           </div>
         </div>
 
-        
         <div class="chill-mini-radar">
-  <canvas id="chillRadar"></canvas>
-</div>
+          <canvas id="chillRadar"></canvas>
+        </div>
 
-<div class="chill-spotify">
+        <div class="chill-spotify">
+          <div class="spotify-header">♪ SPOTIFY</div>
+          <img id="spotifyCover" class="spotify-cover" src="" alt="Album Cover">
+          <div id="spotifyTrack" class="spotify-track">NOT CONNECTED</div>
+          <div id="spotifyArtist" class="spotify-artist">---</div>
+          <div class="spotify-controls">
+            <button id="spotifyPrevBtn">⏮</button>
+            <button id="spotifyPlayBtn">▶</button>
+            <button id="spotifyNextBtn">⏭</button>
+          </div>
+          <button id="spotifyConnectBtn">CONNECT SPOTIFY</button>
+        </div>
 
-  <div class="spotify-header">
-    ♪ SPOTIFY
-  </div>
-
-  <img
-    id="spotifyCover"
-    class="spotify-cover"
-    src=""
-    alt="Album Cover"
-  >
-
-  <div id="spotifyTrack" class="spotify-track">
-    NOT CONNECTED
-  </div>
-
-  <div id="spotifyArtist" class="spotify-artist">
-    ---
-  </div>
-
-  <div class="spotify-controls">
-    <button id="spotifyPrevBtn">⏮</button>
-    <button id="spotifyPlayBtn">▶</button>
-    <button id="spotifyNextBtn">⏭</button>
-  </div>
-
-  <button id="spotifyConnectBtn">
-    CONNECT SPOTIFY
-  </button>
-
-</div>
-
-<button id="exitChillBtn">✕ EXIT</button>
+        <button id="exitChillBtn">✕ EXIT</button>
       </div>
-
-        
 
       <div class="chill-center">
         <canvas id="musicVisualizer"></canvas>
-      </div><!-- fin .chill-center -->
+      </div>
 
-    </div><!-- fin .chill-layout -->
-  </div><!-- fin #chillMode -->
+    </div>
+  </div>
+
   <!-- FREE MODE -->
-<div id="freeMode" style="display:none;">
-
-  <div class="free-header">
-
-    <h1>🔓 FREE MODE</h1>
-
-    <button id="exitFreeBtn">
-      ✕ EXIT
-    </button>
-
+  <div id="freeMode" style="display:none;">
+    <div class="free-header">
+      <h1>🔓 FREE MODE</h1>
+      <button id="exitFreeBtn">✕ EXIT</button>
+    </div>
+    <div class="free-grid">
+      <div class="free-widget">
+        <h3>RADAR</h3>
+        <canvas id="freeRadar"></canvas>
+      </div>
+      <div class="free-widget">
+        <h3>GPS</h3>
+        <div id="freeGps">WAITING...</div>
+      </div>
+      <div class="free-widget">
+        <h3>SPOTIFY</h3>
+        <div id="freeSpotify">NOT CONNECTED</div>
+      </div>
+      <div class="free-widget">
+        <h3>CONSOLE</h3>
+        <div id="freeConsole">STARSCREAM ONLINE</div>
+      </div>
+    </div>
   </div>
-
-  <div class="free-grid">
-
-    <div class="free-widget">
-      <h3>RADAR</h3>
-      <canvas id="freeRadar"></canvas>
-    </div>
-
-    <div class="free-widget">
-      <h3>GPS</h3>
-      <div id="freeGps">
-        WAITING...
-      </div>
-    </div>
-
-    <div class="free-widget">
-      <h3>SPOTIFY</h3>
-      <div id="freeSpotify">
-        NOT CONNECTED
-      </div>
-    </div>
-
-    <div class="free-widget">
-      <h3>CONSOLE</h3>
-      <div id="freeConsole">
-        STARSCREAM ONLINE
-      </div>
-    </div>
-
-  </div>
-
-</div>
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="script.js?v=99" defer></script>
+  <script src="script.js?v=100" defer></script>
 
 </body>
 </html>
