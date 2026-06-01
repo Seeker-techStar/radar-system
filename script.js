@@ -1047,7 +1047,8 @@ window.onload = () => {
       + `?client_id=${SPOTIFY_CLIENT_ID}`
       + `&response_type=token`
       + `&redirect_uri=${encodeURIComponent(SPOTIFY_REDIRECT)}`
-      + `&scope=${encodeURIComponent(SPOTIFY_SCOPES)}`;
+      + `&scope=${encodeURIComponent(SPOTIFY_SCOPES)}`
+      + `&show_dialog=true`;
     window.location.href = url;
   }
 
