@@ -1023,4 +1023,114 @@ window.onload = () => {
     };
   }
 
+  /* =========================================
+     SPOTIFY
+  ========================================= */
+
+  const SPOTIFY_CLIENT_ID = "dd95f1b1bfb243fd9ce7befe84b22385";
+  const SPOTIFY_REDIRECT  = "https://seeker-techstar.github.io/radar-system/callback.html";
+  const SPOTIFY_SCOPES    = "user-read-playback-state user-modify-playback-state user-read-currently-playing";
+
+  let spotifyToken    = localStorage.getItem("spotify_token") || null;
+  let spotifyInterval = null;
+
+  const spotifyConnectBtn = document.getElementById("spotifyConnectBtn");
+  const spotifyPlayBtn    = document.getElementById("spotifyPlayBtn");
+  const spotifyPrevBtn    = document.getElementById("spotifyPrevBtn");
+  const spotifyNextBtn    = document.getElementById("spotifyNextBtn");
+  const spotifyTrackEl    = document.getElementById("spotifyTrack");
+  const spotifyArtistEl   = document.getElementById("spotifyArtist");
+  const spotifyCoverEl    = document.getElementById("spotifyCover");
+
+  function spotifyAuth() {
+    const url = `https://accounts.spotify.com/authorize`
+      + `?client_id=${SPOTIFY_CLIENT_ID}`
+      + `&response_type=token`
+      + `&redirect_uri=${encodeURIComponent(SPOTIFY_REDIRECT)}`
+      + `&scope=${encodeURIComponent(SPOTIFY_SCOPES)}`;
+    window.location.href = url;
+  }
+
+  async function spotifyFetch(endpoint, method = "GET", body = null) {
+    if (!spotifyToken) return null;
+    const opts = {
+      method,
+      headers: { "Authorization": "Bearer " + spotifyToken }
+    };
+    if (body) {
+      opts.headers["Content-Type"] = "application/json";
+      opts.body = JSON.stringify(body);
+    }
+    const res = await fetch("https://api.spotify.com/v1" + endpoint, opts);
+    if (res.status === 401) {
+      spotifyToken = null;
+      localStorage.removeItem("spotify_token");
+      if (spotifyConnectBtn) {
+        spotifyConnectBtn.style.display = "block";
+        spotifyConnectBtn.innerText = "RECONNECT SPOTIFY";
+      }
+      if (spotifyTrackEl) spotifyTrackEl.innerText = "TOKEN EXPIRED";
+      return null;
+    }
+    if (res.status === 204 || res.status === 202) return {};
+    try { return await res.json(); } catch { return {}; }
+  }
+
+  async function spotifyGetCurrent() {
+    const data = await spotifyFetch("/me/player/currently-playing");
+    if (!data || !data.item) {
+      if (spotifyTrackEl) spotifyTrackEl.innerText = "NOTHING PLAYING";
+      if (spotifyArtistEl) spotifyArtistEl.innerText = "---";
+      if (spotifyCoverEl) spotifyCoverEl.src = "";
+      if (spotifyPlayBtn) spotifyPlayBtn.innerText = "▶";
+      return;
+    }
+    if (spotifyTrackEl) spotifyTrackEl.innerText = data.item.name;
+    if (spotifyArtistEl) spotifyArtistEl.innerText = data.item.artists.map(a => a.name).join(", ");
+    if (spotifyCoverEl && data.item.album.images[0]) spotifyCoverEl.src = data.item.album.images[0].url;
+    if (spotifyPlayBtn) spotifyPlayBtn.innerText = data.is_playing ? "⏸" : "▶";
+  }
+
+  function spotifyStartPolling() {
+    spotifyGetCurrent();
+    if (spotifyInterval) clearInterval(spotifyInterval);
+    spotifyInterval = setInterval(spotifyGetCurrent, 5000);
+  }
+
+  if (spotifyConnectBtn) {
+    if (spotifyToken) {
+      spotifyConnectBtn.style.display = "none";
+      spotifyStartPolling();
+    }
+    spotifyConnectBtn.onclick = spotifyAuth;
+  }
+
+  if (spotifyPlayBtn) {
+    spotifyPlayBtn.onclick = async () => {
+      const current = await spotifyFetch("/me/player");
+      if (!current) return;
+      if (current.is_playing) {
+        await spotifyFetch("/me/player/pause", "PUT");
+        spotifyPlayBtn.innerText = "▶";
+      } else {
+        await spotifyFetch("/me/player/play", "PUT");
+        spotifyPlayBtn.innerText = "⏸";
+      }
+    };
+  }
+
+  if (spotifyPrevBtn) {
+    spotifyPrevBtn.onclick = async () => {
+      await spotifyFetch("/me/player/previous", "POST");
+      setTimeout(spotifyGetCurrent, 600);
+    };
+  }
+
+  if (spotifyNextBtn) {
+    spotifyNextBtn.onclick = async () => {
+      await spotifyFetch("/me/player/next", "POST");
+      setTimeout(spotifyGetCurrent, 600);
+    };
+  }
+
 };
