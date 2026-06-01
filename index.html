@@ -3,260 +3,119 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>STARSCREAM</title>
-  <link rel="stylesheet" href="style.css?v=100">
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <title>STARSCREAM — AUTH</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #05020a;
+      color: #cc88ff;
+      font-family: monospace;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .status { font-size: 18px; letter-spacing: 3px; color: #00d5ff; }
+    .sub { font-size: 12px; color: #cc88ff; letter-spacing: 2px; opacity: 0.7; }
+    .bar { width: 280px; height: 4px; background: rgba(200,120,255,0.15); border-radius: 2px; overflow: hidden; }
+    .fill { height: 100%; width: 0%; background: #cc88ff; transition: width 0.3s ease; }
+    .error { color: #ff4444; font-size: 13px; letter-spacing: 1px; max-width: 340px; text-align: center; }
+  </style>
 </head>
 <body>
 
-  <div class="hud">
+  <div class="status" id="statusMsg">AUTHENTICATING...</div>
+  <div class="bar"><div class="fill" id="fill"></div></div>
+  <div class="sub" id="subMsg">EXCHANGING TOKEN WITH SPOTIFY</div>
+  <div class="error" id="errorMsg" style="display:none;"></div>
 
-    <!-- LEFT PANEL -->
-    <div class="left-panel">
+  <script>
+    const CLIENT_ID    = "dd95f1b1bfb243fd9ce7befe84b22385";
+    const REDIRECT_URI = "https://decepticons.tech/callback.html";
 
-      <h1 class="title">STARSCREAM</h1>
-      <p class="subtitle">SIC-AIR COMMANDER OF DECEPTICONS</p>
+    const statusEl = document.getElementById("statusMsg");
+    const subEl    = document.getElementById("subMsg");
+    const fillEl   = document.getElementById("fill");
+    const errorEl  = document.getElementById("errorMsg");
 
-      <div class="box collapsible draggable">
-        <button id="disconnectBtn">DISCONNECT</button>
-        <h2 class="box-header">SYSTEM STATUS</h2>
-        <div class="box-content">
-          <p>CORE <span id="coreStat">ONLINE</span></p>
-          <p>GPS <span>READY</span></p>
-          <p>RADAR <span>ACTIVE</span></p>
-          <p>SHIELD <span id="energyStat">100%</span></p>
-        </div>
-      </div>
+    async function handleCallback() {
+      const params = new URLSearchParams(window.location.search);
+      const code   = params.get("code");
+      const error  = params.get("error");
 
-      <div class="box collapsible draggable">
-        <h2 class="box-header">TACTICAL DATA</h2>
-        <div class="box-content">
-          <p>LOCK : <span id="lockStat">SEARCHING</span></p>
-          <p>SPEED : <span id="speedStat">0 km/h</span></p>
-          <p>DIR : <span id="dirStat">EAST</span></p>
-          <p>TEMP : <span id="tempStat">0°C</span></p>
-        </div>
-      </div>
+      if (error) {
+        statusEl.innerText = "AUTH DENIED";
+        errorEl.style.display = "block";
+        errorEl.innerText = "Spotify returned: " + error;
+        return;
+      }
 
-      <div class="box collapsible draggable">
-        <h2 class="box-header">ONLINE PILOTS</h2>
-        <div class="box-content">
-          <div id="onlineList"></div>
-        </div>
-      </div>
+      if (!code) {
+        statusEl.innerText = "NO CODE";
+        errorEl.style.display = "block";
+        errorEl.innerText = "Missing authorization code in URL.";
+        return;
+      }
 
-    </div>
+      const verifier = localStorage.getItem("spotify_code_verifier");
+      if (!verifier) {
+        statusEl.innerText = "NO VERIFIER";
+        errorEl.style.display = "block";
+        errorEl.innerText = "PKCE verifier missing from localStorage.";
+        return;
+      }
 
-    <!-- CENTER : RADAR -->
-    <div class="center">
-      <canvas id="radar"></canvas>
-      <div class="bottom-text" id="statusText">SCANNING AREA...</div>
-    </div>
+      fillEl.style.width = "40%";
+      subEl.innerText = "CONTACTING SPOTIFY API";
 
-    <!-- RIGHT PANEL -->
-    <div class="right-panel">
+      try {
+        const res = await fetch("https://accounts.spotify.com/api/token", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({
+            grant_type:    "authorization_code",
+            code:          code,
+            redirect_uri:  REDIRECT_URI,
+            client_id:     CLIENT_ID,
+            code_verifier: verifier
+          })
+        });
 
-      <div class="box">
-        <h2>TARGETS</h2>
-        <div class="target-number" id="targetCount">0</div>
-      </div>
+        const data = await res.json();
 
-      <div class="box collapsible draggable">
-        <h2 class="box-header">COORDINATES</h2>
-        <div class="box-content">
-          <p>LAT : <span id="latStat">0</span></p>
-          <p>LON : <span id="lonStat">0</span></p>
-          <p>ALT : <span id="altStat">0m</span></p>
-        </div>
-      </div>
+        if (data.error) {
+          statusEl.innerText = "TOKEN ERROR";
+          errorEl.style.display = "block";
+          errorEl.innerText = data.error + ": " + (data.error_description || "");
+          return;
+        }
 
-      <div class="box">
-        <button id="enterSeekerBtn">⚡ SEEKER MODE</button>
-      </div>
+        fillEl.style.width = "80%";
+        subEl.innerText = "SAVING TOKEN...";
 
-      <div class="box">
-        <button id="enterChillBtn">🎵 CHILL MODE</button>
-      </div>
+        localStorage.setItem("spotify_token", data.access_token);
+        if (data.refresh_token) localStorage.setItem("spotify_refresh_token", data.refresh_token);
+        localStorage.removeItem("spotify_code_verifier");
 
-      <div class="box">
-        <button id="enterFreeBtn">🔓 FREE MODE</button>
-      </div>
+        fillEl.style.width = "100%";
+        statusEl.innerText = "AUTHENTICATED ✓";
+        subEl.innerText = "RETURNING TO STARSCREAM HUD...";
 
-      <div class="box collapsible draggable">
-        <h2 class="box-header">NAVIGATION</h2>
-        <div class="box-content">
-          <p>TARGET : <span id="targetCity">LUXEMBOURG CITY</span></p>
-          <p>DISTANCE : <span id="destDistance">0 km</span></p>
-          <p>DIRECTION : <span id="destDirection">---</span></p>
-          <p>STATUS : <span id="destStatus">TRACKING</span></p>
-        </div>
-      </div>
+        setTimeout(() => {
+          window.location.href = "https://decepticons.tech/";
+        }, 1000);
 
-      <div class="box collapsible draggable">
-        <h2 class="box-header">SET TARGET</h2>
-        <div class="box-content">
-          <div class="target-form">
-            <label>ADRESSE</label>
-            <input type="text" id="targetAddressInput" placeholder="20 rue centrale limpach"/>
-            <button id="searchAddressBtn">🔍 SEARCH</button>
-            <div id="searchResult"></div>
-            <button id="trackTargetBtn" style="display:none;">⊕ TRACK TARGET</button>
-          </div>
-        </div>
-      </div>
+      } catch(err) {
+        statusEl.innerText = "NETWORK ERROR";
+        errorEl.style.display = "block";
+        errorEl.innerText = err.message;
+      }
+    }
 
-      <div class="box collapsible draggable">
-        <h2 class="box-header">MINI MAP</h2>
-        <div class="box-content">
-          <div id="miniMap"></div>
-        </div>
-      </div>
-
-      <div class="box collapsible draggable">
-        <h2 class="box-header">CONSOLE</h2>
-        <div class="box-content">
-          <div id="console">
-            <p>> SYSTEM ONLINE</p>
-            <p>> RADAR ACTIVE</p>
-            <p>> LIVE NETWORK CONNECTED</p>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-  </div>
-
-  <!-- SEEKER MODE -->
-  <div id="seekerMode" style="display:none;">
-
-    <div id="seekerIntro" class="seeker-intro">
-      <img src="decepticon_seeker_insignia_by_drawinrook_deo8gia-fullview.png" class="intro-logo" id="introLogo"/>
-      <div class="intro-text" id="introText">SEEKER MODE INITIALIZING...</div>
-      <div class="intro-bar"><div class="intro-fill" id="introFill"></div></div>
-    </div>
-
-    <div class="seeker-hud">
-      <div class="seeker-header">
-        <span class="seeker-title">⚡ SEEKER MODE</span>
-        <span id="seekerTarget" class="seeker-target-name">LUXEMBOURG CITY</span>
-        <button id="exitSeekerBtn">✕ EXIT</button>
-      </div>
-      <div class="seeker-center">
-        <canvas id="seekerRadar"></canvas>
-      </div>
-      <div class="seeker-stats">
-        <div class="seeker-stat">
-          <div class="seeker-stat-label">BEARING</div>
-          <div class="seeker-stat-value" id="seekerBearing">---°</div>
-        </div>
-        <div class="seeker-stat">
-          <div class="seeker-stat-label">DISTANCE</div>
-          <div class="seeker-stat-value" id="seekerDistance">--- km</div>
-        </div>
-        <div class="seeker-stat">
-          <div class="seeker-stat-label">DIRECTION</div>
-          <div class="seeker-stat-value" id="seekerDirection">---</div>
-        </div>
-        <div class="seeker-stat">
-          <div class="seeker-stat-label">STATUS</div>
-          <div class="seeker-stat-value" id="seekerStatus" style="color:#ff2244;">TRACKING</div>
-        </div>
-      </div>
-      <div class="seeker-instruction" id="seekerInstruction">
-        ▶ CALCULATING ROUTE...
-      </div>
-    </div>
-
-  </div>
-
-  <!-- CHILL MODE -->
-  <div id="chillMode" style="display:none;">
-    <div class="chill-layout">
-
-      <div class="chill-sidebar">
-        <h1 class="chill-title">CHILL</h1>
-
-        <div class="chill-chrono" id="chillChrono">00:00:00</div>
-
-        <div class="chill-stats">
-          <div class="chill-stat-row">
-            <span class="chill-label">SPEED</span>
-            <span class="chill-value" id="chillSpeed">0 km/h</span>
-          </div>
-          <div class="chill-stat-row">
-            <span class="chill-label">TEMP</span>
-            <span class="chill-value" id="chillTemp">--°C</span>
-          </div>
-          <div class="chill-stat-row">
-            <span class="chill-label">TIME</span>
-            <span class="chill-value" id="chillTime">--:--:--</span>
-          </div>
-          <div class="chill-stat-row">
-            <span class="chill-label">DIST</span>
-            <span class="chill-value" id="chillDist">0.00 km</span>
-          </div>
-        </div>
-
-        <div class="chill-mini-radar">
-          <canvas id="chillRadar"></canvas>
-        </div>
-
-        <div class="chill-spotify">
-          <div class="spotify-header">♪ SPOTIFY</div>
-          <img id="spotifyCover" class="spotify-cover" src="" alt="Album Cover">
-          <div id="spotifyTrack" class="spotify-track">NOT CONNECTED</div>
-          <div id="spotifyArtist" class="spotify-artist">---</div>
-          <div class="spotify-controls">
-            <button id="spotifyPrevBtn">⏮</button>
-            <button id="spotifyPlayBtn">▶</button>
-            <button id="spotifyNextBtn">⏭</button>
-          </div>
-          <button id="spotifyConnectBtn">CONNECT SPOTIFY</button>
-        </div>
-
-        <button id="exitChillBtn">✕ EXIT</button>
-      </div>
-
-      <div class="chill-center">
-        <canvas id="musicVisualizer"></canvas>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- FREE MODE -->
-  <div id="freeMode" style="display:none;">
-    <div class="free-header">
-      <h1>🔓 FREE MODE</h1>
-      <button id="exitFreeBtn">✕ EXIT</button>
-    </div>
-    <div class="free-grid">
-      <div class="free-widget">
-        <h3>RADAR</h3>
-        <canvas id="freeRadar"></canvas>
-      </div>
-      <div class="free-widget">
-        <h3>GPS</h3>
-        <div id="freeGps">WAITING...</div>
-      </div>
-      <div class="free-widget">
-        <h3>SPOTIFY</h3>
-        <div id="freeSpotify">NOT CONNECTED</div>
-      </div>
-      <div class="free-widget">
-        <h3>CONSOLE</h3>
-        <div id="freeConsole">STARSCREAM ONLINE</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="script.js?v=100" defer></script>
+    handleCallback();
+  </script>
 
 </body>
 </html>
