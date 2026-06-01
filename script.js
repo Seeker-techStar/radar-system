@@ -1024,7 +1024,7 @@ window.onload = () => {
   }
 
   /* =========================================
-     SPOTIFY
+     SPOTIFY — PKCE Authorization Code Flow
   ========================================= */
 
   const SPOTIFY_CLIENT_ID = "dd95f1b1bfb243fd9ce7befe84b22385";
@@ -1042,14 +1042,33 @@ window.onload = () => {
   const spotifyArtistEl   = document.getElementById("spotifyArtist");
   const spotifyCoverEl    = document.getElementById("spotifyCover");
 
-  function spotifyAuth() {
-    const url = `https://accounts.spotify.com/authorize`
-      + `?client_id=${SPOTIFY_CLIENT_ID}`
-      + `&response_type=token`
-      + `&redirect_uri=${encodeURIComponent(SPOTIFY_REDIRECT)}`
-      + `&scope=${encodeURIComponent(SPOTIFY_SCOPES)}`
-      + `&show_dialog=true`;
-    window.location.href = url;
+  function generateCodeVerifier(length) {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
+    return Array.from(crypto.getRandomValues(new Uint8Array(length)))
+      .map(b => chars[b % chars.length]).join("");
+  }
+
+  async function generateCodeChallenge(verifier) {
+    const data = new TextEncoder().encode(verifier);
+    const digest = await crypto.subtle.digest("SHA-256", data);
+    return btoa(String.fromCharCode(...new Uint8Array(digest)))
+      .replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+  }
+
+  async function spotifyAuth() {
+    const codeVerifier = generateCodeVerifier(128);
+    const codeChallenge = await generateCodeChallenge(codeVerifier);
+    localStorage.setItem("spotify_code_verifier", codeVerifier);
+
+    const url = new URL("https://accounts.spotify.com/authorize");
+    url.searchParams.set("client_id", SPOTIFY_CLIENT_ID);
+    url.searchParams.set("response_type", "code");
+    url.searchParams.set("redirect_uri", SPOTIFY_REDIRECT);
+    url.searchParams.set("scope", SPOTIFY_SCOPES);
+    url.searchParams.set("code_challenge_method", "S256");
+    url.searchParams.set("code_challenge", codeChallenge);
+    url.searchParams.set("show_dialog", "true");
+    window.location.href = url.toString();
   }
 
   async function spotifyFetch(endpoint, method = "GET", body = null) {
