@@ -766,104 +766,280 @@ html, body {
   position: fixed;
   inset: 0;
   background: #05020a;
-  z-index: 99999;
-  color: white;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
-
+ 
 .free-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 20px 24px;
-  border-bottom: 1px solid rgba(187,102,255,0.2);
+  justify-content: space-between;
+  padding: 10px 20px;
+  border-bottom: 1px solid rgba(0,213,255,0.25);
+  background: rgba(0,213,255,0.04);
 }
-
+ 
 .free-header h1 {
+  font-size: 18px;
+  color: #00d5ff;
+  letter-spacing: 3px;
   margin: 0;
-  font-size: 20px;
-  letter-spacing: 4px;
-  color: #cc88ff;
-  text-shadow: 0 0 10px #bb66ff;
+  text-shadow: 0 0 12px #00d5ff;
 }
-
-#exitFreeBtn {
-  padding: 8px 18px;
-  border: 1px solid #ff4444;
-  border-radius: 8px;
-  background: rgba(255,68,68,0.1);
-  color: #ff4444;
-  font-weight: bold;
+ 
+.free-header button {
+  background: rgba(255,34,68,0.12);
+  border: 1px solid #ff2244;
+  color: #ff2244;
+  padding: 6px 14px;
+  font-size: 12px;
   letter-spacing: 2px;
   cursor: pointer;
-  transition: 0.2s;
-  font-family: inherit;
-  font-size: 13px;
+  border-radius: 3px;
+  transition: background 0.2s;
 }
-
-#exitFreeBtn:hover {
-  background: #ff4444;
-  color: #000;
+.free-header button:hover {
+  background: rgba(255,34,68,0.28);
 }
-
-#enterFreeBtn {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid rgba(187,102,255,0.4);
-  border-radius: 10px;
-  background: rgba(187,102,255,0.1);
-  color: #bb66ff;
-  font-weight: bold;
-  letter-spacing: 2px;
-  cursor: pointer;
-  transition: 0.2s;
-  font-size: 14px;
-}
-
-#enterFreeBtn:hover {
-  background: rgba(187,102,255,0.25);
-  box-shadow: 0 0 12px rgba(187,102,255,0.4);
-}
-
+ 
+/* grid layout */
 .free-grid {
+  flex: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
-  gap: 20px;
-  padding: 20px;
-  height: calc(100vh - 80px);
-  box-sizing: border-box;
-}
-
-.free-widget {
-  border: 1px solid rgba(187,102,255,0.3);
-  border-radius: 15px;
-  background: rgba(255,255,255,0.03);
-  padding: 15px;
+  gap: 12px;
+  padding: 12px;
   overflow: hidden;
 }
-
-.free-widget h3 {
-  margin: 0 0 12px 0;
-  font-size: 13px;
-  letter-spacing: 3px;
-  color: #cc88ff;
-}
-
-#freeRadar {
-  width: 100%;
-  height: calc(100% - 30px);
-}
-
-.kick-btn {
-  margin-left: auto;
-  color: #ff4444;
-  cursor: pointer;
-  font-size: 14px;
-  padding: 4px 8px;
+ 
+.free-widget {
+  background: rgba(0,213,255,0.04);
+  border: 1px solid rgba(0,213,255,0.2);
   border-radius: 6px;
-  transition: 0.2s;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 10px;
 }
-
-.kick-btn:hover {
-  background: rgba(255,68,68,0.2);
+ 
+.free-widget h3 {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: #00d5ff;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(0,213,255,0.15);
+  padding-bottom: 6px;
 }
+ 
+/* radar widget */
+#freeMode .free-widget:first-child {
+  align-items: center;
+}
+ 
+#freeRadar {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+}
+ 
+/* GPS widget */
+#freeGps {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  overflow-y: auto;
+}
+ 
+.free-gps-row {
+  display: flex;
+  justify-content: space-between;
+  color: #aaa;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+.free-gps-row span:first-child {
+  color: #00d5ff;
+  font-size: 10px;
+}
+.free-gps-row span:last-child {
+  color: #eee;
+}
+ 
+.free-gps-sep {
+  border: none;
+  border-top: 1px solid rgba(0,213,255,0.15);
+  margin: 6px 0;
+}
+ 
+.free-gps-search {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+ 
+.free-gps-search input {
+  flex: 1;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(0,213,255,0.3);
+  color: #eee;
+  padding: 5px 8px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  border-radius: 3px;
+  outline: none;
+}
+.free-gps-search input::placeholder { color: #555; }
+.free-gps-search input:focus { border-color: #00d5ff; }
+ 
+.free-gps-search button {
+  background: rgba(0,213,255,0.12);
+  border: 1px solid rgba(0,213,255,0.4);
+  color: #00d5ff;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 3px;
+  font-size: 13px;
+  transition: background 0.2s;
+}
+.free-gps-search button:hover { background: rgba(0,213,255,0.25); }
+ 
+#freeAddrResult {
+  margin-top: 6px;
+  font-size: 11px;
+  color: #aaa;
+}
+ 
+.free-addr-found {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  color: #ccc;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+.free-addr-found div:first-child { color: #00d5ff; }
+ 
+.free-addr-found button {
+  margin-top: 5px;
+  background: rgba(0,255,136,0.1);
+  border: 1px solid #00ff88;
+  color: #00ff88;
+  padding: 4px 10px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background 0.2s;
+  align-self: flex-start;
+}
+.free-addr-found button:hover { background: rgba(0,255,136,0.22); }
+ 
+/* Spotify widget */
+#freeSpotify {
+  flex: 1;
+  overflow-y: auto;
+}
+ 
+.free-spotify-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+ 
+.free-spotify-cover {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid rgba(0,213,255,0.3);
+  box-shadow: 0 0 12px rgba(0,213,255,0.2);
+}
+ 
+.free-spotify-nocover {
+  width: 80px;
+  height: 80px;
+  background: rgba(0,213,255,0.06);
+  border: 1px solid rgba(0,213,255,0.2);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: rgba(0,213,255,0.4);
+}
+ 
+.free-spotify-track {
+  font-size: 12px;
+  color: #eee;
+  letter-spacing: 1px;
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+ 
+.free-spotify-artist {
+  font-size: 10px;
+  color: #888;
+  letter-spacing: 1px;
+  text-align: center;
+}
+ 
+.free-spotify-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+ 
+.free-spotify-controls button {
+  background: rgba(0,213,255,0.08);
+  border: 1px solid rgba(0,213,255,0.3);
+  color: #00d5ff;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.free-spotify-controls button:hover { background: rgba(0,213,255,0.22); }
+ 
+#freeConnectSpotifyBtn {
+  background: rgba(30,215,96,0.1);
+  border: 1px solid #1ed760;
+  color: #1ed760;
+  padding: 5px 12px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  border-radius: 3px;
+  margin-top: 4px;
+  transition: background 0.2s;
+}
+#freeConnectSpotifyBtn:hover { background: rgba(30,215,96,0.2); }
+ 
+/* Console widget */
+#freeConsole {
+  flex: 1;
+  overflow-y: auto;
+  font-size: 10px;
+  color: #00d5ff;
+  letter-spacing: 1px;
+  line-height: 1.7;
+  font-family: monospace;
+  background: rgba(0,0,0,0.3);
+  padding: 6px 8px;
+  border-radius: 3px;
+  word-break: break-all;
+}
+ 
+#freeConsole::-webkit-scrollbar { width: 4px; }
+#freeConsole::-webkit-scrollbar-thumb { background: rgba(0,213,255,0.3); border-radius: 2px; }
