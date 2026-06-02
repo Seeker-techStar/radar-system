@@ -21,7 +21,7 @@ window.onload = () => {
   let cy = 0;
  
   /* =========================================
-     FREE LOG — défini en premier
+     FREE LOG
   ========================================= */
  
   function freeLog(message) {
@@ -1018,7 +1018,50 @@ window.onload = () => {
   drawRadar();
  
   /* =========================================
-     FREE MODE
+     FREE MODE — COLOR THEME SYSTEM
+  ========================================= */
+ 
+  // Themes: [primary color, radar sweep, accent, glow]
+  const FREE_THEMES = {
+    cyan:    { name: "CYAN",    main: "0,213,255",   hex: "#00d5ff" },
+    purple:  { name: "PURPLE",  main: "187,102,255", hex: "#bb66ff" },
+    red:     { name: "RED",     main: "255,34,68",   hex: "#ff2244" },
+    green:   { name: "GREEN",   main: "0,255,136",   hex: "#00ff88" },
+    amber:   { name: "AMBER",   main: "255,170,0",   hex: "#ffaa00" },
+    white:   { name: "WHITE",   main: "220,220,220", hex: "#dcdcdc" },
+  };
+ 
+  let freeTheme = localStorage.getItem("freeTheme") || "cyan";
+  if (!FREE_THEMES[freeTheme]) freeTheme = "cyan";
+ 
+  function applyFreeTheme(themeKey) {
+    freeTheme = themeKey;
+    localStorage.setItem("freeTheme", themeKey);
+    const t = FREE_THEMES[themeKey];
+    const root = document.getElementById("freeMode");
+    if (!root) return;
+    root.style.setProperty("--fc", t.hex);
+    root.style.setProperty("--fc-rgb", t.main);
+    // Update all themed elements
+    root.querySelectorAll(".free-theme-color").forEach(el => {
+      el.style.color = t.hex;
+    });
+    root.querySelectorAll(".free-theme-border").forEach(el => {
+      el.style.borderColor = `rgba(${t.main},0.25)`;
+    });
+    root.querySelectorAll(".free-theme-bg").forEach(el => {
+      el.style.background = `rgba(${t.main},0.04)`;
+    });
+    // Update theme buttons highlight
+    root.querySelectorAll(".theme-swatch").forEach(sw => {
+      sw.style.outline = sw.dataset.theme === themeKey
+        ? `2px solid ${sw.dataset.hex}`
+        : "2px solid transparent";
+    });
+  }
+ 
+  /* =========================================
+     FREE MODE — MAIN
   ========================================= */
  
   const enterFreeBtn = document.getElementById("enterFreeBtn");
@@ -1032,7 +1075,6 @@ window.onload = () => {
   let freeRadarCx   = 0;
   let freeRadarCy   = 0;
  
-  /* --- resize freeRadar canvas --- */
   function resizeFreeRadar() {
     if (!freeRadar) return;
     const box = freeRadar.parentElement;
@@ -1043,7 +1085,6 @@ window.onload = () => {
     freeRadarCy = size / 2;
   }
  
-  /* --- draw freeRadar --- */
   function drawFreeRadar() {
     if (!freeActive || !freeRadarCtx) return;
  
@@ -1051,29 +1092,28 @@ window.onload = () => {
     const H = freeRadar.height;
     freeRadarCx = W / 2;
     freeRadarCy = H / 2;
+    const t = FREE_THEMES[freeTheme];
+    const rgb = t.main;
  
     freeRadarCtx.clearRect(0, 0, W, H);
  
-    // circles
     for (let i = 1; i <= 5; i++) {
       freeRadarCtx.beginPath();
       freeRadarCtx.arc(freeRadarCx, freeRadarCy, i * (W / 11), 0, Math.PI * 2);
-      freeRadarCtx.strokeStyle = "rgba(0,213,255,0.3)";
+      freeRadarCtx.strokeStyle = `rgba(${rgb},0.3)`;
       freeRadarCtx.lineWidth = 1;
       freeRadarCtx.stroke();
     }
  
-    // crosshair
     freeRadarCtx.beginPath();
     freeRadarCtx.moveTo(freeRadarCx, 4);
     freeRadarCtx.lineTo(freeRadarCx, H - 4);
     freeRadarCtx.moveTo(4, freeRadarCy);
     freeRadarCtx.lineTo(W - 4, freeRadarCy);
-    freeRadarCtx.strokeStyle = "rgba(0,213,255,0.15)";
+    freeRadarCtx.strokeStyle = `rgba(${rgb},0.15)`;
     freeRadarCtx.lineWidth = 1;
     freeRadarCtx.stroke();
  
-    // sweep
     for (let i = 0; i < 40; i++) {
       const a = freeAngle - i * 0.025;
       const x = freeRadarCx + Math.cos(a) * (W / 2.1);
@@ -1081,12 +1121,11 @@ window.onload = () => {
       freeRadarCtx.beginPath();
       freeRadarCtx.moveTo(freeRadarCx, freeRadarCy);
       freeRadarCtx.lineTo(x, y);
-      freeRadarCtx.strokeStyle = `rgba(0,213,255,${1 - i / 40})`;
+      freeRadarCtx.strokeStyle = `rgba(${rgb},${1 - i / 40})`;
       freeRadarCtx.lineWidth = 2;
       freeRadarCtx.stroke();
     }
  
-    // players
     onlinePlayers.forEach(player => {
       const range = 0.02;
       const dx = ((player.lon - myLon) / range) * (W / 2);
@@ -1095,7 +1134,7 @@ window.onload = () => {
       const py = freeRadarCy + dy;
       const dist = Math.sqrt((px - freeRadarCx) ** 2 + (py - freeRadarCy) ** 2);
       if (dist > W / 2.1) return;
-      const color = player.self ? "#bb66ff" : player.sameSquad ? "#00d5ff" : "#ff4444";
+      const color = player.self ? "#bb66ff" : player.sameSquad ? t.hex : "#ff4444";
       freeRadarCtx.beginPath();
       freeRadarCtx.arc(px, py, player.self ? 7 : 5, 0, Math.PI * 2);
       freeRadarCtx.fillStyle = color;
@@ -1108,12 +1147,11 @@ window.onload = () => {
       freeRadarCtx.fillText(player.name, px + 7, py - 4);
     });
  
-    // self dot
     freeRadarCtx.beginPath();
     freeRadarCtx.arc(freeRadarCx, freeRadarCy, 6, 0, Math.PI * 2);
-    freeRadarCtx.fillStyle = "#00d5ff";
+    freeRadarCtx.fillStyle = t.hex;
     freeRadarCtx.shadowBlur = 16;
-    freeRadarCtx.shadowColor = "#00d5ff";
+    freeRadarCtx.shadowColor = t.hex;
     freeRadarCtx.fill();
     freeRadarCtx.shadowBlur = 0;
  
@@ -1122,14 +1160,33 @@ window.onload = () => {
   }
  
   /* --- GPS widget --- */
+  // FIX: track last rendered GPS values to avoid re-render while user types
+  let _lastFreeGpsStr = "";
+ 
   function updateFreeGps() {
     const el = document.getElementById("freeGps");
     if (!el) return;
+ 
+    // Don't re-render if user is typing in the address input
+    const activeInput = document.getElementById("freeAddrInput");
+    if (activeInput && document.activeElement === activeInput) return;
+ 
+    const latStr  = myLat ? myLat.toFixed(5) : "---";
+    const lonStr  = myLon ? myLon.toFixed(5) : "---";
+    const altStr  = document.getElementById("altStat")   ? document.getElementById("altStat").innerText   : "---";
+    const spdStr  = document.getElementById("speedStat") ? document.getElementById("speedStat").innerText : "---";
+    const gpsKey  = latStr + lonStr + altStr + spdStr;
+ 
+    // Only rebuild HTML if GPS data changed (preserves input state)
+    if (gpsKey === _lastFreeGpsStr) return;
+    _lastFreeGpsStr = gpsKey;
+ 
+    const t = FREE_THEMES[freeTheme];
     el.innerHTML = `
-      <div class="free-gps-row"><span>LAT</span><span>${myLat ? myLat.toFixed(5) : "---"}</span></div>
-      <div class="free-gps-row"><span>LON</span><span>${myLon ? myLon.toFixed(5) : "---"}</span></div>
-      <div class="free-gps-row"><span>ALT</span><span>${document.getElementById("altStat") ? document.getElementById("altStat").innerText : "---"}</span></div>
-      <div class="free-gps-row"><span>SPEED</span><span>${document.getElementById("speedStat") ? document.getElementById("speedStat").innerText : "---"}</span></div>
+      <div class="free-gps-row"><span>LAT</span><span>${latStr}</span></div>
+      <div class="free-gps-row"><span>LON</span><span>${lonStr}</span></div>
+      <div class="free-gps-row"><span>ALT</span><span>${altStr}</span></div>
+      <div class="free-gps-row"><span>SPEED</span><span>${spdStr}</span></div>
       <hr class="free-gps-sep"/>
       <div class="free-gps-search">
         <input id="freeAddrInput" type="text" placeholder="ENTER ADDRESS..." />
@@ -1138,55 +1195,54 @@ window.onload = () => {
       <div id="freeAddrResult"></div>
     `;
  
-    // bind search
-    const btn = document.getElementById("freeAddrBtn");
-    if (btn) {
-      btn.onclick = async () => {
-        const input = document.getElementById("freeAddrInput");
-        const result = document.getElementById("freeAddrResult");
-        if (!input || !input.value.trim()) return;
-        result.innerText = "SEARCHING...";
-        try {
-          const res  = await fetch(
-            "https://nominatim.openstreetmap.org/search?format=json&q=" +
-            encodeURIComponent(input.value.trim()),
-            { headers: { "Accept-Language": "fr" } }
-          );
-          const data = await res.json();
-          if (!data || data.length === 0) {
-            result.innerText = "NOT FOUND";
-            return;
-          }
-          const r = data[0];
-          const lat = parseFloat(r.lat).toFixed(5);
-          const lon = parseFloat(r.lon).toFixed(5);
-          const dist = calcDistance(myLat, myLon, parseFloat(r.lat), parseFloat(r.lon)).toFixed(1);
-          const dir  = calcDirection(myLat, myLon, parseFloat(r.lat), parseFloat(r.lon));
-          result.innerHTML = `
-            <div class="free-addr-found">
-              <div>📍 ${r.display_name.split(",").slice(0,2).join(", ")}</div>
-              <div>LAT: ${lat} | LON: ${lon}</div>
-              <div>DIST: ${dist} km — ${dir}</div>
-              <button id="freeSetTargetBtn">⊕ SET AS TARGET</button>
-            </div>
-          `;
-          freeLog("ADDRESS FOUND: " + r.display_name.split(",")[0].toUpperCase());
+    bindFreeAddrSearch();
+  }
  
-          document.getElementById("freeSetTargetBtn").onclick = () => {
-            TARGET.name = input.value.trim().toUpperCase();
-            TARGET.lat  = parseFloat(r.lat);
-            TARGET.lon  = parseFloat(r.lon);
-            localStorage.setItem("customTarget", JSON.stringify(TARGET));
-            const cityEl = document.getElementById("targetCity");
-            if (cityEl) cityEl.innerText = TARGET.name;
-            result.innerHTML = `<div style="color:#00ff88;font-size:11px;">✔ TARGET LOCKED: ${TARGET.name}</div>`;
-            freeLog("TARGET LOCKED: " + TARGET.name);
-          };
-        } catch(err) {
-          result.innerText = "ERROR: " + err.message;
-        }
-      };
-    }
+  function bindFreeAddrSearch() {
+    const btn = document.getElementById("freeAddrBtn");
+    if (!btn) return;
+    btn.onclick = async () => {
+      const input  = document.getElementById("freeAddrInput");
+      const result = document.getElementById("freeAddrResult");
+      if (!input || !input.value.trim()) return;
+      result.innerText = "SEARCHING...";
+      try {
+        const res  = await fetch(
+          "https://nominatim.openstreetmap.org/search?format=json&q=" +
+          encodeURIComponent(input.value.trim()),
+          { headers: { "Accept-Language": "fr" } }
+        );
+        const data = await res.json();
+        if (!data || data.length === 0) { result.innerText = "NOT FOUND"; return; }
+        const r    = data[0];
+        const lat  = parseFloat(r.lat).toFixed(5);
+        const lon  = parseFloat(r.lon).toFixed(5);
+        const dist = calcDistance(myLat, myLon, parseFloat(r.lat), parseFloat(r.lon)).toFixed(1);
+        const dir  = calcDirection(myLat, myLon, parseFloat(r.lat), parseFloat(r.lon));
+        result.innerHTML = `
+          <div class="free-addr-found">
+            <div>📍 ${r.display_name.split(",").slice(0,2).join(", ")}</div>
+            <div>LAT: ${lat} | LON: ${lon}</div>
+            <div>DIST: ${dist} km — ${dir}</div>
+            <button id="freeSetTargetBtn">⊕ SET AS TARGET</button>
+          </div>
+        `;
+        freeLog("ADDRESS FOUND: " + r.display_name.split(",")[0].toUpperCase());
+ 
+        document.getElementById("freeSetTargetBtn").onclick = () => {
+          TARGET.name = input.value.trim().toUpperCase();
+          TARGET.lat  = parseFloat(r.lat);
+          TARGET.lon  = parseFloat(r.lon);
+          localStorage.setItem("customTarget", JSON.stringify(TARGET));
+          const cityEl = document.getElementById("targetCity");
+          if (cityEl) cityEl.innerText = TARGET.name;
+          result.innerHTML = `<div style="color:#00ff88;font-size:11px;">✔ TARGET LOCKED: ${TARGET.name}</div>`;
+          freeLog("TARGET LOCKED: " + TARGET.name);
+        };
+      } catch(err) {
+        result.innerText = "ERROR: " + err.message;
+      }
+    };
   }
  
   /* --- Free Spotify widget --- */
@@ -1240,6 +1296,39 @@ window.onload = () => {
     };
   }
  
+  /* --- Theme picker widget --- */
+  function buildThemePicker() {
+    const el = document.getElementById("freeThemePicker");
+    if (!el) return;
+    el.innerHTML = Object.entries(FREE_THEMES).map(([key, t]) => `
+      <div class="theme-swatch"
+           data-theme="${key}"
+           data-hex="${t.hex}"
+           title="${t.name}"
+           style="
+             width:22px; height:22px; border-radius:50%;
+             background:${t.hex};
+             cursor:pointer;
+             outline: 2px solid transparent;
+             outline-offset: 3px;
+             transition: outline 0.15s, transform 0.15s;
+             box-shadow: 0 0 8px ${t.hex}66;
+           "
+           onclick="window._setFreeTheme('${key}')">
+      </div>
+    `).join("");
+    applyFreeTheme(freeTheme);
+  }
+ 
+  window._setFreeTheme = function(key) {
+    applyFreeTheme(key);
+    buildThemePicker();
+    freeLog("THEME: " + FREE_THEMES[key].name);
+    // force GPS re-render with new theme colors
+    _lastFreeGpsStr = "";
+    updateFreeGps();
+  };
+ 
   /* --- Free loop (GPS + Spotify refresh) --- */
   let freeLoopInterval = null;
  
@@ -1271,6 +1360,9 @@ window.onload = () => {
       document.querySelector(".hud").style.display = "none";
       freeMode.style.display = "block";
       freeActive = true;
+      _lastFreeGpsStr = "";
+      buildThemePicker();
+      applyFreeTheme(freeTheme);
       resizeFreeRadar();
       drawFreeRadar();
       startFreeLoop();
@@ -1422,4 +1514,3 @@ window.onload = () => {
   }
  
 };
- 
