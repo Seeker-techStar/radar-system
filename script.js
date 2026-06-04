@@ -2,23 +2,264 @@ window.onload = () => {
  
   console.log("RADAR SYSTEM STARTED");
  
-  const canvas = document.getElementById("radar");
-  if (!canvas) { console.error("Canvas radar introuvable"); return; }
+  /* =========================================
+     STARSCREAM VOICE BOOT SYSTEM
+  ========================================= */
  
-  const ctx = canvas.getContext("2d");
-  const onlineList = document.getElementById("onlineList");
-  const targetCount = document.getElementById("targetCount");
-  const destDistance = document.getElementById("destDistance");
-  const destDirection = document.getElementById("destDirection");
-  const destStatus = document.getElementById("destStatus");
-  const latStat = document.getElementById("latStat");
-  const lonStat = document.getElementById("lonStat");
-  const altStat = document.getElementById("altStat");
-  const statusText = document.getElementById("statusText");
-  const disconnectBtn = document.getElementById("disconnectBtn");
+  // Starscream voice: uses SpeechSynthesis with settings tuned to sound
+  // commanding, sharp, slightly sinister — closest to Transformers Prime style.
+  // Rate: slow & deliberate. Pitch: low. Voice: prefer a deep English male voice.
  
-  let cx = 0;
-  let cy = 0;
+  let bootVoice = null;
+  let waveformAnim = null;
+  let waveformPhase = 0;
+ 
+  function initVoice() {
+    const voices = window.speechSynthesis.getVoices();
+    // Priority: deep English UK/US male voice
+    const preferred = [
+      "Google UK English Male",
+      "Microsoft George - English (United Kingdom)",
+      "Microsoft David - English (United States)",
+      "Daniel",
+      "Alex",
+    ];
+    for (const name of preferred) {
+      const v = voices.find(v => v.name === name);
+      if (v) { bootVoice = v; break; }
+    }
+    // Fallback: first English male-ish voice
+    if (!bootVoice) {
+      bootVoice = voices.find(v => v.lang.startsWith("en")) || voices[0] || null;
+    }
+  }
+ 
+  // Try to get voices immediately and after they load
+  initVoice();
+  window.speechSynthesis.onvoiceschanged = initVoice;
+ 
+  function starscreamSpeak(text, onEnd) {
+    if (!window.speechSynthesis) { if (onEnd) onEnd(); return; }
+    window.speechSynthesis.cancel();
+ 
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.rate  = 0.82;   // deliberate, authoritative
+    utter.pitch = 0.6;    // deep, slightly threatening
+    utter.volume = 1.0;
+    if (bootVoice) utter.voice = bootVoice;
+ 
+    utter.onend = () => { if (onEnd) onEnd(); };
+    utter.onerror = () => { if (onEnd) onEnd(); };
+ 
+    window.speechSynthesis.speak(utter);
+  }
+ 
+  // Animated waveform on boot overlay while voice is speaking
+  function startWaveform() {
+    const canvas = document.getElementById("waveformCanvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width;
+    const H = canvas.height;
+ 
+    function drawWave() {
+      ctx.clearRect(0, 0, W, H);
+      ctx.beginPath();
+      for (let x = 0; x < W; x++) {
+        const t = x / W;
+        const amp = H * 0.28 * (0.5 + 0.5 * Math.sin(t * Math.PI));
+        const y = H / 2
+          + amp * Math.sin(t * Math.PI * 12 + waveformPhase)
+          + (amp * 0.4) * Math.sin(t * Math.PI * 28 + waveformPhase * 1.7)
+          + (amp * 0.2) * Math.sin(t * Math.PI * 5  + waveformPhase * 0.5);
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      const grad = ctx.createLinearGradient(0, 0, W, 0);
+      grad.addColorStop(0,   "rgba(187,102,255,0)");
+      grad.addColorStop(0.2, "rgba(187,102,255,0.9)");
+      grad.addColorStop(0.5, "rgba(220,150,255,1)");
+      grad.addColorStop(0.8, "rgba(187,102,255,0.9)");
+      grad.addColorStop(1,   "rgba(187,102,255,0)");
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 2;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = "#bb66ff";
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+ 
+      waveformPhase += 0.12;
+      waveformAnim = requestAnimationFrame(drawWave);
+    }
+    drawWave();
+  }
+ 
+  function stopWaveform() {
+    if (waveformAnim) { cancelAnimationFrame(waveformAnim); waveformAnim = null; }
+    const canvas = document.getElementById("waveformCanvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+ 
+  // Boot checks definition
+  // Each check: { label, key, test: async function -> 'ok'|'err'|'warn', okPhrase, errPhrase }
+  const BOOT_CHECKS = [
+    {
+      label: "FIREBASE DATABASE",
+      key: "firebase",
+      test: async () => window.firebase ? "ok" : "err",
+      okPhrase: null, // grouped into final summary
+      errPhrase: "Warning. Firebase database module failed to load. Network connectivity may be compromised."
+    },
+    {
+      label: "SPEECH SYNTHESIS",
+      key: "speech",
+      test: async () => window.speechSynthesis ? "ok" : "warn",
+      okPhrase: null,
+      errPhrase: "Voice module unavailable. Operating in silent mode."
+    },
+    {
+      label: "GEOLOCATION / GPS",
+      key: "gps",
+      test: async () => navigator.geolocation ? "ok" : "err",
+      okPhrase: null,
+      errPhrase: "Critical failure. GPS module is offline. Position tracking disabled."
+    },
+    {
+      label: "LEAFLET MAPPING",
+      key: "leaflet",
+      test: async () => window.L ? "ok" : "err",
+      okPhrase: null,
+      errPhrase: "Map module failed. Navigation overlay is unavailable."
+    },
+    {
+      label: "LOCAL STORAGE",
+      key: "storage",
+      test: async () => {
+        try { localStorage.setItem("__test__", "1"); localStorage.removeItem("__test__"); return "ok"; }
+        catch(e) { return "warn"; }
+      },
+      okPhrase: null,
+      errPhrase: "Storage module degraded. Persistent data may not be saved."
+    },
+    {
+      label: "AUDIO ENGINE",
+      key: "audio",
+      test: async () => (window.AudioContext || window.webkitAudioContext) ? "ok" : "warn",
+      okPhrase: null,
+      errPhrase: "Audio engine unavailable. Chill mode visualizer will be limited."
+    },
+  ];
+ 
+  // Run the full boot sequence
+  async function runBootSequence() {
+    const bootOverlay   = document.getElementById("bootOverlay");
+    const checksEl      = document.getElementById("bootChecks");
+    const voiceTextEl   = document.getElementById("bootVoiceText");
+    const barFill       = document.getElementById("bootBarFill");
+    const barGlow       = document.getElementById("bootBarGlow");
+    const percentEl     = document.getElementById("bootPercent");
+ 
+    if (!bootOverlay) { launchHUD(); return; }
+ 
+    // Start waveform animation
+    startWaveform();
+ 
+    const delay = ms => new Promise(r => setTimeout(r, ms));
+    const speak = (text) => new Promise(resolve => {
+      voiceTextEl.innerText = text;
+      starscreamSpeak(text, resolve);
+    });
+ 
+    // Opening line
+    await speak("Starscream combat system... initializing. All units stand by.");
+    await delay(300);
+ 
+    // Run each check
+    const results = {};
+    const errors  = [];
+    const warnings= [];
+    const totalChecks = BOOT_CHECKS.length;
+ 
+    for (let i = 0; i < totalChecks; i++) {
+      const check = BOOT_CHECKS[i];
+      const status = await check.test();
+      results[check.key] = status;
+ 
+      if (status === "err")  errors.push(check);
+      if (status === "warn") warnings.push(check);
+ 
+      // Add check item to UI
+      const item = document.createElement("div");
+      item.className = "boot-check-item " + status;
+      item.style.animationDelay = "0s";
+      const icons = { ok: "✔ ONLINE", err: "✖ FAILED", warn: "⚠ DEGRADED" };
+      item.innerHTML = `
+        <span>${check.label}</span>
+        <span class="boot-check-status">${icons[status]}</span>
+      `;
+      checksEl.appendChild(item);
+ 
+      // Progress bar
+      const pct = Math.round(((i + 1) / totalChecks) * 100);
+      barFill.style.width = pct + "%";
+      barGlow.style.width = pct + "%";
+      percentEl.innerText = pct;
+ 
+      // Speak errors immediately
+      if (status === "err" || status === "warn") {
+        await speak(check.errPhrase);
+      }
+ 
+      await delay(200);
+    }
+ 
+    // Final verdict
+    await delay(400);
+ 
+    if (errors.length === 0 && warnings.length === 0) {
+      // PERFECT BOOT
+      await speak(
+        "All systems nominal. Radar online. GPS locked. Firebase connected. " +
+        "Starscream combat HUD is fully operational. " +
+        "Decepticons... prepare for battle."
+      );
+    } else if (errors.length === 0 && warnings.length > 0) {
+      // WARNINGS ONLY
+      await speak(
+        "Primary systems are online. " +
+        warnings.length + " module" + (warnings.length > 1 ? "s are" : " is") + " degraded, but we can proceed. " +
+        "Starscream HUD is active. Stay sharp."
+      );
+    } else {
+      // CRITICAL ERRORS
+      await speak(
+        "System boot completed with " + errors.length + " critical failure" +
+        (errors.length > 1 ? "s" : "") + ". " +
+        "Certain capabilities are offline. " +
+        "Proceeding under compromised conditions. " +
+        "Do not disappoint me."
+      );
+    }
+ 
+    await delay(600);
+    stopWaveform();
+ 
+    // Dismiss overlay
+    bootOverlay.classList.add("boot-done");
+    setTimeout(() => {
+      bootOverlay.style.display = "none";
+      launchHUD();
+    }, 800);
+  }
+ 
+  function launchHUD() {
+    const hud = document.getElementById("mainHud");
+    if (hud) hud.style.display = "flex";
+  }
+ 
+  // Start boot sequence
+  runBootSequence();
  
   /* =========================================
      FREE LOG
@@ -32,6 +273,28 @@ window.onload = () => {
       `[${time}] ${message}<br>` +
       freeConsole.innerHTML;
   }
+ 
+  /* =========================================
+     RADAR SETUP
+  ========================================= */
+ 
+  const canvas = document.getElementById("radar");
+  if (!canvas) { console.error("Canvas radar introuvable"); return; }
+ 
+  const ctx = canvas.getContext("2d");
+  const onlineList   = document.getElementById("onlineList");
+  const targetCount  = document.getElementById("targetCount");
+  const destDistance = document.getElementById("destDistance");
+  const destDirection= document.getElementById("destDirection");
+  const destStatus   = document.getElementById("destStatus");
+  const latStat      = document.getElementById("latStat");
+  const lonStat      = document.getElementById("lonStat");
+  const altStat      = document.getElementById("altStat");
+  const statusText   = document.getElementById("statusText");
+  const disconnectBtn= document.getElementById("disconnectBtn");
+ 
+  let cx = 0;
+  let cy = 0;
  
   function resizeRadar() {
     const size = Math.floor(Math.min(window.innerWidth * 0.75, window.innerHeight * 0.82));
@@ -86,7 +349,7 @@ window.onload = () => {
   }).addTo(map).bindPopup("TARGET: " + TARGET.name);
  
   const savedCallsign = localStorage.getItem("callsign");
-  const savedSquad = localStorage.getItem("squad");
+  const savedSquad    = localStorage.getItem("squad");
  
   const playerCode = (
     prompt("ENTER CALLSIGN", savedCallsign || "") || "UNKNOWN"
@@ -129,7 +392,7 @@ window.onload = () => {
     myLat = lat;
     myLon = lon;
  
-    const distance = calcDistance(lat, lon, TARGET.lat, TARGET.lon);
+    const distance  = calcDistance(lat, lon, TARGET.lat, TARGET.lon);
     const direction = calcDirection(lat, lon, TARGET.lat, TARGET.lon);
  
     if (destDistance) destDistance.innerText = distance.toFixed(1) + " km";
@@ -380,7 +643,7 @@ window.onload = () => {
     document.addEventListener("mousemove", e => {
       if (!isDragging) return;
       box.style.left = (e.clientX - offsetX) + "px";
-      box.style.top = (e.clientY - offsetY) + "px";
+      box.style.top  = (e.clientY - offsetY) + "px";
       localStorage.setItem("panel_" + index, JSON.stringify({
         left: box.style.left,
         top: box.style.top
@@ -394,13 +657,13 @@ window.onload = () => {
      SET TARGET
   ========================================= */
  
-  const targetCityEl = document.getElementById("targetCity");
+  const targetCityEl      = document.getElementById("targetCity");
   if (targetCityEl) targetCityEl.innerText = TARGET.name;
  
-  const targetAddressInput = document.getElementById("targetAddressInput");
-  const searchAddressBtn = document.getElementById("searchAddressBtn");
-  const searchResult = document.getElementById("searchResult");
-  const trackTargetBtn = document.getElementById("trackTargetBtn");
+  const targetAddressInput= document.getElementById("targetAddressInput");
+  const searchAddressBtn  = document.getElementById("searchAddressBtn");
+  const searchResult      = document.getElementById("searchResult");
+  const trackTargetBtn    = document.getElementById("trackTargetBtn");
  
   let pendingTarget = null;
  
@@ -415,7 +678,7 @@ window.onload = () => {
       const url = "https://nominatim.openstreetmap.org/search?format=json&q=" + encodeURIComponent(address);
  
       try {
-        const res = await fetch(url, { headers: { "Accept-Language": "fr" } });
+        const res  = await fetch(url, { headers: { "Accept-Language": "fr" } });
         const data = await res.json();
  
         if (!data || data.length === 0) {
@@ -450,8 +713,8 @@ window.onload = () => {
       if (!pendingTarget) return;
  
       TARGET.name = pendingTarget.name;
-      TARGET.lat = pendingTarget.lat;
-      TARGET.lon = pendingTarget.lon;
+      TARGET.lat  = pendingTarget.lat;
+      TARGET.lon  = pendingTarget.lon;
  
       localStorage.setItem("customTarget", JSON.stringify(TARGET));
  
@@ -472,20 +735,20 @@ window.onload = () => {
      SEEKER MODE
   ========================================= */
  
-  const seekerMode = document.getElementById("seekerMode");
-  const enterSeekerBtn = document.getElementById("enterSeekerBtn");
+  const seekerMode   = document.getElementById("seekerMode");
+  const enterSeekerBtn= document.getElementById("enterSeekerBtn");
   const exitSeekerBtn = document.getElementById("exitSeekerBtn");
-  const seekerCanvas = document.getElementById("seekerRadar");
-  const seekerCtx = seekerCanvas.getContext("2d");
-  let seekerActive = false;
-  let seekerAngle = 0;
-  let seekerCx = 0;
-  let seekerCy = 0;
+  const seekerCanvas  = document.getElementById("seekerRadar");
+  const seekerCtx     = seekerCanvas.getContext("2d");
+  let seekerActive  = false;
+  let seekerAngle   = 0;
+  let seekerCx      = 0;
+  let seekerCy      = 0;
  
   function resizeSeeker() {
     const size = Math.floor(Math.min(window.innerWidth * 0.7, window.innerHeight * 0.65));
     if (seekerCanvas.width === size && seekerCanvas.height === size) return;
-    seekerCanvas.width = size;
+    seekerCanvas.width  = size;
     seekerCanvas.height = size;
     seekerCx = size / 2;
     seekerCy = size / 2;
@@ -599,23 +862,23 @@ window.onload = () => {
     seekerCtx.fill();
     seekerCtx.shadowBlur = 0;
  
-    const bearing = calcBearing(myLat, myLon, TARGET.lat, TARGET.lon);
-    const distance = calcDistance(myLat, myLon, TARGET.lat, TARGET.lon);
+    const bearing   = calcBearing(myLat, myLon, TARGET.lat, TARGET.lon);
+    const distance  = calcDistance(myLat, myLon, TARGET.lat, TARGET.lon);
     const direction = calcDirection(myLat, myLon, TARGET.lat, TARGET.lon);
  
-    const seekerBearingEl = document.getElementById("seekerBearing");
-    const seekerDistanceEl = document.getElementById("seekerDistance");
-    const seekerDirectionEl = document.getElementById("seekerDirection");
-    const seekerStatusEl = document.getElementById("seekerStatus");
-    const seekerInstructionEl = document.getElementById("seekerInstruction");
-    const seekerTargetEl = document.getElementById("seekerTarget");
+    const seekerBearingEl    = document.getElementById("seekerBearing");
+    const seekerDistanceEl   = document.getElementById("seekerDistance");
+    const seekerDirectionEl  = document.getElementById("seekerDirection");
+    const seekerStatusEl     = document.getElementById("seekerStatus");
+    const seekerInstructionEl= document.getElementById("seekerInstruction");
+    const seekerTargetEl     = document.getElementById("seekerTarget");
  
-    if (seekerBearingEl) seekerBearingEl.innerText = Math.round(bearing) + "°";
-    if (seekerDistanceEl) seekerDistanceEl.innerText = distance.toFixed(1) + " km";
-    if (seekerDirectionEl) seekerDirectionEl.innerText = direction;
-    if (seekerStatusEl) seekerStatusEl.innerText = distance < 0.05 ? "REACHED" : "TRACKING";
+    if (seekerBearingEl)     seekerBearingEl.innerText     = Math.round(bearing) + "°";
+    if (seekerDistanceEl)    seekerDistanceEl.innerText    = distance.toFixed(1) + " km";
+    if (seekerDirectionEl)   seekerDirectionEl.innerText   = direction;
+    if (seekerStatusEl)      seekerStatusEl.innerText      = distance < 0.05 ? "REACHED" : "TRACKING";
     if (seekerInstructionEl) seekerInstructionEl.innerText = getInstruction(bearing);
-    if (seekerTargetEl) seekerTargetEl.innerText = TARGET.name;
+    if (seekerTargetEl)      seekerTargetEl.innerText      = TARGET.name;
  
     seekerAngle += 0.003;
     requestAnimationFrame(drawSeekerRadar);
@@ -626,14 +889,14 @@ window.onload = () => {
       seekerActive = false;
       seekerMode.style.display = "block";
  
-      const intro = document.getElementById("seekerIntro");
-      const fill = document.getElementById("introFill");
-      const introText = document.getElementById("introText");
-      const seekerHud = document.querySelector(".seeker-hud");
+      const intro    = document.getElementById("seekerIntro");
+      const fill     = document.getElementById("introFill");
+      const introTxt = document.getElementById("introText");
+      const seekerHud= document.querySelector(".seeker-hud");
  
-      intro.style.display = "flex";
-      seekerHud.style.display = "none";
-      fill.style.width = "0%";
+      intro.style.display    = "flex";
+      seekerHud.style.display= "none";
+      fill.style.width       = "0%";
  
       const messages = [
         "SEEKER MODE INITIALIZING...",
@@ -651,15 +914,15 @@ window.onload = () => {
         fill.style.width = progress + "%";
  
         if (progress % 20 === 0 && msgIndex < messages.length) {
-          introText.innerText = messages[msgIndex];
+          introTxt.innerText = messages[msgIndex];
           msgIndex++;
         }
  
         if (progress >= 100) {
           clearInterval(interval);
           setTimeout(() => {
-            intro.style.display = "none";
-            seekerHud.style.display = "flex";
+            intro.style.display    = "none";
+            seekerHud.style.display= "flex";
             seekerActive = true;
             resizeSeeker();
             drawSeekerRadar();
@@ -684,25 +947,25 @@ window.onload = () => {
      CHILL MODE
   ========================================= */
  
-  const chillMode = document.getElementById("chillMode");
-  const enterChillBtn = document.getElementById("enterChillBtn");
-  const exitChillBtn = document.getElementById("exitChillBtn");
+  const chillMode        = document.getElementById("chillMode");
+  const enterChillBtn    = document.getElementById("enterChillBtn");
+  const exitChillBtn     = document.getElementById("exitChillBtn");
   const chillRadarCanvas = document.getElementById("chillRadar");
-  const chillRadarCtx = chillRadarCanvas ? chillRadarCanvas.getContext("2d") : null;
-  const musicVisualizer = document.getElementById("musicVisualizer");
-  const musicCtx = musicVisualizer ? musicVisualizer.getContext("2d") : null;
+  const chillRadarCtx    = chillRadarCanvas ? chillRadarCanvas.getContext("2d") : null;
+  const musicVisualizer  = document.getElementById("musicVisualizer");
+  const musicCtx         = musicVisualizer ? musicVisualizer.getContext("2d") : null;
  
-  let chillActive = false;
-  let chillAngle = 0;
-  let chillStartTime = null;
-  let chillDistanceTotal = 0;
-  let chillLastLat = null;
-  let chillLastLon = null;
-  let audioContext = null;
-  let analyser = null;
-  let dataArray = null;
-  let chillRadarCx = 90;
-  let chillRadarCy = 90;
+  let chillActive       = false;
+  let chillAngle        = 0;
+  let chillStartTime    = null;
+  let chillDistanceTotal= 0;
+  let chillLastLat      = null;
+  let chillLastLon      = null;
+  let audioContext      = null;
+  let analyser          = null;
+  let dataArray         = null;
+  let chillRadarCx      = 90;
+  let chillRadarCy      = 90;
  
   const particles = Array.from({length: 35}, () => ({
     x: Math.random() * 800,
@@ -716,7 +979,7 @@ window.onload = () => {
   function resizeChillRadar() {
     if (!chillRadarCanvas) return;
     if (chillRadarCanvas.width === 180 && chillRadarCanvas.height === 180) return;
-    chillRadarCanvas.width = 180;
+    chillRadarCanvas.width  = 180;
     chillRadarCanvas.height = 180;
     chillRadarCx = 90;
     chillRadarCy = 90;
@@ -724,7 +987,7 @@ window.onload = () => {
  
   function resizeVisualizer() {
     if (!musicVisualizer) return;
-    musicVisualizer.width = musicVisualizer.offsetWidth;
+    musicVisualizer.width  = musicVisualizer.offsetWidth;
     musicVisualizer.height = musicVisualizer.offsetHeight;
   }
  
@@ -739,7 +1002,7 @@ window.onload = () => {
  
   async function fetchTemp(lat, lon) {
     try {
-      const res = await fetch(
+      const res  = await fetch(
         `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`
       );
       const data = await res.json();
@@ -932,12 +1195,12 @@ window.onload = () => {
     drawChillRadar();
     drawVisualizer();
  
-    const elapsed = Date.now() - chillStartTime;
+    const elapsed  = Date.now() - chillStartTime;
     const chronoEl = document.getElementById("chillChrono");
     if (chronoEl) chronoEl.innerText = formatTime(elapsed);
  
-    const speedEl = document.getElementById("speedStat");
-    const chillSpeedEl = document.getElementById("chillSpeed");
+    const speedEl     = document.getElementById("speedStat");
+    const chillSpeedEl= document.getElementById("chillSpeed");
     if (chillSpeedEl && speedEl) chillSpeedEl.innerText = speedEl.innerText;
  
     if (chillLastLat && myLat !== 0) {
@@ -968,9 +1231,9 @@ window.onload = () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       audioContext = new AudioContext();
-      analyser = audioContext.createAnalyser();
+      analyser     = audioContext.createAnalyser();
       analyser.fftSize = 256;
-      dataArray = new Uint8Array(analyser.frequencyBinCount);
+      dataArray    = new Uint8Array(analyser.frequencyBinCount);
       const source = audioContext.createMediaStreamSource(stream);
       source.connect(analyser);
       console.log("AUDIO OK");
@@ -981,11 +1244,11 @@ window.onload = () => {
  
   if (enterChillBtn) {
     enterChillBtn.onclick = async () => {
-      chillActive = true;
-      chillStartTime = Date.now();
+      chillActive        = true;
+      chillStartTime     = Date.now();
       chillDistanceTotal = 0;
-      chillLastLat = myLat;
-      chillLastLon = myLon;
+      chillLastLat       = myLat;
+      chillLastLon       = myLon;
  
       chillMode.style.display = "block";
       resizeChillRadar();
@@ -994,7 +1257,7 @@ window.onload = () => {
       await startAudio();
  
       if (myLat !== 0) {
-        const temp = await fetchTemp(myLat, myLon);
+        const temp   = await fetchTemp(myLat, myLon);
         const tempEl = document.getElementById("chillTemp");
         if (tempEl) tempEl.innerText = temp;
       }
@@ -1010,7 +1273,7 @@ window.onload = () => {
       if (audioContext) {
         audioContext.close();
         audioContext = null;
-        analyser = null;
+        analyser     = null;
       }
     };
   }
@@ -1021,14 +1284,13 @@ window.onload = () => {
      FREE MODE — COLOR THEME SYSTEM
   ========================================= */
  
-  // Themes: [primary color, radar sweep, accent, glow]
   const FREE_THEMES = {
-    cyan:    { name: "CYAN",    main: "0,213,255",   hex: "#00d5ff" },
-    purple:  { name: "PURPLE",  main: "187,102,255", hex: "#bb66ff" },
-    red:     { name: "RED",     main: "255,34,68",   hex: "#ff2244" },
-    green:   { name: "GREEN",   main: "0,255,136",   hex: "#00ff88" },
-    amber:   { name: "AMBER",   main: "255,170,0",   hex: "#ffaa00" },
-    white:   { name: "WHITE",   main: "220,220,220", hex: "#dcdcdc" },
+    cyan:   { name: "CYAN",   main: "0,213,255",   hex: "#00d5ff" },
+    purple: { name: "PURPLE", main: "187,102,255", hex: "#bb66ff" },
+    red:    { name: "RED",    main: "255,34,68",   hex: "#ff2244" },
+    green:  { name: "GREEN",  main: "0,255,136",   hex: "#00ff88" },
+    amber:  { name: "AMBER",  main: "255,170,0",   hex: "#ffaa00" },
+    white:  { name: "WHITE",  main: "220,220,220", hex: "#dcdcdc" },
   };
  
   let freeTheme = localStorage.getItem("freeTheme") || "cyan";
@@ -1037,22 +1299,14 @@ window.onload = () => {
   function applyFreeTheme(themeKey) {
     freeTheme = themeKey;
     localStorage.setItem("freeTheme", themeKey);
-    const t = FREE_THEMES[themeKey];
+    const t    = FREE_THEMES[themeKey];
     const root = document.getElementById("freeMode");
     if (!root) return;
-    root.style.setProperty("--fc", t.hex);
+    root.style.setProperty("--fc",     t.hex);
     root.style.setProperty("--fc-rgb", t.main);
-    // Update all themed elements
-    root.querySelectorAll(".free-theme-color").forEach(el => {
-      el.style.color = t.hex;
-    });
-    root.querySelectorAll(".free-theme-border").forEach(el => {
-      el.style.borderColor = `rgba(${t.main},0.25)`;
-    });
-    root.querySelectorAll(".free-theme-bg").forEach(el => {
-      el.style.background = `rgba(${t.main},0.04)`;
-    });
-    // Update theme buttons highlight
+    root.querySelectorAll(".free-theme-color").forEach(el => { el.style.color = t.hex; });
+    root.querySelectorAll(".free-theme-border").forEach(el => { el.style.borderColor = `rgba(${t.main},0.25)`; });
+    root.querySelectorAll(".free-theme-bg").forEach(el => { el.style.background = `rgba(${t.main},0.04)`; });
     root.querySelectorAll(".theme-swatch").forEach(sw => {
       sw.style.outline = sw.dataset.theme === themeKey
         ? `2px solid ${sw.dataset.hex}`
@@ -1070,14 +1324,14 @@ window.onload = () => {
   const freeRadar    = document.getElementById("freeRadar");
   const freeRadarCtx = freeRadar ? freeRadar.getContext("2d") : null;
  
-  let freeActive    = false;
-  let freeAngle     = 0;
-  let freeRadarCx   = 0;
-  let freeRadarCy   = 0;
+  let freeActive  = false;
+  let freeAngle   = 0;
+  let freeRadarCx = 0;
+  let freeRadarCy = 0;
  
   function resizeFreeRadar() {
     if (!freeRadar) return;
-    const box = freeRadar.parentElement;
+    const box  = freeRadar.parentElement;
     const size = Math.floor(Math.min(box.clientWidth - 20, 260));
     freeRadar.width  = size;
     freeRadar.height = size;
@@ -1092,7 +1346,7 @@ window.onload = () => {
     const H = freeRadar.height;
     freeRadarCx = W / 2;
     freeRadarCy = H / 2;
-    const t = FREE_THEMES[freeTheme];
+    const t   = FREE_THEMES[freeTheme];
     const rgb = t.main;
  
     freeRadarCtx.clearRect(0, 0, W, H);
@@ -1159,29 +1413,24 @@ window.onload = () => {
     requestAnimationFrame(drawFreeRadar);
   }
  
-  /* --- GPS widget --- */
-  // FIX: track last rendered GPS values to avoid re-render while user types
   let _lastFreeGpsStr = "";
  
   function updateFreeGps() {
     const el = document.getElementById("freeGps");
     if (!el) return;
  
-    // Don't re-render if user is typing in the address input
     const activeInput = document.getElementById("freeAddrInput");
     if (activeInput && document.activeElement === activeInput) return;
  
-    const latStr  = myLat ? myLat.toFixed(5) : "---";
-    const lonStr  = myLon ? myLon.toFixed(5) : "---";
-    const altStr  = document.getElementById("altStat")   ? document.getElementById("altStat").innerText   : "---";
-    const spdStr  = document.getElementById("speedStat") ? document.getElementById("speedStat").innerText : "---";
-    const gpsKey  = latStr + lonStr + altStr + spdStr;
+    const latStr = myLat ? myLat.toFixed(5) : "---";
+    const lonStr = myLon ? myLon.toFixed(5) : "---";
+    const altStr = document.getElementById("altStat")   ? document.getElementById("altStat").innerText   : "---";
+    const spdStr = document.getElementById("speedStat") ? document.getElementById("speedStat").innerText : "---";
+    const gpsKey = latStr + lonStr + altStr + spdStr;
  
-    // Only rebuild HTML if GPS data changed (preserves input state)
     if (gpsKey === _lastFreeGpsStr) return;
     _lastFreeGpsStr = gpsKey;
  
-    const t = FREE_THEMES[freeTheme];
     el.innerHTML = `
       <div class="free-gps-row"><span>LAT</span><span>${latStr}</span></div>
       <div class="free-gps-row"><span>LON</span><span>${lonStr}</span></div>
@@ -1245,14 +1494,13 @@ window.onload = () => {
     };
   }
  
-  /* --- Free Spotify widget --- */
   function updateFreeSpotify() {
     const el = document.getElementById("freeSpotify");
     if (!el) return;
  
-    const track  = document.getElementById("spotifyTrack")  ? document.getElementById("spotifyTrack").innerText  : "---";
-    const artist = document.getElementById("spotifyArtist") ? document.getElementById("spotifyArtist").innerText : "---";
-    const cover  = document.getElementById("spotifyCover")  ? document.getElementById("spotifyCover").src         : "";
+    const track   = document.getElementById("spotifyTrack")  ? document.getElementById("spotifyTrack").innerText  : "---";
+    const artist  = document.getElementById("spotifyArtist") ? document.getElementById("spotifyArtist").innerText : "---";
+    const cover   = document.getElementById("spotifyCover")  ? document.getElementById("spotifyCover").src         : "";
     const isPlaying = document.getElementById("spotifyPlayBtn") &&
                       document.getElementById("spotifyPlayBtn").innerText === "⏸";
  
@@ -1296,7 +1544,6 @@ window.onload = () => {
     };
   }
  
-  /* --- Theme picker widget --- */
   function buildThemePicker() {
     const el = document.getElementById("freeThemePicker");
     if (!el) return;
@@ -1324,12 +1571,10 @@ window.onload = () => {
     applyFreeTheme(key);
     buildThemePicker();
     freeLog("THEME: " + FREE_THEMES[key].name);
-    // force GPS re-render with new theme colors
     _lastFreeGpsStr = "";
     updateFreeGps();
   };
  
-  /* --- Free loop (GPS + Spotify refresh) --- */
   let freeLoopInterval = null;
  
   function startFreeLoop() {
@@ -1409,25 +1654,25 @@ window.onload = () => {
   }
  
   async function generateCodeChallenge(verifier) {
-    const data = new TextEncoder().encode(verifier);
+    const data   = new TextEncoder().encode(verifier);
     const digest = await crypto.subtle.digest("SHA-256", data);
     return btoa(String.fromCharCode(...new Uint8Array(digest)))
       .replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
   }
  
   async function spotifyAuth() {
-    const codeVerifier = generateCodeVerifier(128);
+    const codeVerifier  = generateCodeVerifier(128);
     const codeChallenge = await generateCodeChallenge(codeVerifier);
     localStorage.setItem("spotify_code_verifier", codeVerifier);
  
     const url = new URL("https://accounts.spotify.com/authorize");
-    url.searchParams.set("client_id", SPOTIFY_CLIENT_ID);
-    url.searchParams.set("response_type", "code");
-    url.searchParams.set("redirect_uri", SPOTIFY_REDIRECT);
-    url.searchParams.set("scope", SPOTIFY_SCOPES);
+    url.searchParams.set("client_id",             SPOTIFY_CLIENT_ID);
+    url.searchParams.set("response_type",         "code");
+    url.searchParams.set("redirect_uri",          SPOTIFY_REDIRECT);
+    url.searchParams.set("scope",                 SPOTIFY_SCOPES);
     url.searchParams.set("code_challenge_method", "S256");
-    url.searchParams.set("code_challenge", codeChallenge);
-    url.searchParams.set("show_dialog", "true");
+    url.searchParams.set("code_challenge",        codeChallenge);
+    url.searchParams.set("show_dialog",           "true");
     window.location.href = url.toString();
   }
  
