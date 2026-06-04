@@ -11,7 +11,58 @@
 </head>
 <body>
  
-  <div class="hud">
+  <!-- =============================================
+       STARSCREAM BOOT INTRO OVERLAY
+  ============================================= -->
+  <div id="bootOverlay">
+    <div class="boot-bg-grid"></div>
+    <div class="boot-scanline"></div>
+ 
+    <div class="boot-logo-wrap">
+      <img src="decepticon_seeker_insignia_by_drawinrook_deo8gia-fullview.png" class="boot-logo" id="bootLogo" alt="Decepticon"/>
+      <div class="boot-logo-ring boot-ring1"></div>
+      <div class="boot-logo-ring boot-ring2"></div>
+      <div class="boot-logo-ring boot-ring3"></div>
+    </div>
+ 
+    <div class="boot-center">
+      <div class="boot-title-wrap">
+        <span class="boot-title-letter" style="--i:0">S</span>
+        <span class="boot-title-letter" style="--i:1">T</span>
+        <span class="boot-title-letter" style="--i:2">A</span>
+        <span class="boot-title-letter" style="--i:3">R</span>
+        <span class="boot-title-letter" style="--i:4">S</span>
+        <span class="boot-title-letter" style="--i:5">C</span>
+        <span class="boot-title-letter" style="--i:6">R</span>
+        <span class="boot-title-letter" style="--i:7">E</span>
+        <span class="boot-title-letter" style="--i:8">A</span>
+        <span class="boot-title-letter" style="--i:9">M</span>
+      </div>
+      <div class="boot-subtitle">DECEPTICON AIR COMMANDER — SYSTEM INITIALIZATION</div>
+ 
+      <div class="boot-voice-line" id="bootVoiceLine">
+        <span class="boot-voice-icon">▶</span>
+        <span id="bootVoiceText">AWAITING INITIALIZATION...</span>
+      </div>
+ 
+      <div class="boot-checks" id="bootChecks"></div>
+ 
+      <div class="boot-bar-wrap">
+        <div class="boot-bar-label">SYSTEM BOOT <span id="bootPercent">0</span>%</div>
+        <div class="boot-bar-track">
+          <div class="boot-bar-fill" id="bootBarFill"></div>
+          <div class="boot-bar-glow" id="bootBarGlow"></div>
+        </div>
+      </div>
+ 
+      <div class="boot-waveform" id="bootWaveform">
+        <canvas id="waveformCanvas" width="400" height="60"></canvas>
+      </div>
+    </div>
+  </div>
+  <!-- FIN BOOT OVERLAY -->
+ 
+  <div class="hud" id="mainHud" style="display:none;">
  
     <!-- LEFT PANEL -->
     <div class="left-panel">
@@ -47,7 +98,7 @@
         </div>
       </div>
  
-    </div><!-- fin .left-panel -->
+    </div>
  
     <!-- CENTER : RADAR -->
     <div class="center">
@@ -125,21 +176,17 @@
         </div>
       </div>
  
-    </div><!-- fin .right-panel -->
+    </div>
  
   </div><!-- fin .hud -->
  
   <!-- SEEKER MODE -->
   <div id="seekerMode" style="display:none;">
- 
-    <!-- INTRO -->
     <div id="seekerIntro" class="seeker-intro">
       <img src="decepticon_seeker_insignia_by_drawinrook_deo8gia-fullview.png" class="intro-logo" id="introLogo"/>
       <div class="intro-text" id="introText">SEEKER MODE INITIALIZING...</div>
       <div class="intro-bar"><div class="intro-fill" id="introFill"></div></div>
     </div>
- 
-    <!-- HUD -->
     <div class="seeker-hud">
       <div class="seeker-header">
         <span class="seeker-title">⚡ SEEKER MODE</span>
@@ -167,22 +214,16 @@
           <div class="seeker-stat-value" id="seekerStatus" style="color:#ff2244;">TRACKING</div>
         </div>
       </div>
-      <div class="seeker-instruction" id="seekerInstruction">
-        ▶ CALCULATING ROUTE...
-      </div>
-    </div><!-- fin .seeker-hud -->
- 
-  </div><!-- fin #seekerMode -->
+      <div class="seeker-instruction" id="seekerInstruction">▶ CALCULATING ROUTE...</div>
+    </div>
+  </div>
  
   <!-- CHILL MODE -->
   <div id="chillMode" style="display:none;">
     <div class="chill-layout">
- 
       <div class="chill-sidebar">
         <h1 class="chill-title">CHILL</h1>
- 
         <div class="chill-chrono" id="chillChrono">00:00:00</div>
- 
         <div class="chill-stats">
           <div class="chill-stat-row">
             <span class="chill-label">SPEED</span>
@@ -201,11 +242,9 @@
             <span class="chill-value" id="chillDist">0.00 km</span>
           </div>
         </div>
- 
         <div class="chill-mini-radar">
           <canvas id="chillRadar"></canvas>
         </div>
- 
         <div class="chill-spotify">
           <div class="spotify-header">♪ SPOTIFY</div>
           <img id="spotifyCover" class="spotify-cover" src="" alt="Album Cover">
@@ -218,49 +257,37 @@
           </div>
           <button id="spotifyConnectBtn">CONNECT SPOTIFY</button>
         </div>
- 
         <button id="exitChillBtn">✕ EXIT</button>
       </div>
- 
       <div class="chill-center">
         <canvas id="musicVisualizer"></canvas>
       </div>
- 
-    </div><!-- fin .chill-layout -->
-  </div><!-- fin #chillMode -->
+    </div>
+  </div>
  
   <!-- FREE MODE -->
   <div id="freeMode" style="display:none;">
- 
     <h1>🔓 FREE MODE</h1>
- 
     <button id="exitFreeBtn">✕ EXIT</button>
- 
     <div class="free-grid">
- 
       <div class="free-widget">
         <h3>RADAR</h3>
         <canvas id="freeRadar"></canvas>
       </div>
- 
       <div class="free-widget">
         <h3>GPS</h3>
         <div id="freeGps">WAITING...</div>
       </div>
- 
       <div class="free-widget">
         <h3>SPOTIFY</h3>
         <div id="freeSpotify">NOT CONNECTED</div>
       </div>
- 
       <div class="free-widget">
         <h3>CONSOLE</h3>
         <div id="freeConsole">STARSCREAM ONLINE</div>
       </div>
- 
     </div>
- 
-  </div><!-- fin #freeMode -->
+  </div>
  
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
