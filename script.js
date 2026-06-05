@@ -153,99 +153,121 @@ window.onload = () => {
  
   // Run the full boot sequence
   async function runBootSequence() {
-    const bootOverlay   = document.getElementById("bootOverlay");
-    const checksEl      = document.getElementById("bootChecks");
-    const voiceTextEl   = document.getElementById("bootVoiceText");
-    const barFill       = document.getElementById("bootBarFill");
-    const barGlow       = document.getElementById("bootBarGlow");
-    const percentEl     = document.getElementById("bootPercent");
+    const bootOverlay = document.getElementById("bootOverlay");
+    const checksEl    = document.getElementById("bootChecks");
+    const voiceTextEl = document.getElementById("bootVoiceText");
+    const barFill     = document.getElementById("bootBarFill");
+    const barGlow     = document.getElementById("bootBarGlow");
+    const percentEl   = document.getElementById("bootPercent");
  
     if (!bootOverlay) { launchHUD(); return; }
  
-    // Start waveform animation
-    startWaveform();
- 
     const delay = ms => new Promise(r => setTimeout(r, ms));
+ 
+    // ── ÉTAPE 1 : formulaire login (remplace prompt() bloquant) ──
+    await new Promise(resolve => {
+      const loginDiv    = document.getElementById("bootLogin");
+      if (!loginDiv) { resolve(); return; }
+      loginDiv.style.display = "flex";
+ 
+      const launchBtn   = document.getElementById("bootLaunchBtn");
+      const callsignInp = document.getElementById("bootCallsignInput");
+      const squadInp    = document.getElementById("bootSquadInput");
+ 
+      const sc = localStorage.getItem("callsign");
+      const sq = localStorage.getItem("squad");
+      if (sc) callsignInp.value = sc;
+      if (sq) squadInp.value    = sq;
+ 
+      function doLaunch() {
+        const c = (callsignInp.value.trim().toUpperCase()) || "UNKNOWN";
+        const s = (squadInp.value.trim().toUpperCase())    || "PUBLIC";
+        window._bootCallsign = c;
+        window._bootSquad    = s;
+        localStorage.setItem("callsign", c);
+        localStorage.setItem("squad",    s);
+        loginDiv.style.display = "none";
+        resolve();
+      }
+ 
+      launchBtn.addEventListener("click", doLaunch);
+      // Aussi sur Enter dans les champs
+      [callsignInp, squadInp].forEach(inp => {
+        inp.addEventListener("keydown", e => { if (e.key === "Enter") doLaunch(); });
+      });
+    });
+ 
+    // ── ÉTAPE 2 : voix + checks (tap déjà fait → speechSynthesis autorisé) ──
+    startWaveform();
+    initVoice();
+ 
     const speak = (text) => new Promise(resolve => {
-      voiceTextEl.innerText = text;
+      if (voiceTextEl) voiceTextEl.innerText = text;
       starscreamSpeak(text, resolve);
     });
  
-    // Opening line
     await speak("Starscream combat system... initializing. All units stand by.");
     await delay(300);
  
-    // Run each check
-    const results = {};
-    const errors  = [];
-    const warnings= [];
+    const results  = {};
+    const errors   = [];
+    const warnings = [];
     const totalChecks = BOOT_CHECKS.length;
  
     for (let i = 0; i < totalChecks; i++) {
-      const check = BOOT_CHECKS[i];
+      const check  = BOOT_CHECKS[i];
       const status = await check.test();
       results[check.key] = status;
  
       if (status === "err")  errors.push(check);
       if (status === "warn") warnings.push(check);
  
-      // Add check item to UI
       const item = document.createElement("div");
       item.className = "boot-check-item " + status;
       item.style.animationDelay = "0s";
-      const icons = { ok: "✔ ONLINE", err: "✖ FAILED", warn: "⚠ DEGRADED" };
-      item.innerHTML = `
-        <span>${check.label}</span>
-        <span class="boot-check-status">${icons[status]}</span>
-      `;
-      checksEl.appendChild(item);
+      const icons = { ok: "\u2714 ONLINE", err: "\u2716 FAILED", warn: "\u26A0 DEGRADED" };
+      item.innerHTML =
+        "<span>" + check.label + "</span>" +
+        "<span class=\"boot-check-status\">" + icons[status] + "</span>";
+      if (checksEl) checksEl.appendChild(item);
  
-      // Progress bar
       const pct = Math.round(((i + 1) / totalChecks) * 100);
-      barFill.style.width = pct + "%";
-      barGlow.style.width = pct + "%";
-      percentEl.innerText = pct;
+      if (barFill)   barFill.style.width = pct + "%";
+      if (barGlow)   barGlow.style.width = pct + "%";
+      if (percentEl) percentEl.innerText = pct;
  
-      // Speak errors immediately
       if (status === "err" || status === "warn") {
         await speak(check.errPhrase);
       }
- 
-      await delay(200);
+      await delay(180);
     }
  
-    // Final verdict
     await delay(400);
  
     if (errors.length === 0 && warnings.length === 0) {
-      // PERFECT BOOT
       await speak(
         "All systems nominal. Radar online. GPS locked. Firebase connected. " +
         "Starscream combat HUD is fully operational. " +
         "Decepticons... prepare for battle."
       );
     } else if (errors.length === 0 && warnings.length > 0) {
-      // WARNINGS ONLY
       await speak(
         "Primary systems are online. " +
-        warnings.length + " module" + (warnings.length > 1 ? "s are" : " is") + " degraded, but we can proceed. " +
-        "Starscream HUD is active. Stay sharp."
+        warnings.length + " module" + (warnings.length > 1 ? "s are" : " is") +
+        " degraded, but we can proceed. Starscream HUD is active. Stay sharp."
       );
     } else {
-      // CRITICAL ERRORS
       await speak(
         "System boot completed with " + errors.length + " critical failure" +
         (errors.length > 1 ? "s" : "") + ". " +
         "Certain capabilities are offline. " +
-        "Proceeding under compromised conditions. " +
-        "Do not disappoint me."
+        "Proceeding under compromised conditions. Do not disappoint me."
       );
     }
  
     await delay(600);
     stopWaveform();
  
-    // Dismiss overlay
     bootOverlay.classList.add("boot-done");
     setTimeout(() => {
       bootOverlay.style.display = "none";
@@ -351,13 +373,9 @@ window.onload = () => {
   const savedCallsign = localStorage.getItem("callsign");
   const savedSquad    = localStorage.getItem("squad");
  
-  const playerCode = (
-    prompt("ENTER CALLSIGN", savedCallsign || "") || "UNKNOWN"
-  ).trim().toUpperCase();
- 
-  const squadCode = (
-    prompt("ENTER SQUAD", savedSquad || "") || "PUBLIC"
-  ).trim().toUpperCase();
+  // Ces valeurs sont remplies par le formulaire du boot overlay
+  const playerCode = (window._bootCallsign || savedCallsign || "UNKNOWN").trim().toUpperCase();
+  const squadCode  = (window._bootSquad    || savedSquad    || "PUBLIC").trim().toUpperCase();
  
   localStorage.setItem("callsign", playerCode);
   localStorage.setItem("squad", squadCode);
