@@ -283,8 +283,81 @@ html, body {
   opacity: 0.7;
 }
  
-/* Boot overlay hidden state */
-#bootOverlay.boot-done {
+/* Boot login form */
+.boot-login {
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  background: rgba(187,102,255,0.06);
+  border: 1px solid rgba(187,102,255,0.3);
+  border-radius: 10px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+ 
+.boot-login-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+ 
+.boot-login-label {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: rgba(187,102,255,0.6);
+}
+ 
+.boot-login-input {
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(187,102,255,0.4);
+  border-radius: 6px;
+  padding: 12px 14px;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  font-size: 16px; /* 16px minimum pour éviter le zoom iOS */
+  letter-spacing: 2px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  text-transform: uppercase;
+}
+ 
+.boot-login-input:focus {
+  border-color: #bb66ff;
+  box-shadow: 0 0 10px rgba(187,102,255,0.4);
+}
+ 
+.boot-login-input::placeholder {
+  color: rgba(187,102,255,0.25);
+  text-transform: none;
+}
+ 
+.boot-launch-btn {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid rgba(187,102,255,0.6);
+  border-radius: 10px;
+  background: rgba(187,102,255,0.15);
+  color: #cc88ff;
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  cursor: pointer;
+  transition: 0.2s;
+  margin-top: 6px;
+  /* Touch friendly */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+ 
+.boot-launch-btn:hover,
+.boot-launch-btn:active {
+  background: rgba(187,102,255,0.35);
+  box-shadow: 0 0 20px rgba(187,102,255,0.5);
+  transform: scale(1.02);
+}
+ 
+ 
   animation: bootFadeOut 0.8s ease forwards;
 }
  
