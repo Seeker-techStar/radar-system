@@ -69,20 +69,32 @@ html, body {
   z-index: 3;
 }
  
-.boot-logo {
-  width: 120px;
-  height: auto;
-  mix-blend-mode: screen;
+.boot-logo-text {
+  font-size: 110px;
+  color: #cc88ff;
+  text-shadow:
+    0 0 20px #bb66ff,
+    0 0 50px #880088,
+    0 0 80px #660066;
   animation: bootLogoPulse 1.5s ease-in-out infinite;
   position: relative;
   z-index: 4;
-  filter: drop-shadow(0 0 20px #bb66ff) drop-shadow(0 0 40px #880088);
+  line-height: 1;
+  user-select: none;
 }
  
 @keyframes bootLogoPulse {
   0%   { opacity: 0.6; transform: scale(0.96); }
   50%  { opacity: 1;   transform: scale(1.04); }
   100% { opacity: 0.6; transform: scale(0.96); }
+}
+ 
+.boot-logo-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: bootLogoPulse 1.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 18px #bb66ff) drop-shadow(0 0 35px #880088);
 }
  
 .boot-logo-ring {
