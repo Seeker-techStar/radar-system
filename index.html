@@ -40,6 +40,19 @@
       </div>
       <div class="boot-subtitle">DECEPTICON AIR COMMANDER — SYSTEM INITIALIZATION</div>
  
+      <!-- LOGIN FORM — remplace les prompt() bloquants -->
+      <div id="bootLogin" class="boot-login" style="display:none;">
+        <div class="boot-login-row">
+          <label class="boot-login-label">CALLSIGN</label>
+          <input id="bootCallsignInput" class="boot-login-input" type="text" maxlength="20" placeholder="EX: STARSCREAM" autocomplete="off" autocorrect="off" spellcheck="false"/>
+        </div>
+        <div class="boot-login-row">
+          <label class="boot-login-label">SQUAD</label>
+          <input id="bootSquadInput" class="boot-login-input" type="text" maxlength="20" placeholder="EX: DECEPTICONS" autocomplete="off" autocorrect="off" spellcheck="false"/>
+        </div>
+        <button id="bootLaunchBtn" class="boot-launch-btn">⚡ LAUNCH SYSTEM</button>
+      </div>
+ 
       <div class="boot-voice-line" id="bootVoiceLine">
         <span class="boot-voice-icon">▶</span>
         <span id="bootVoiceText">AWAITING INITIALIZATION...</span>
@@ -297,3 +310,4 @@
  
 </body>
 </html>
+ 
