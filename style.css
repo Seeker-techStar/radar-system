@@ -477,12 +477,12 @@ html, body {
  
 #miniMap {
   width: 100%;
-  height: 220px;
+  aspect-ratio: 1 / 1;
   border: 1px solid #00d5ff;
   border-radius: 8px;
   margin: auto;
 }
- 
+
 #console {
   height: 120px;
   overflow: hidden;
