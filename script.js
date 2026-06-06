@@ -6,17 +6,12 @@ window.onload = () => {
      STARSCREAM VOICE BOOT SYSTEM
   ========================================= */
  
-  // Starscream voice: uses SpeechSynthesis with settings tuned to sound
-  // commanding, sharp, slightly sinister — closest to Transformers Prime style.
-  // Rate: slow & deliberate. Pitch: low. Voice: prefer a deep English male voice.
- 
   let bootVoice = null;
   let waveformAnim = null;
   let waveformPhase = 0;
  
   function initVoice() {
     const voices = window.speechSynthesis.getVoices();
-    // Priority: deep English UK/US male voice
     const preferred = [
       "Google UK English Male",
       "Microsoft George - English (United Kingdom)",
@@ -28,13 +23,11 @@ window.onload = () => {
       const v = voices.find(v => v.name === name);
       if (v) { bootVoice = v; break; }
     }
-    // Fallback: first English male-ish voice
     if (!bootVoice) {
       bootVoice = voices.find(v => v.lang.startsWith("en")) || voices[0] || null;
     }
   }
  
-  // Try to get voices immediately and after they load
   initVoice();
   window.speechSynthesis.onvoiceschanged = initVoice;
  
@@ -43,8 +36,8 @@ window.onload = () => {
     window.speechSynthesis.cancel();
  
     const utter = new SpeechSynthesisUtterance(text);
-    utter.rate  = 0.82;   // deliberate, authoritative
-    utter.pitch = 0.6;    // deep, slightly threatening
+    utter.rate  = 0.82;
+    utter.pitch = 0.6;
     utter.volume = 1.0;
     if (bootVoice) utter.voice = bootVoice;
  
@@ -54,7 +47,6 @@ window.onload = () => {
     window.speechSynthesis.speak(utter);
   }
  
-  // Animated waveform on boot overlay while voice is speaking
   function startWaveform() {
     const canvas = document.getElementById("waveformCanvas");
     if (!canvas) return;
@@ -101,36 +93,24 @@ window.onload = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
  
-  // Boot checks definition
-  // Each check: { label, key, test: async function -> 'ok'|'err'|'warn', okPhrase, errPhrase }
   const BOOT_CHECKS = [
     {
       label: "FIREBASE DATABASE",
       key: "firebase",
       test: async () => window.firebase ? "ok" : "err",
-      okPhrase: null, // grouped into final summary
       errPhrase: "Warning. Firebase database module failed to load. Network connectivity may be compromised."
     },
     {
       label: "SPEECH SYNTHESIS",
       key: "speech",
       test: async () => window.speechSynthesis ? "ok" : "warn",
-      okPhrase: null,
       errPhrase: "Voice module unavailable. Operating in silent mode."
     },
     {
       label: "GEOLOCATION / GPS",
       key: "gps",
       test: async () => navigator.geolocation ? "ok" : "err",
-      okPhrase: null,
       errPhrase: "Critical failure. GPS module is offline. Position tracking disabled."
-    },
-    {
-      label: "LEAFLET MAPPING",
-      key: "leaflet",
-      test: async () => window.L ? "ok" : "err",
-      okPhrase: null,
-      errPhrase: "Map module failed. Navigation overlay is unavailable."
     },
     {
       label: "LOCAL STORAGE",
@@ -139,83 +119,44 @@ window.onload = () => {
         try { localStorage.setItem("__test__", "1"); localStorage.removeItem("__test__"); return "ok"; }
         catch(e) { return "warn"; }
       },
-      okPhrase: null,
       errPhrase: "Storage module degraded. Persistent data may not be saved."
     },
     {
       label: "AUDIO ENGINE",
       key: "audio",
       test: async () => (window.AudioContext || window.webkitAudioContext) ? "ok" : "warn",
-      okPhrase: null,
       errPhrase: "Audio engine unavailable. Chill mode visualizer will be limited."
     },
   ];
  
-  // Run the full boot sequence
   async function runBootSequence() {
-    const bootOverlay = document.getElementById("bootOverlay");
-    const checksEl    = document.getElementById("bootChecks");
-    const voiceTextEl = document.getElementById("bootVoiceText");
-    const barFill     = document.getElementById("bootBarFill");
-    const barGlow     = document.getElementById("bootBarGlow");
-    const percentEl   = document.getElementById("bootPercent");
+    const bootOverlay   = document.getElementById("bootOverlay");
+    const checksEl      = document.getElementById("bootChecks");
+    const voiceTextEl   = document.getElementById("bootVoiceText");
+    const barFill       = document.getElementById("bootBarFill");
+    const barGlow       = document.getElementById("bootBarGlow");
+    const percentEl     = document.getElementById("bootPercent");
  
     if (!bootOverlay) { launchHUD(); return; }
  
-    const delay = ms => new Promise(r => setTimeout(r, ms));
- 
-    // ── ÉTAPE 1 : formulaire login (remplace prompt() bloquant) ──
-    await new Promise(resolve => {
-      const loginDiv    = document.getElementById("bootLogin");
-      if (!loginDiv) { resolve(); return; }
-      loginDiv.style.display = "flex";
- 
-      const launchBtn   = document.getElementById("bootLaunchBtn");
-      const callsignInp = document.getElementById("bootCallsignInput");
-      const squadInp    = document.getElementById("bootSquadInput");
- 
-      const sc = localStorage.getItem("callsign");
-      const sq = localStorage.getItem("squad");
-      if (sc) callsignInp.value = sc;
-      if (sq) squadInp.value    = sq;
- 
-      function doLaunch() {
-        const c = (callsignInp.value.trim().toUpperCase()) || "UNKNOWN";
-        const s = (squadInp.value.trim().toUpperCase())    || "PUBLIC";
-        window._bootCallsign = c;
-        window._bootSquad    = s;
-        localStorage.setItem("callsign", c);
-        localStorage.setItem("squad",    s);
-        loginDiv.style.display = "none";
-        resolve();
-      }
- 
-      launchBtn.addEventListener("click", doLaunch);
-      // Aussi sur Enter dans les champs
-      [callsignInp, squadInp].forEach(inp => {
-        inp.addEventListener("keydown", e => { if (e.key === "Enter") doLaunch(); });
-      });
-    });
- 
-    // ── ÉTAPE 2 : voix + checks (tap déjà fait → speechSynthesis autorisé) ──
     startWaveform();
-    initVoice();
  
+    const delay = ms => new Promise(r => setTimeout(r, ms));
     const speak = (text) => new Promise(resolve => {
-      if (voiceTextEl) voiceTextEl.innerText = text;
+      voiceTextEl.innerText = text;
       starscreamSpeak(text, resolve);
     });
  
     await speak("Starscream combat system... initializing. All units stand by.");
     await delay(300);
  
-    const results  = {};
-    const errors   = [];
-    const warnings = [];
+    const results = {};
+    const errors  = [];
+    const warnings= [];
     const totalChecks = BOOT_CHECKS.length;
  
     for (let i = 0; i < totalChecks; i++) {
-      const check  = BOOT_CHECKS[i];
+      const check = BOOT_CHECKS[i];
       const status = await check.test();
       results[check.key] = status;
  
@@ -225,21 +166,23 @@ window.onload = () => {
       const item = document.createElement("div");
       item.className = "boot-check-item " + status;
       item.style.animationDelay = "0s";
-      const icons = { ok: "\u2714 ONLINE", err: "\u2716 FAILED", warn: "\u26A0 DEGRADED" };
-      item.innerHTML =
-        "<span>" + check.label + "</span>" +
-        "<span class=\"boot-check-status\">" + icons[status] + "</span>";
-      if (checksEl) checksEl.appendChild(item);
+      const icons = { ok: "✔ ONLINE", err: "✖ FAILED", warn: "⚠ DEGRADED" };
+      item.innerHTML = `
+        <span>${check.label}</span>
+        <span class="boot-check-status">${icons[status]}</span>
+      `;
+      checksEl.appendChild(item);
  
       const pct = Math.round(((i + 1) / totalChecks) * 100);
-      if (barFill)   barFill.style.width = pct + "%";
-      if (barGlow)   barGlow.style.width = pct + "%";
-      if (percentEl) percentEl.innerText = pct;
+      barFill.style.width = pct + "%";
+      barGlow.style.width = pct + "%";
+      percentEl.innerText = pct;
  
       if (status === "err" || status === "warn") {
         await speak(check.errPhrase);
       }
-      await delay(180);
+ 
+      await delay(200);
     }
  
     await delay(400);
@@ -253,15 +196,16 @@ window.onload = () => {
     } else if (errors.length === 0 && warnings.length > 0) {
       await speak(
         "Primary systems are online. " +
-        warnings.length + " module" + (warnings.length > 1 ? "s are" : " is") +
-        " degraded, but we can proceed. Starscream HUD is active. Stay sharp."
+        warnings.length + " module" + (warnings.length > 1 ? "s are" : " is") + " degraded, but we can proceed. " +
+        "Starscream HUD is active. Stay sharp."
       );
     } else {
       await speak(
         "System boot completed with " + errors.length + " critical failure" +
         (errors.length > 1 ? "s" : "") + ". " +
         "Certain capabilities are offline. " +
-        "Proceeding under compromised conditions. Do not disappoint me."
+        "Proceeding under compromised conditions. " +
+        "Do not disappoint me."
       );
     }
  
@@ -280,7 +224,6 @@ window.onload = () => {
     if (hud) hud.style.display = "flex";
   }
  
-  // Start boot sequence
   runBootSequence();
  
   /* =========================================
@@ -349,13 +292,6 @@ window.onload = () => {
   freeLog("STARSCREAM ONLINE");
   freeLog("FIREBASE CONNECTED");
  
-  const map = L.map("miniMap").setView([49.6116, 6.1319], 13);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "© OpenStreetMap"
-  }).addTo(map);
- 
-  let myMarker = null;
- 
   const savedTarget = localStorage.getItem("customTarget");
   const TARGET = savedTarget ? JSON.parse(savedTarget) : {
     name: "LUXEMBOURG CITY",
@@ -363,19 +299,16 @@ window.onload = () => {
     lon: 6.1319
   };
  
-  const targetMarker = L.circleMarker([TARGET.lat, TARGET.lon], {
-    radius: 8,
-    color: "#00ff88",
-    fillColor: "#00ff88",
-    fillOpacity: 0.8
-  }).addTo(map).bindPopup("TARGET: " + TARGET.name);
- 
   const savedCallsign = localStorage.getItem("callsign");
   const savedSquad    = localStorage.getItem("squad");
  
-  // Ces valeurs sont remplies par le formulaire du boot overlay
-  const playerCode = (window._bootCallsign || savedCallsign || "UNKNOWN").trim().toUpperCase();
-  const squadCode  = (window._bootSquad    || savedSquad    || "PUBLIC").trim().toUpperCase();
+  const playerCode = (
+    prompt("ENTER CALLSIGN", savedCallsign || "") || "UNKNOWN"
+  ).trim().toUpperCase();
+ 
+  const squadCode = (
+    prompt("ENTER SQUAD", savedSquad || "") || "PUBLIC"
+  ).trim().toUpperCase();
  
   localStorage.setItem("callsign", playerCode);
   localStorage.setItem("squad", squadCode);
@@ -416,19 +349,6 @@ window.onload = () => {
     if (destDistance) destDistance.innerText = distance.toFixed(1) + " km";
     if (destDirection) destDirection.innerText = direction;
     if (destStatus) destStatus.innerText = distance < 1 ? "REACHED" : "TRACKING";
- 
-    if (!myMarker) {
-      myMarker = L.circleMarker([lat, lon], {
-        radius: 8,
-        color: "#bb66ff",
-        fillColor: "#bb66ff",
-        fillOpacity: 0.9
-      }).addTo(map).bindPopup(playerCode);
-    } else {
-      myMarker.setLatLng([lat, lon]);
-    }
- 
-    map.setView([lat, lon], 13);
  
     if (latStat) latStat.innerText = lat.toFixed(5);
     if (lonStat) lonStat.innerText = lon.toFixed(5);
@@ -738,9 +658,6 @@ window.onload = () => {
  
       if (targetCityEl) targetCityEl.innerText = TARGET.name;
       if (destStatus) destStatus.innerText = "TRACKING";
- 
-      targetMarker.setLatLng([TARGET.lat, TARGET.lon]);
-      targetMarker.setPopupContent("TARGET: " + TARGET.name);
  
       searchResult.innerHTML = `<p style="color:#00d5ff; font-size:11px;">✔ TARGET LOCKED</p>`;
       trackTargetBtn.style.display = "none";
