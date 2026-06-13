@@ -326,6 +326,7 @@ window.onload = () => {
   console.log("Firebase connecté");
   freeLog("STARSCREAM ONLINE");
   freeLog("FIREBASE CONNECTED");
+
  
   const map = L.map("miniMap").setView([49.6116, 6.1319], 13);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -1757,6 +1758,46 @@ window.onload = () => {
       setTimeout(spotifyGetCurrent, 600);
     };
   }
+ /* =========================================
+   TECHSTAR COMMAND LISTENER
+========================================= */
+
+db.ref("techstar/commands/current").on("value", snapshot => {
+  const cmd = snapshot.val();
+  if (!cmd) return;
+
+  console.log("TECHSTAR COMMAND:", cmd);
+
+  switch (cmd.action) {
+
+    case "seeker_mode":
+      if (enterSeekerBtn) enterSeekerBtn.click();
+      break;
+
+    case "chill_mode":
+      if (enterChillBtn) enterChillBtn.click();
+      break;
+
+    case "free_mode":
+      if (enterFreeBtn) enterFreeBtn.click();
+      break;
+
+    case "spotify_play":
+      if (spotifyPlayBtn) spotifyPlayBtn.click();
+      break;
+
+    case "spotify_next":
+      if (spotifyNextBtn) spotifyNextBtn.click();
+      break;
+
+    case "spotify_prev":
+      if (spotifyPrevBtn) spotifyPrevBtn.click();
+      break;
+
+    default:
+      console.log("Commande inconnue:", cmd.action);
+  }
+});
  
 };
     
