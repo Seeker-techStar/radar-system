@@ -47,9 +47,11 @@ window.onload = () => {
     utter.pitch = 0.6;    // deep, slightly threatening
     utter.volume = 1.0;
     if (bootVoice) utter.voice = bootVoice;
- 
-    utter.onend = () => { if (onEnd) onEnd(); };
-    utter.onerror = () => { if (onEnd) onEnd(); };
+   
+ utter.onend  = () => { if (onEnd) onEnd(); };
+utter.onerror = () => { if (onEnd) onEnd(); };
+// Timeout vocal securite pour mobile
+setTimeout(() => { if (onEnd) onEnd(); }, 8000);
  
     window.speechSynthesis.speak(utter);
   }
@@ -257,7 +259,16 @@ window.onload = () => {
     const hud = document.getElementById("mainHud");
     if (hud) hud.style.display = "flex";
   }
- 
+ // Timeout securite — force le lancement apres 15 secondes
+setTimeout(() => {
+  const overlay = document.getElementById("bootOverlay");
+  if (overlay && overlay.style.display !== "none") {
+    overlay.style.display = "none";
+    launchHUD();
+  }
+}, 15000);
+
+runBootSequence();
   // Start boot sequence
   runBootSequence();
  
