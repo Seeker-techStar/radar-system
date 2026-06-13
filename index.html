@@ -4,22 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>STARSCREAM</title>
-  <link rel="stylesheet" href="style.css?v=100">
+  <link rel="stylesheet" href="style.css?v=99">
   <link rel="stylesheet" href="free-mode.css">
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 </head>
 <body>
-
+ 
+  <!-- =============================================
+       STARSCREAM BOOT INTRO OVERLAY
+  ============================================= -->
   <div id="bootOverlay">
     <div class="boot-bg-grid"></div>
     <div class="boot-scanline"></div>
+ 
     <div class="boot-logo-wrap">
       <div id="bootLogo" class="boot-logo-text">⬡</div>
       <div class="boot-logo-ring boot-ring1"></div>
       <div class="boot-logo-ring boot-ring2"></div>
       <div class="boot-logo-ring boot-ring3"></div>
     </div>
+ 
     <div class="boot-center">
       <div class="boot-title-wrap">
         <span class="boot-title-letter" style="--i:0">S</span>
@@ -34,11 +39,14 @@
         <span class="boot-title-letter" style="--i:9">M</span>
       </div>
       <div class="boot-subtitle">DECEPTICON AIR COMMANDER — SYSTEM INITIALIZATION</div>
+ 
       <div class="boot-voice-line" id="bootVoiceLine">
         <span class="boot-voice-icon">▶</span>
         <span id="bootVoiceText">AWAITING INITIALIZATION...</span>
       </div>
+ 
       <div class="boot-checks" id="bootChecks"></div>
+ 
       <div class="boot-bar-wrap">
         <div class="boot-bar-label">SYSTEM BOOT <span id="bootPercent">0</span>%</div>
         <div class="boot-bar-track">
@@ -46,18 +54,22 @@
           <div class="boot-bar-glow" id="bootBarGlow"></div>
         </div>
       </div>
+ 
       <div class="boot-waveform" id="bootWaveform">
         <canvas id="waveformCanvas" width="400" height="60"></canvas>
       </div>
     </div>
   </div>
-
+  <!-- FIN BOOT OVERLAY -->
+ 
   <div class="hud" id="mainHud" style="display:none;">
-
+ 
+    <!-- LEFT PANEL -->
     <div class="left-panel">
+ 
       <h1 class="title">STARSCREAM</h1>
       <p class="subtitle">SIC-AIR COMMANDER OF DECEPTICONS</p>
-
+ 
       <div class="box collapsible draggable">
         <button id="disconnectBtn">DISCONNECT</button>
         <h2 class="box-header">SYSTEM STATUS</h2>
@@ -68,7 +80,7 @@
           <p>SHIELD <span id="energyStat">100%</span></p>
         </div>
       </div>
-
+ 
       <div class="box collapsible draggable">
         <h2 class="box-header">TACTICAL DATA</h2>
         <div class="box-content">
@@ -78,27 +90,30 @@
           <p>TEMP : <span id="tempStat">0°C</span></p>
         </div>
       </div>
-
+ 
       <div class="box collapsible draggable">
         <h2 class="box-header">ONLINE PILOTS</h2>
         <div class="box-content">
           <div id="onlineList"></div>
         </div>
       </div>
+ 
     </div>
-
+ 
+    <!-- CENTER : RADAR -->
     <div class="center">
       <canvas id="radar"></canvas>
       <div class="bottom-text" id="statusText">SCANNING AREA...</div>
     </div>
-
+ 
+    <!-- RIGHT PANEL -->
     <div class="right-panel">
-
+ 
       <div class="box">
         <h2>TARGETS</h2>
         <div class="target-number" id="targetCount">0</div>
       </div>
-
+ 
       <div class="box collapsible draggable">
         <h2 class="box-header">COORDINATES</h2>
         <div class="box-content">
@@ -107,19 +122,19 @@
           <p>ALT : <span id="altStat">0m</span></p>
         </div>
       </div>
-
+ 
       <div class="box">
         <button id="enterSeekerBtn">⚡ SEEKER MODE</button>
       </div>
-
+ 
       <div class="box">
         <button id="enterChillBtn">🎵 CHILL MODE</button>
       </div>
-
+ 
       <div class="box">
         <button id="enterFreeBtn">🔓 FREE MODE</button>
       </div>
-
+ 
       <div class="box collapsible draggable">
         <h2 class="box-header">NAVIGATION</h2>
         <div class="box-content">
@@ -129,7 +144,7 @@
           <p>STATUS : <span id="destStatus">TRACKING</span></p>
         </div>
       </div>
-
+ 
       <div class="box collapsible draggable">
         <h2 class="box-header">SET TARGET</h2>
         <div class="box-content">
@@ -142,28 +157,29 @@
           </div>
         </div>
       </div>
-
+ 
       <div class="box collapsible draggable">
         <h2 class="box-header">MINI MAP</h2>
         <div class="box-content">
           <div id="miniMap"></div>
         </div>
       </div>
-
+ 
       <div class="box collapsible draggable">
         <h2 class="box-header">CONSOLE</h2>
         <div class="box-content">
           <div id="console">
-            <p>&gt; SYSTEM ONLINE</p>
-            <p>&gt; RADAR ACTIVE</p>
-            <p>&gt; LIVE NETWORK CONNECTED</p>
+            <p>> SYSTEM ONLINE</p>
+            <p>> RADAR ACTIVE</p>
+            <p>> LIVE NETWORK CONNECTED</p>
           </div>
         </div>
       </div>
-
+ 
     </div>
-  </div>
-
+ 
+  </div><!-- fin .hud -->
+ 
   <!-- SEEKER MODE -->
   <div id="seekerMode" style="display:none;">
     <div id="seekerIntro" class="seeker-intro">
@@ -201,7 +217,7 @@
       <div class="seeker-instruction" id="seekerInstruction">▶ CALCULATING ROUTE...</div>
     </div>
   </div>
-
+ 
   <!-- CHILL MODE -->
   <div id="chillMode" style="display:none;">
     <div class="chill-layout">
@@ -248,7 +264,7 @@
       </div>
     </div>
   </div>
-
+ 
   <!-- FREE MODE -->
   <div id="freeMode" style="display:none;">
     <h1>🔓 FREE MODE</h1>
@@ -272,13 +288,12 @@
       </div>
     </div>
   </div>
-
+ 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="script.js?v=100" defer></script>
-
+  <script src="script.js?v=99" defer></script>
+ 
 </body>
 </html>
